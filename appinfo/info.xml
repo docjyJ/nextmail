@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+	<id>stalwart</id>
+	<name>Stalwart</name>
+	<summary>Configure Stalwart from Nextcloud.</summary>
+	<description>This application allows you to manage your Stalwart backend directly in Nextcloud.
+
+Users, groups and authentication information will be directly integrated into Nextcloud</description>
+	<version>1.0.0</version>
+	<licence>agpl</licence>
+	<author mail="7360784+docjyJ@users.noreply.github.com" homepage="https://github.com/docjyJ">Jean-Yves</author>
+	<namespace>Stalwart</namespace>
+	<category>tools</category>
+	<bugs>https://github.com/docjyJ/nextcloud-stalwart/issues</bugs>
+	<dependencies>
+		<nextcloud min-version="29" max-version="29"/>
+	</dependencies>
+	<navigations>
+		<navigation>
+			<id>stalwart</id>
+			<name>Stalwart</name>
+			<route>stalwart.page.index</route>
+			<icon>app.svg</icon>
+			<type>link</type>
+		</navigation>
+	</navigations>
+</info>
