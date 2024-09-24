@@ -7,7 +7,7 @@
 	<description>This application allows you to manage your Stalwart backend directly in Nextcloud.
 
 Users, groups and authentication information will be directly integrated into Nextcloud</description>
-	<version>1.0.0</version>
+	<version>0.1.0</version>
 	<licence>agpl</licence>
 	<author mail="7360784+docjyJ@users.noreply.github.com" homepage="https://github.com/docjyJ">Jean-Yves</author>
 	<namespace>Stalwart</namespace>
@@ -16,13 +16,8 @@ Users, groups and authentication information will be directly integrated into Ne
 	<dependencies>
 		<nextcloud min-version="29" max-version="29"/>
 	</dependencies>
-	<navigations>
-		<navigation>
-			<id>stalwart</id>
-			<name>Stalwart</name>
-			<route>stalwart.page.index</route>
-			<icon>app.svg</icon>
-			<type>link</type>
-		</navigation>
-	</navigations>
+	<settings>
+		<admin>OCA\Stalwart\Settings\Admin</admin>
+		<admin-section>OCA\Stalwart\Settings\Section</admin-section>
+	</settings>
 </info>

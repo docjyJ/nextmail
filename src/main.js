@@ -1,6 +1,13 @@
 import Vue from 'vue'
-import App from './App.vue'
-Vue.mixin({ methods: { t, n } })
+import Admin from './Admin.vue'
+import { translate } from '@nextcloud/l10n'
 
-const View = Vue.extend(App)
-new View().$mount('#stalwart')
+function translateStalwart(key) {
+	return translate('stalwart', key)
+}
+
+Vue.prototype.t = translateStalwart
+window.t = translateStalwart
+
+const View = Vue.extend(Admin)
+new View({}).$mount('#main')
