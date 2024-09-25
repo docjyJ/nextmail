@@ -1,13 +1,14 @@
-import Vue from 'vue'
 import Admin from './Admin.vue'
-import { translate } from '@nextcloud/l10n'
+import { createApp } from 'vue'
 
-function translateStalwart(key) {
-	return translate('stalwart', key)
+if (!OCA.Stalwart) {
+	/**
+	 * @namespace OCA.Stalwart
+	 */
+	OCA.Stalwart = {}
 }
 
-Vue.prototype.t = translateStalwart
-window.t = translateStalwart
+const Stalwart = createApp(Admin)
+	.mount('#main')
 
-const View = Vue.extend(Admin)
-new View({}).$mount('#main')
+OCA.Stalwart.App = Stalwart

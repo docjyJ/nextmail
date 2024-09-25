@@ -1,7 +1,7 @@
 import axios from '@nextcloud/axios'
 import { generateOcsUrl } from '@nextcloud/router'
-import { showError, showSuccess } from '@nextcloud/dialogs'
-
+import { showError, showSuccess } from './nextcloud/dialogs.js'
+import t from './translate.js'
 /** @typedef {{endpoint: string, username: string, password: string}} StalwartServer */
 /** @typedef {{type: string, text: string}} StalwartServerStatus */
 

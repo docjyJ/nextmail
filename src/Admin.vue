@@ -5,17 +5,17 @@
 			:description="t('Configure the Stalwart server connection. The Salwart URL is http or https. Don\'t forget to include the port number if is not a standard port. Add api at the end of the URL.')"
 			doc-url="#todo">
 			<div class="line-inputs vertical">
-				<NcTextField :value.sync="server.endpoint"
+				<NcTextField v-model="server.endpoint"
 					:label="t('Stalwart API endpoint URL')"
 					placeholder="https://mail.example.com:443/api"
 					:disabled="disabled" />
 				<div class="line-inputs">
-					<NcTextField :value.sync="server.username"
+					<NcTextField v-model="server.username"
 						:label="t('Username')"
 						placeholder="admin"
 						:disabled="disabled" />
 
-					<NcPasswordField :value.sync="server.password"
+					<NcPasswordField v-model="server.password"
 						:label="t('Password')"
 						placeholder="****************"
 						:disabled="disabled" />
@@ -44,6 +44,7 @@ import NcPasswordField from '@nextcloud/vue/dist/Components/NcPasswordField.js'
 import NcSettingsSection from '@nextcloud/vue/dist/Components/NcSettingsSection.js'
 import NcTextField from '@nextcloud/vue/dist/Components/NcTextField.js'
 import ContentSaveIcon from 'vue-material-design-icons/ContentSave.vue'
+import t from './translate.js'
 
 export default {
 	name: 'Admin',
@@ -75,6 +76,7 @@ export default {
 		this.onLoad()
 	},
 	methods: {
+		t,
 		async onLoad() {
 			if (!this.disabled) {
 				this.disabled = true
@@ -95,7 +97,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .line-inputs {
   display: flex;
   align-items: baseline;
