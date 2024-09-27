@@ -35,18 +35,14 @@
 	</div>
 </template>
 
-<script>
-import { getServer, getStatu, setServers } from './network.js'
-import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
-import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
-import NcNoteCard from '@nextcloud/vue/dist/Components/NcNoteCard.js'
-import NcPasswordField from '@nextcloud/vue/dist/Components/NcPasswordField.js'
-import NcSettingsSection from '@nextcloud/vue/dist/Components/NcSettingsSection.js'
-import NcTextField from '@nextcloud/vue/dist/Components/NcTextField.js'
+<script lang="ts">
+import { defineComponent } from 'vue'
+import { getServer, getStatu, setServers } from './network'
+import { NcButton, NcLoadingIcon, NcNoteCard, NcPasswordField, NcSettingsSection, NcTextField } from '@nextcloud/vue'
 import ContentSaveIcon from 'vue-material-design-icons/ContentSave.vue'
-import t from './translate.js'
+import t from './l10n.ts'
 
-export default {
+export default defineComponent({
 	name: 'Admin',
 	components: {
 		NcButton,
@@ -57,6 +53,9 @@ export default {
 		NcTextField,
 		ContentSaveIcon,
 	},
+	inject: {},
+	props: {},
+	emits: [],
 	data() {
 		return {
 			server: {
@@ -72,6 +71,7 @@ export default {
 			disabled: false,
 		}
 	},
+	computed: [],
 	created() {
 		this.onLoad()
 	},
@@ -94,7 +94,7 @@ export default {
 			}
 		},
 	},
-}
+})
 </script>
 
 <style>
