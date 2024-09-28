@@ -22,7 +22,8 @@
 		"openapi": "generate-spec"
 	},
 	"require": {
-		"php": "^8.1"
+		"php": "^8.1",
+		"doctrine/dbal": "^4.1"
 	},
 	"require-dev": {
 		"nextcloud/coding-standard": "^1.3",

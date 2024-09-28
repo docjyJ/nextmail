@@ -3,7 +3,7 @@
 namespace OCA\Stalwart\Service;
 
 use Exception;
-use OCA\Stalwart\Models\StalwartServer;
+use OCA\Stalwart\Db\ServerConfig;
 use OCP\Http\Client\IClientService;
 use OCP\Http\Client\IResponse;
 use Throwable;
@@ -49,7 +49,7 @@ class StalwartApiService {
 	}
 
 	/** @return array{type: string, text: string} */
-	public function status(StalwartServer $server): array {
+	public function status(ServerConfig $server): array {
 		if (!$server->isValid()) {
 			return self::INVALID_CONNECTION;
 		}

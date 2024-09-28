@@ -47,7 +47,7 @@
         }
     },
     "paths": {
-        "/ocs/v2.php/apps/stalwart/servers": {
+        "/ocs/v2.php/apps/stalwart/config": {
             "get": {
                 "operationId": "api-list-servers",
                 "summary": "List all available servers",
@@ -99,8 +99,28 @@
                                                 "data": {
                                                     "type": "array",
                                                     "items": {
-                                                        "type": "integer",
-                                                        "format": "int64"
+                                                        "type": "object",
+                                                        "required": [
+                                                            "id",
+                                                            "endpoint",
+                                                            "username",
+                                                            "password"
+                                                        ],
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "format": "int64"
+                                                            },
+                                                            "endpoint": {
+                                                                "type": "string"
+                                                            },
+                                                            "username": {
+                                                                "type": "string"
+                                                            },
+                                                            "password": {
+                                                                "type": "string"
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
@@ -111,7 +131,9 @@
                         }
                     }
                 }
-            },
+            }
+        },
+        "/ocs/v2.php/apps/stalwart/servers": {
             "post": {
                 "operationId": "api-add-server",
                 "summary": "Add a new server",
@@ -163,12 +185,24 @@
                                                 "data": {
                                                     "type": "object",
                                                     "required": [
-                                                        "id"
+                                                        "id",
+                                                        "endpoint",
+                                                        "username",
+                                                        "password"
                                                     ],
                                                     "properties": {
                                                         "id": {
                                                             "type": "integer",
                                                             "format": "int64"
+                                                        },
+                                                        "endpoint": {
+                                                            "type": "string"
+                                                        },
+                                                        "username": {
+                                                            "type": "string"
+                                                        },
+                                                        "password": {
+                                                            "type": "string"
                                                         }
                                                     }
                                                 }
@@ -182,7 +216,7 @@
                 }
             }
         },
-        "/ocs/v2.php/apps/stalwart/servers/{id}/config": {
+        "/ocs/v2.php/apps/stalwart/config/{id}": {
             "get": {
                 "operationId": "api-get-server-config",
                 "summary": "Get the configuration of a server number `id`",
@@ -244,11 +278,16 @@
                                                 "data": {
                                                     "type": "object",
                                                     "required": [
+                                                        "id",
                                                         "endpoint",
                                                         "username",
                                                         "password"
                                                     ],
                                                     "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "format": "int64"
+                                                        },
                                                         "endpoint": {
                                                             "type": "string"
                                                         },
@@ -364,8 +403,56 @@
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "The server configuration has been set"
+                    "200": {
+                        "description": "The server configuration has been set",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "id",
+                                                        "endpoint",
+                                                        "username",
+                                                        "password"
+                                                    ],
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "format": "int64"
+                                                        },
+                                                        "endpoint": {
+                                                            "type": "string"
+                                                        },
+                                                        "username": {
+                                                            "type": "string"
+                                                        },
+                                                        "password": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     },
                     "404": {
                         "description": "If the server number `id` does not exist",
@@ -398,7 +485,7 @@
                 }
             }
         },
-        "/ocs/v2.php/apps/stalwart/servers/{id}/status": {
+        "/ocs/v2.php/apps/stalwart/{id}/status": {
             "get": {
                 "operationId": "api-get-server-status",
                 "summary": "Get the status of the configuration of a server number `id`",
