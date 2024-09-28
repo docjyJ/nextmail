@@ -1,6 +1,6 @@
 <template>
 	<div id="stalwart" class="section">
-		<NcNoteCard :type="statu.type" :text="statu.text" />
+		<NcNoteCard :type="status.type" :content="status.text" />
 		<NcSettingsSection :name="t('Stalwart server configuration')"
 			:description="t('Configure the Stalwart server connection. The Salwart URL is http or https. Don\'t forget to include the port number if is not a standard port. Add api at the end of the URL.')"
 			doc-url="#todo">
@@ -37,10 +37,10 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { getServer, getStatu, setServers } from './network'
+import { getServerConfig, getStatus, setServers } from './api_controller'
 import { NcButton, NcLoadingIcon, NcNoteCard, NcPasswordField, NcSettingsSection, NcTextField } from '@nextcloud/vue'
 import ContentSaveIcon from 'vue-material-design-icons/ContentSave.vue'
-import t from './l10n.ts'
+import t from './l10n'
 
 export default defineComponent({
 	name: 'Admin',
@@ -53,9 +53,6 @@ export default defineComponent({
 		NcTextField,
 		ContentSaveIcon,
 	},
-	inject: {},
-	props: {},
-	emits: [],
 	data() {
 		return {
 			server: {
@@ -63,7 +60,7 @@ export default defineComponent({
 				username: '',
 				password: '',
 			},
-			statu: {
+			status: {
 				type: 'info',
 				text: t('Stalwart server not loaded'),
 			},
@@ -71,7 +68,6 @@ export default defineComponent({
 			disabled: false,
 		}
 	},
-	computed: [],
 	created() {
 		this.onLoad()
 	},
@@ -80,8 +76,8 @@ export default defineComponent({
 		async onLoad() {
 			if (!this.disabled) {
 				this.disabled = true
-				this.server = await getServer(this.id) ?? this.server
-				this.statu = await getStatu(this.id) ?? this.statu
+				this.server = await getServerConfig(this.id) ?? this.server
+				this.status = await getStatus(this.id) ?? this.status
 				this.disabled = false
 			}
 		},
@@ -89,7 +85,7 @@ export default defineComponent({
 			if (!this.disabled) {
 				this.disabled = true
 				await setServers(this.id, this.server)
-				this.statu = await getStatu(this.id) ?? this.statu
+				this.status = await getStatus(this.id) ?? this.status
 				this.disabled = false
 			}
 		},

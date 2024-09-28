@@ -30,6 +30,35 @@ class ApiController extends OCSController {
 		parent::__construct($appName, $request);
 	}
 
+
+	/**
+	 * List all available servers
+	 * @return DataResponse<Http::STATUS_OK, list<int>, array{}>
+	 *
+	 * 200: Returns the list of available servers
+	 */
+	#[AuthorizedAdminSetting(Admin::class)]
+	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
+	#[ApiRoute(verb: 'GET', url: '/servers')]
+	public function listServers(): DataResponse {
+		$server = $this->serverService->listServers();
+		return new DataResponse($server, Http::STATUS_OK, []);
+	}
+
+	/**
+	 * Add a new server
+	 * @return DataResponse<Http::STATUS_OK, array{id: int}, array{}>
+	 *
+	 * 200: Returns the number of the new server
+	 */
+	#[AuthorizedAdminSetting(Admin::class)]
+	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
+	#[ApiRoute(verb: 'POST', url: '/servers')]
+	public function addServer(): DataResponse {
+		$server = $this->serverService->pushServer();
+		return new DataResponse(['id' => $server], Http::STATUS_OK, []);
+	}
+
 	/**
 	 * Get the configuration of a server number `id`
 	 * @param int $id The server number
@@ -40,8 +69,8 @@ class ApiController extends OCSController {
 	 */
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
-	#[ApiRoute(verb: 'GET', url: '/servers/{id}')]
-	public function get(int $id): DataResponse {
+	#[ApiRoute(verb: 'GET', url: '/servers/{id}/config')]
+	public function getServerConfig(int $id): DataResponse {
 		$server = $this->serverService->getServer($id);
 		if ($server === null) {
 			throw new OCSNotFoundException();
@@ -58,15 +87,19 @@ class ApiController extends OCSController {
 	 * @param string $username The username to authenticate with
 	 * @param string $password The password to authenticate with
 	 * @return Response<Http::STATUS_CREATED, array{}>
+	 * @throws OCSNotFoundException If the server number `id` does not exist
 	 *
 	 * 201: The server configuration has been set
 	 */
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
-	#[ApiRoute(verb: 'POST', url: '/servers/{id}')]
-	public function set(int $id, string $endpoint, string $username, string $password): Response {
-		$this->serverService->setServer($id, $endpoint, $username, $password);
-		return new Response(Http::STATUS_CREATED, []);
+	#[ApiRoute(verb: 'POST', url: '/servers/{id}/config')]
+	public function setServerConfig(int $id, string $endpoint, string $username, string $password): Response {
+		if ($this->serverService->setServer($id, $endpoint, $username, $password)) {
+			return new Response(Http::STATUS_CREATED, []);
+		} else {
+			throw new OCSNotFoundException();
+		}
 	}
 
 	/**
@@ -80,7 +113,7 @@ class ApiController extends OCSController {
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
 	#[ApiRoute(verb: 'GET', url: '/servers/{id}/status')]
-	public function status(int $id): Response {
+	public function getServerStatus(int $id): Response {
 		$server = $this->serverService->getServer($id);
 		if ($server === null) {
 			throw new OCSNotFoundException();

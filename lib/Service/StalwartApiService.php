@@ -54,7 +54,7 @@ class StalwartApiService {
 			return self::INVALID_CONNECTION;
 		}
 		$client = $this->clientService->newClient();
-		try {//{"type":"Code","client_id":"webadmin","redirect_uri":null}
+		try {
 			$response = $client->post($server->getURL('/oauth'), [
 				'body' => '{"type":"Code","client_id":"nextcloud","redirect_uri":null}',
 				'headers' => ['Authorization' => $server->getAuthorization()]
