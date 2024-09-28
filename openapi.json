@@ -20,6 +20,30 @@
             }
         },
         "schemas": {
+            "JsonServerConfig": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "endpoint",
+                    "username",
+                    "password"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "endpoint": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                }
+            },
             "OCSMeta": {
                 "type": "object",
                 "required": [
@@ -49,11 +73,11 @@
     "paths": {
         "/ocs/v2.php/apps/stalwart/config": {
             "get": {
-                "operationId": "api-list-servers",
+                "operationId": "config-list-servers",
                 "summary": "List all available servers",
                 "description": "This endpoint requires admin access",
                 "tags": [
-                    "api"
+                    "config"
                 ],
                 "security": [
                     {
@@ -99,28 +123,7 @@
                                                 "data": {
                                                     "type": "array",
                                                     "items": {
-                                                        "type": "object",
-                                                        "required": [
-                                                            "id",
-                                                            "endpoint",
-                                                            "username",
-                                                            "password"
-                                                        ],
-                                                        "properties": {
-                                                            "id": {
-                                                                "type": "integer",
-                                                                "format": "int64"
-                                                            },
-                                                            "endpoint": {
-                                                                "type": "string"
-                                                            },
-                                                            "username": {
-                                                                "type": "string"
-                                                            },
-                                                            "password": {
-                                                                "type": "string"
-                                                            }
-                                                        }
+                                                        "$ref": "#/components/schemas/JsonServerConfig"
                                                     }
                                                 }
                                             }
@@ -131,15 +134,13 @@
                         }
                     }
                 }
-            }
-        },
-        "/ocs/v2.php/apps/stalwart/servers": {
+            },
             "post": {
-                "operationId": "api-add-server",
+                "operationId": "config-add-server",
                 "summary": "Add a new server",
                 "description": "This endpoint requires admin access",
                 "tags": [
-                    "api"
+                    "config"
                 ],
                 "security": [
                     {
@@ -183,28 +184,7 @@
                                                     "$ref": "#/components/schemas/OCSMeta"
                                                 },
                                                 "data": {
-                                                    "type": "object",
-                                                    "required": [
-                                                        "id",
-                                                        "endpoint",
-                                                        "username",
-                                                        "password"
-                                                    ],
-                                                    "properties": {
-                                                        "id": {
-                                                            "type": "integer",
-                                                            "format": "int64"
-                                                        },
-                                                        "endpoint": {
-                                                            "type": "string"
-                                                        },
-                                                        "username": {
-                                                            "type": "string"
-                                                        },
-                                                        "password": {
-                                                            "type": "string"
-                                                        }
-                                                    }
+                                                    "$ref": "#/components/schemas/JsonServerConfig"
                                                 }
                                             }
                                         }
@@ -218,11 +198,11 @@
         },
         "/ocs/v2.php/apps/stalwart/config/{id}": {
             "get": {
-                "operationId": "api-get-server-config",
+                "operationId": "config-get-server-config",
                 "summary": "Get the configuration of a server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
-                    "api"
+                    "config"
                 ],
                 "security": [
                     {
@@ -276,28 +256,7 @@
                                                     "$ref": "#/components/schemas/OCSMeta"
                                                 },
                                                 "data": {
-                                                    "type": "object",
-                                                    "required": [
-                                                        "id",
-                                                        "endpoint",
-                                                        "username",
-                                                        "password"
-                                                    ],
-                                                    "properties": {
-                                                        "id": {
-                                                            "type": "integer",
-                                                            "format": "int64"
-                                                        },
-                                                        "endpoint": {
-                                                            "type": "string"
-                                                        },
-                                                        "username": {
-                                                            "type": "string"
-                                                        },
-                                                        "password": {
-                                                            "type": "string"
-                                                        }
-                                                    }
+                                                    "$ref": "#/components/schemas/JsonServerConfig"
                                                 }
                                             }
                                         }
@@ -337,11 +296,11 @@
                 }
             },
             "post": {
-                "operationId": "api-set-server-config",
+                "operationId": "config-set-server-config",
                 "summary": "Set the configuration of a server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
-                    "api"
+                    "config"
                 ],
                 "security": [
                     {
@@ -424,28 +383,7 @@
                                                     "$ref": "#/components/schemas/OCSMeta"
                                                 },
                                                 "data": {
-                                                    "type": "object",
-                                                    "required": [
-                                                        "id",
-                                                        "endpoint",
-                                                        "username",
-                                                        "password"
-                                                    ],
-                                                    "properties": {
-                                                        "id": {
-                                                            "type": "integer",
-                                                            "format": "int64"
-                                                        },
-                                                        "endpoint": {
-                                                            "type": "string"
-                                                        },
-                                                        "username": {
-                                                            "type": "string"
-                                                        },
-                                                        "password": {
-                                                            "type": "string"
-                                                        }
-                                                    }
+                                                    "$ref": "#/components/schemas/JsonServerConfig"
                                                 }
                                             }
                                         }
@@ -485,13 +423,13 @@
                 }
             }
         },
-        "/ocs/v2.php/apps/stalwart/{id}/status": {
+        "/ocs/v2.php/apps/stalwart/status/{id}": {
             "get": {
-                "operationId": "api-get-server-status",
+                "operationId": "status-get-server-status",
                 "summary": "Get the status of the configuration of a server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
-                    "api"
+                    "status"
                 ],
                 "security": [
                     {

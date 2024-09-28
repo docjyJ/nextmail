@@ -1,108 +1,55 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { getServerConfig, getStatus, type ServerConfig, setServers } from './api_controller'
+import { NcNoteCard, NcSettingsSection } from '@nextcloud/vue'
+import t from './l10n'
+import ConfigForm from './component/ConfigForm.vue'
+
+const server = ref<ServerConfig>({
+	id: 0,
+	endpoint: '',
+	username: '',
+	password: '',
+})
+
+const status = ref({
+	type: 'info',
+	text: t('Stalwart server not loaded'),
+})
+
+const disabled = ref(false)
+
+const onLoad = async () => {
+	if (!disabled.value) {
+		disabled.value = true
+		server.value = await getServerConfig(server.value.id) ?? server.value
+		status.value = await getStatus(server.value.id) ?? status.value
+		disabled.value = false
+	}
+}
+
+const onSave = async (serverConfig: ServerConfig) => {
+	if (!disabled.value) {
+		disabled.value = true
+		await setServers(serverConfig)
+		status.value = await getStatus(server.value.id) ?? status.value
+		disabled.value = false
+	}
+}
+
+onMounted(onLoad)
+</script>
+
 <template>
-	<div id="stalwart" class="section">
-		<NcNoteCard :type="status.type" :content="status.text" />
+	<div id="stalwart">
+		<NcNoteCard :type="status.type" :text="status.text" />
 		<NcSettingsSection :name="t('Stalwart server configuration')"
 			:description="t('Configure the Stalwart server connection. The Salwart URL is http or https. Don\'t forget to include the port number if is not a standard port. Add api at the end of the URL.')"
 			doc-url="#todo">
-			<div class="line-inputs vertical">
-				<NcTextField v-model="server.endpoint"
-					:label="t('Stalwart API endpoint URL')"
-					placeholder="https://mail.example.com:443/api"
-					:disabled="disabled" />
-				<div class="line-inputs">
-					<NcTextField v-model="server.username"
-						:label="t('Username')"
-						placeholder="admin"
-						:disabled="disabled" />
-
-					<NcPasswordField v-model="server.password"
-						:label="t('Password')"
-						placeholder="****************"
-						:disabled="disabled" />
-				</div>
-				<NcButton
-					:disabled="disabled"
-					type="primary"
-					@click="onSave">
-					<template #icon>
-						<NcLoadingIcon v-if="disabled" />
-						<ContentSaveIcon v-else />
-					</template>
-					{{ t('Save') }}
-				</NcButton>
-			</div>
+			<ConfigForm :server="server" :loading="disabled.value" @submit="onSave" />
 		</NcSettingsSection>
 	</div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-import { getServerConfig, getStatus, setServers } from './api_controller'
-import { NcButton, NcLoadingIcon, NcNoteCard, NcPasswordField, NcSettingsSection, NcTextField } from '@nextcloud/vue'
-import ContentSaveIcon from 'vue-material-design-icons/ContentSave.vue'
-import t from './l10n'
-
-export default defineComponent({
-	name: 'Admin',
-	components: {
-		NcButton,
-		NcLoadingIcon,
-		NcNoteCard,
-		NcPasswordField,
-		NcSettingsSection,
-		NcTextField,
-		ContentSaveIcon,
-	},
-	data() {
-		return {
-			server: {
-				endpoint: '',
-				username: '',
-				password: '',
-			},
-			status: {
-				type: 'info',
-				text: t('Stalwart server not loaded'),
-			},
-			id: 0,
-			disabled: false,
-		}
-	},
-	created() {
-		this.onLoad()
-	},
-	methods: {
-		t,
-		async onLoad() {
-			if (!this.disabled) {
-				this.disabled = true
-				this.server = await getServerConfig(this.id) ?? this.server
-				this.status = await getStatus(this.id) ?? this.status
-				this.disabled = false
-			}
-		},
-		async onSave() {
-			if (!this.disabled) {
-				this.disabled = true
-				await setServers(this.id, this.server)
-				this.status = await getStatus(this.id) ?? this.status
-				this.disabled = false
-			}
-		},
-	},
-})
-</script>
-
-<style>
-.line-inputs {
-  display: flex;
-  align-items: baseline;
-  width: 100%;
-  gap: 16px;
-}
-
-.vertical {
-  flex-direction: column;
-  gap: 16px;
-}
+<style scoped>
 </style>

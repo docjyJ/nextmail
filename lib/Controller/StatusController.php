@@ -1,14 +1,29 @@
 <?php
 
-namespace OCA\Stalwart\Service;
+namespace OCA\Stalwart\Controller;
 
 use Exception;
 use OCA\Stalwart\Db\ServerConfig;
+use OCA\Stalwart\Db\ServerConfigMapper;
+use OCA\Stalwart\Settings\Admin;
+use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\AppFramework\Db\MultipleObjectsReturnedException;
+use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\ApiRoute;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
+use OCP\AppFramework\Http\Attribute\OpenAPI;
+use OCP\AppFramework\Http\DataResponse;
+use OCP\AppFramework\Http\Response;
+use OCP\AppFramework\OCS\OCSException;
+use OCP\AppFramework\OCS\OCSNotFoundException;
+use OCP\AppFramework\OCSController;
 use OCP\Http\Client\IClientService;
 use OCP\Http\Client\IResponse;
+use OCP\IRequest;
 use Throwable;
 
-class StalwartApiService {
+/** @psalm-suppress UnusedClass */
+class StatusController extends OCSController {
 	private const SUCCESS_CONNECTION = [
 		'type' => 'success',
 		'text' => 'Connection successful',
@@ -32,8 +47,36 @@ class StalwartApiService {
 
 	/** @psalm-suppress PossiblyUnusedMethod */
 	public function __construct(
-		private readonly IClientService $clientService,
+		string                              $appName,
+		IRequest                            $request,
+		private readonly ServerConfigMapper $serverService,
+		private readonly IClientService     $clientService,
 	) {
+		parent::__construct($appName, $request);
+	}
+
+
+	/**
+	 * Get the status of the configuration of a server number `id`
+	 * @param int $id The server number
+	 * @return DataResponse<Http::STATUS_OK, array{type: string, text: string}, array{}>
+	 * @throws OCSNotFoundException If the server number `id` does not exist
+	 * @throws OCSException if an error occurs
+	 *
+	 * 200: Returns the status of the server configuration
+	 */
+	#[AuthorizedAdminSetting(Admin::class)]
+	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
+	#[ApiRoute(verb: 'GET', url: '/status/{id}')]
+	public function getServerStatus(int $id): Response {
+		try {
+			$server = $this->serverService->getServer($id);
+		} catch (DoesNotExistException $e) {
+			throw new OCSNotFoundException(previous: $e);
+		} catch (MultipleObjectsReturnedException|\OCP\DB\Exception $e) {
+			throw new OCSException(previous: $e);
+		}
+		return new DataResponse($this->status($server), Http::STATUS_OK, []);
 	}
 
 	private function responseToString(IResponse $response): string {
@@ -49,7 +92,7 @@ class StalwartApiService {
 	}
 
 	/** @return array{type: string, text: string} */
-	public function status(ServerConfig $server): array {
+	private function status(ServerConfig $server): array {
 		if (!$server->isValid()) {
 			return self::INVALID_CONNECTION;
 		}
