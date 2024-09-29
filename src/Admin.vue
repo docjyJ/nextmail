@@ -1,55 +1,37 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { getServerConfig, getStatus, type ServerConfig, setServers } from './api_controller'
-import { NcNoteCard, NcSettingsSection } from '@nextcloud/vue'
-import t from './l10n'
-import ConfigForm from './component/ConfigForm.vue'
+import { onMounted } from 'vue'
+import { ServerView, NcEmptyContent, NcButton, ServerOutlineIcon, ServerSelection } from '~/components'
+import { useServerConfigList, useStalwartTranslate } from '~/composable'
 
-const server = ref<ServerConfig>({
-	id: 0,
-	endpoint: '',
-	username: '',
-	password: '',
-})
+const { servers, loading, active, to, edit, reload, remove, create } = useServerConfigList()
 
-const status = ref({
-	type: 'info',
-	text: t('Stalwart server not loaded'),
-})
+const { t } = useStalwartTranslate()
 
-const disabled = ref(false)
+onMounted(reload)
 
-const onLoad = async () => {
-	if (!disabled.value) {
-		disabled.value = true
-		server.value = await getServerConfig(server.value.id) ?? server.value
-		status.value = await getStatus(server.value.id) ?? status.value
-		disabled.value = false
-	}
-}
-
-const onSave = async (serverConfig: ServerConfig) => {
-	if (!disabled.value) {
-		disabled.value = true
-		await setServers(serverConfig)
-		status.value = await getStatus(server.value.id) ?? status.value
-		disabled.value = false
-	}
-}
-
-onMounted(onLoad)
 </script>
 
 <template>
 	<div id="stalwart">
-		<NcNoteCard :type="status.type" :text="status.text" />
-		<NcSettingsSection :name="t('Stalwart server configuration')"
-			:description="t('Configure the Stalwart server connection. The Salwart URL is http or https. Don\'t forget to include the port number if is not a standard port. Add api at the end of the URL.')"
-			doc-url="#todo">
-			<ConfigForm :server="server" :loading="disabled.value" @submit="onSave" />
-		</NcSettingsSection>
+		<ServerSelection :active="active?.id ?? null" :servers="servers" @select="to" />
+		<ServerView v-if="active !== null"
+			:config="active"
+			:loading="loading"
+			@edit="edit"
+			@delete="remove" />
+		<NcEmptyContent
+			v-else
+			:name="t('No mail server selected...')"
+			:description="t('Chose a mail server from the list or create a new one by clicking the button below.')">
+			<template #icon>
+				<ServerOutlineIcon />
+			</template>
+			<template #desc />
+			<template #action>
+				<NcButton type="primary" @click="create">
+					{{ t('Create a new config!') }}
+				</NcButton>
+			</template>
+		</NcEmptyContent>
 	</div>
 </template>
-
-<style scoped>
-</style>

@@ -1,28 +1,26 @@
 <script setup lang="ts">
 import { ref, defineProps, defineEmits } from 'vue'
-import { NcTextField, NcPasswordField, NcButton } from '@nextcloud/vue'
-import ContentSaveIcon from 'vue-material-design-icons/ContentSave.vue'
-import type { ServerConfig } from '../api_controller'
-import t from '../l10n'
+import { NcTextField, NcButton, NcLoadingIcon, ContentSaveIcon, NcPasswordField, StatusNote } from '~/components'
+import { useStalwartTranslate } from '~/composable'
+import type { ServerConfig } from '~/type'
+
+const { t } = useStalwartTranslate()
 
 const props = defineProps<{
-  server: ServerConfig,
+  config: ServerConfig,
   loading: boolean
 }>()
 
-const emit = defineEmits<{
+defineEmits<{
   (e: 'submit', value: ServerConfig): void
 }>()
 
-const form = ref({ ...props.server })
-
-const handleSubmit = () => {
-	emit('submit', form.value)
-}
+const form = ref(props.config)
 </script>
 
 <template>
-	<form @submit.prevent="handleSubmit">
+	<StatusNote :config-id="config.id" />
+	<form @submit.prevent="() => $emit('submit', form)">
 		<NcTextField v-model="form.endpoint"
 			:label="t('Stalwart API endpoint URL')"
 			placeholder="https://mail.example.com:443/api"

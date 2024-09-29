@@ -20,8 +20,8 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 		/** @type ISchemaWrapper $schema */
 		$schema = $schemaClosure();
 
-		if (!$schema->hasTable('server_config')) {
-			$table = $schema->createTable('server_config');
+		if (!$schema->hasTable('stalwart_config')) {
+			$table = $schema->createTable('stalwart_config');
 			$table->addColumn('id', Types::BIGINT, [
 				'autoincrement' => true,
 				'notnull' => true,

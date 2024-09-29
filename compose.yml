@@ -1,0 +1,23 @@
+services:
+  app:
+    image: ghcr.io/juliushaertl/nextcloud-dev-php81:latest
+    ports:
+      - "127.0.0.1:8080:80"
+    environment:
+      - SERVER_BRANCH=v30.0.0
+    volumes:
+      - .:/var/www/html/apps-extra/stalwart:Z
+    networks:
+        - my_network
+
+  stalwart:
+    image: docker.io/stalwartlabs/mail-server:latest
+    hostname: stalwart
+    ports:
+      - "127.0.0.1:9090:8080"
+    networks:
+        - my_network
+
+networks:
+  my_network:
+    driver: bridge
