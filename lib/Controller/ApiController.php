@@ -12,7 +12,6 @@ use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\OpenAPI;
 use OCP\AppFramework\Http\DataResponse;
-use OCP\AppFramework\Http\Response;
 use OCP\AppFramework\OCS\OCSException;
 use OCP\AppFramework\OCS\OCSNotFoundException;
 use OCP\AppFramework\OCSController;
@@ -23,7 +22,7 @@ use OCP\IRequest;
  * @psalm-suppress UnusedClass
  * @psalm-import-type StalwartServerConfig from ResponseDefinitions
  */
-class ConfigController extends OCSController {
+class ApiController extends OCSController {
 	public function __construct(
 		string                         $appName,
 		IRequest                       $request,
@@ -43,9 +42,9 @@ class ConfigController extends OCSController {
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
 	#[ApiRoute(verb: 'GET', url: '/config')]
-	public function get(): DataResponse {
+	public function list(): DataResponse {
 		try {
-			$result = $this->configService->list();
+			$result = $this->configService->findMany();
 		} catch (Exception $e) {
 			throw new OCSException(previous: $e);
 		}
@@ -59,7 +58,7 @@ class ConfigController extends OCSController {
 	 * @param string $password The password to authenticate with
 	 * @return DataResponse<Http::STATUS_OK, StalwartServerConfig, array{}>
 	 *
-	 * 200: Returns the number of the new server
+	 * 200: Returns the new server configuration
 	 * @throws OCSException
 	 */
 	#[AuthorizedAdminSetting(Admin::class)]
@@ -71,6 +70,34 @@ class ConfigController extends OCSController {
 		} catch (Exception $e) {
 			throw new OCSException(previous: $e);
 		}
+		unset($result['password']);
+		unset($result['health_expires']);
+		return new DataResponse($result);
+	}
+
+	/**
+	 * Get the configuration of a server number `id`
+	 * @param int $id The server number
+	 * @return DataResponse<Http::STATUS_OK, StalwartServerConfig, array{}>
+	 * @throws OCSNotFoundException If the server number `id` does not exist
+	 * @throws OCSException if an error occurs
+	 *
+	 * 200: Returns the server configuration
+	 */
+	#[AuthorizedAdminSetting(Admin::class)]
+	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
+	#[ApiRoute(verb: 'GET', url: '/config/{id}')]
+	public function get(int $id): DataResponse {
+		try {
+			$result = $this->configService->findId($id);
+		} catch (Exception $e) {
+			throw new OCSException(previous: $e);
+		}
+		if ($result === null) {
+			throw new OCSNotFoundException();
+		}
+		unset($result['password']);
+		unset($result['health_expires']);
 		return new DataResponse($result);
 	}
 
@@ -84,20 +111,22 @@ class ConfigController extends OCSController {
 	 * @throws OCSNotFoundException If the server number `id` does not exist
 	 * @throws OCSException if an error occurs
 	 *
-	 * 200: The server configuration has been set
+	 * 200: Returns the updated server configuration
 	 */
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
 	#[ApiRoute(verb: 'PUT', url: '/config/{id}')]
-	public function put(int $id, string $endpoint, string $username, string $password): Response {
+	public function put(int $id, string $endpoint, string $username, string $password): DataResponse {
 		try {
-			$result = $this->configService->update($id, $endpoint, $username, $password);
+			$result = $this->configService->updateCredentials($id, $endpoint, $username, $password);
 		} catch (Exception $e) {
 			throw new OCSException(previous: $e);
 		}
 		if ($result === null) {
 			throw new OCSNotFoundException();
 		}
+		unset($result['password']);
+		unset($result['health_expires']);
 		return new DataResponse($result);
 	}
 
@@ -122,6 +151,8 @@ class ConfigController extends OCSController {
 		if ($result === null) {
 			throw new OCSNotFoundException();
 		}
+		unset($result['password']);
+		unset($result['health_expires']);
 		return new DataResponse($result);
 
 	}

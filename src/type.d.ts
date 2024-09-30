@@ -11,11 +11,18 @@ export type OCSResponse<T> = {
     };
 };
 
-export type ServerConfig = {
+export type ServerConfigForm = {
     id: number;
     endpoint: string;
     username: string;
     password: string;
+};
+
+export type ServerConfig = {
+    id: number;
+    endpoint: string;
+    username: string;
+    health: number;
 };
 
 export type ServerStatus = {

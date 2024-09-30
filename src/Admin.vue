@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { ServerView, NcEmptyContent, NcButton, ServerOutlineIcon, ServerSelection } from '~/components'
+// import { ServerView, NcEmptyContent, NcButton, ServerOutlineIcon, ServerSelection } from '~/components'
+import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
+import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
+import ServerOutlineIcon from 'vue-material-design-icons/ServerOutline.vue'
+import ServerSelection from '~/components/ServerSelection.vue'
+import ServerView from '~/components/ServerView.vue'
+
 import { useServerConfigList, useStalwartTranslate } from '~/composable'
 
 const { servers, loading, active, to, edit, reload, remove, create } = useServerConfigList()
@@ -13,7 +19,7 @@ onMounted(reload)
 
 <template>
 	<div id="stalwart">
-		<ServerSelection :active="active?.id ?? null" :servers="servers" @select="to" />
+		<ServerSelection :config-list="servers" :config="active" @update:config="e => to(e? e.id : null)" />
 		<ServerView v-if="active !== null"
 			:config="active"
 			:loading="loading"

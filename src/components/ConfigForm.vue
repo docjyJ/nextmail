@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { ref, defineProps, defineEmits } from 'vue'
-import { NcTextField, NcButton, NcLoadingIcon, ContentSaveIcon, NcPasswordField, StatusNote } from '~/components'
+import { ref, defineProps, defineEmits, watch } from 'vue'
+import NcTextField from '@nextcloud/vue/dist/Components/NcTextField.js'
+import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
+import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
+import NcPasswordField from '@nextcloud/vue/dist/Components/NcPasswordField.js'
+import ContentSaveIcon from 'vue-material-design-icons/ContentSave.vue'
 import { useStalwartTranslate } from '~/composable'
-import type { ServerConfig } from '~/type'
+import type { ServerConfig, ServerConfigForm } from '~/type'
 
 const { t } = useStalwartTranslate()
 
@@ -12,29 +16,47 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-  (e: 'submit', value: ServerConfig): void
+  (e: 'submit', value: ServerConfigForm): void
 }>()
 
-const form = ref(props.config)
+const form = ref<ServerConfigForm>({
+	id: props.config.id,
+	endpoint: props.config.endpoint,
+	username: props.config.username,
+	password: '',
+})
+
+watch(() => props.config, (config) => {
+	form.value = {
+		id: config.id,
+		endpoint: config.endpoint,
+		username: config.username,
+		password: '',
+	}
+}, { deep: true })
+
 </script>
 
 <template>
-	<StatusNote :config-id="config.id" />
 	<form @submit.prevent="() => $emit('submit', form)">
-		<NcTextField v-model="form.endpoint"
+		<NcTextField
+			v-model="form.endpoint"
 			:label="t('Stalwart API endpoint URL')"
 			placeholder="https://mail.example.com:443/api"
 			:disabled="props.loading" />
-		<NcTextField v-model="form.username"
+		<NcTextField
+			v-model="form.username"
 			:label="t('Username')"
 			placeholder="admin"
 			:disabled="props.loading" />
-		<NcPasswordField v-model="form.password"
+		<NcPasswordField
+			v-model="form.password"
 			:label="t('Password')"
 			placeholder="****************"
 			:disabled="props.loading" />
 
-		<NcButton native-type="submit"
+		<NcButton
+			native-type="submit"
 			:disabled="props.loading"
 			type="primary">
 			<template #icon>

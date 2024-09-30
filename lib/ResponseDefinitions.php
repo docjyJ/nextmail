@@ -5,15 +5,11 @@ namespace OCA\Stalwart;
 /**
  * @psalm-suppress UnusedClass
  * @psalm-type StalwartServerConfig = array{
- *     id: int,
- *     endpoint: string,
- *     username: string,
- *     password: string
- * }
- * @psalm-type StalwartServerStatus = array{
- *     type: string,
- *     text: string
- * }
+ *      id: int,
+ *      endpoint: string,
+ *      username: string,
+ *      health: int,
+ *  }
  */
 class ResponseDefinitions {
 }

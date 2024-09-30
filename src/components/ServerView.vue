@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue'
-import { ConfigForm, NcButton, NcSettingsSection, DeleteIcon } from '~/components'
 import { useStalwartTranslate } from '~/composable'
-import type { ServerConfig } from '~/type'
+import type { ServerConfig, ServerConfigForm } from '~/type'
+import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
+import NcSettingsSection from '@nextcloud/vue/dist/Components/NcSettingsSection.js'
+import DeleteIcon from 'vue-material-design-icons/Delete.vue'
+import ConfigForm from '~/components/ConfigForm.vue'
 
 defineProps<{
   config: ServerConfig,
@@ -12,7 +15,7 @@ defineProps<{
 const { t } = useStalwartTranslate()
 
 defineEmits<{
-  (e: 'edit', config: ServerConfig): void,
+  (e: 'edit', config: ServerConfigForm): void,
   (e: 'delete', id: number): void
 }>()
 

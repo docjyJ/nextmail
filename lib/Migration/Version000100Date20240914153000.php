@@ -39,6 +39,12 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 				'notnull' => true,
 				'length' => 300,
 			]);
+			$table->addColumn('health', Types::INTEGER, [
+				'notnull' => true,
+			]);
+			$table->addColumn('health_expires', Types::DATETIME, [
+				'notnull' => true,
+			]);
 			$table->setPrimaryKey(['id']);
 		}
 

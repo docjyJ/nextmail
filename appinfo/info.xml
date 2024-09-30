@@ -16,6 +16,9 @@ Users, groups and authentication information will be directly integrated into Ne
 	<dependencies>
 		<nextcloud min-version="29" max-version="29"/>
 	</dependencies>
+	<background-jobs>
+		<job>OCA\Stalwart\Cron\CheckTask</job>
+	</background-jobs>
 	<settings>
 		<admin>OCA\Stalwart\Settings\Admin</admin>
 		<admin-section>OCA\Stalwart\Settings\Section</admin-section>

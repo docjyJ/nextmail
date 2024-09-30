@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import axios from '@nextcloud/axios'
 import { generateOcsUrl } from '@nextcloud/router'
-import type { OCSResponse, ServerConfig } from '~/type'
+import type { OCSResponse, ServerConfig, ServerConfigForm } from '~/type'
 
 export default function useServerConfigList() {
 	const loading = ref(false)
@@ -57,7 +57,7 @@ export default function useServerConfigList() {
 				}
 			}
 		},
-		edit: async ({ id, ...data }: ServerConfig) => {
+		edit: async ({ id, ...data }: ServerConfigForm) => {
 			if (!loading.value) {
 				loading.value = true
 				try {

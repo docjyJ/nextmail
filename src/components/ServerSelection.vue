@@ -1,30 +1,27 @@
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
-import { NcListItem, NcAvatar } from '~/components'
+import { defineProps, defineModel } from 'vue'
 import type { ServerConfig } from '~/type'
+import NcSelect from '@nextcloud/vue/dist/Components/NcSelect.js'
+import ListItemConfig from '~/components/ListItemConfig.vue'
 
 defineProps<{
-  servers: ServerConfig[],
-  active: number | null,
+  configList: ServerConfig[],
 }>()
-
-defineEmits<{
-  (e: 'select', id: number | null): void,
-}>()
+const config = defineModel<ServerConfig | null>('config')
 
 </script>
 
 <template>
-	<ul style="width: 350px;">
-		<NcListItem v-for="server in servers"
-			:key="server.id"
-			:name="server.endpoint.replace(/^.*:\/\//, '').replace(/\/.*$/, '') || 'untitled'"
-			:active="server.id === active"
-			compact
-			@click="() => $emit('select', server.id === active ? null : server.id)">
-			<template #icon>
-				<NcAvatar :display-name="server.id.toString()" :is-no-user="true" />
-			</template>
-		</NcListItem>
-	</ul>
+	<NcSelect
+		v-model="config"
+		:no-wrap="false"
+		:options="configList"
+		label="endpoint">
+		<template #option="configSelected">
+			<ListItemConfig :config="configSelected" />
+		</template>
+		<template #selected-option="configSelected">
+			<ListItemConfig :config="configSelected" />
+		</template>
+	</NcSelect>
 </template>

@@ -50,7 +50,7 @@
                     "id",
                     "endpoint",
                     "username",
-                    "password"
+                    "health"
                 ],
                 "properties": {
                     "id": {
@@ -63,23 +63,9 @@
                     "username": {
                         "type": "string"
                     },
-                    "password": {
-                        "type": "string"
-                    }
-                }
-            },
-            "ServerStatus": {
-                "type": "object",
-                "required": [
-                    "type",
-                    "text"
-                ],
-                "properties": {
-                    "type": {
-                        "type": "string"
-                    },
-                    "text": {
-                        "type": "string"
+                    "health": {
+                        "type": "integer",
+                        "format": "int64"
                     }
                 }
             }
@@ -88,11 +74,11 @@
     "paths": {
         "/ocs/v2.php/apps/stalwart/config": {
             "get": {
-                "operationId": "config-get",
+                "operationId": "api-list",
                 "summary": "List all available servers",
                 "description": "This endpoint requires admin access",
                 "tags": [
-                    "config"
+                    "api"
                 ],
                 "security": [
                     {
@@ -151,11 +137,11 @@
                 }
             },
             "post": {
-                "operationId": "config-post",
+                "operationId": "api-post",
                 "summary": "Add a new server",
                 "description": "This endpoint requires admin access",
                 "tags": [
-                    "config"
+                    "api"
                 ],
                 "security": [
                     {
@@ -208,7 +194,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Returns the number of the new server",
+                        "description": "Returns the new server configuration",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -241,12 +227,110 @@
             }
         },
         "/ocs/v2.php/apps/stalwart/config/{id}": {
+            "get": {
+                "operationId": "api-get",
+                "summary": "Get the configuration of a server number `id`",
+                "description": "This endpoint requires admin access",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The server number",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "description": "Required to be true for the API request to pass",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the server configuration",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/ServerConfig"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "If the server number `id` does not exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "put": {
-                "operationId": "config-put",
+                "operationId": "api-put",
                 "summary": "Set the configuration of a server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
-                    "config"
+                    "api"
                 ],
                 "security": [
                     {
@@ -309,7 +393,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "The server configuration has been set",
+                        "description": "Returns the updated server configuration",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -369,11 +453,11 @@
                 }
             },
             "delete": {
-                "operationId": "config-delete",
+                "operationId": "api-delete",
                 "summary": "Delete the configuration of a server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
-                    "config"
+                    "api"
                 ],
                 "security": [
                     {
@@ -457,78 +541,6 @@
                                                     "$ref": "#/components/schemas/OCSMeta"
                                                 },
                                                 "data": {}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/ocs/v2.php/apps/stalwart/status/{id}": {
-            "get": {
-                "operationId": "status-get",
-                "summary": "Get the status of the configuration of a server number `id`",
-                "description": "This endpoint requires admin access",
-                "tags": [
-                    "status"
-                ],
-                "security": [
-                    {
-                        "bearer_auth": []
-                    },
-                    {
-                        "basic_auth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "The server number",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    },
-                    {
-                        "name": "OCS-APIRequest",
-                        "in": "header",
-                        "description": "Required to be true for the API request to pass",
-                        "required": true,
-                        "schema": {
-                            "type": "boolean",
-                            "default": true
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Returns the status of the server configuration",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {
-                                                    "$ref": "#/components/schemas/ServerStatus"
-                                                }
                                             }
                                         }
                                     }
