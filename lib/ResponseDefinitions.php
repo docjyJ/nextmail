@@ -10,6 +10,11 @@ namespace OCA\Stalwart;
  *      username: string,
  *      health: int,
  *  }
+ * @psalm-type StalwartServerUser = array{
+ *     uid: string,
+ *     displayName: string,
+ *     email: ?string,
+ *   }
  */
 class ResponseDefinitions {
 }

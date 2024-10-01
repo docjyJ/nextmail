@@ -25,7 +25,16 @@ export type ServerConfig = {
     health: number;
 };
 
-export type ServerStatus = {
-    type: 'success' | 'warning' | 'error';
-    text: string;
+export type ServerUser = {
+    uid: string;
+    displayName: string;
+    email: string | null;
+};
+
+export type UserResponse = {
+    users: {
+        id: string;
+        displayname: string;
+        email: string | null;
+    }[];
 };

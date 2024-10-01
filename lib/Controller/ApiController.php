@@ -6,6 +6,7 @@ namespace OCA\Stalwart\Controller;
 
 use OCA\Stalwart\ResponseDefinitions;
 use OCA\Stalwart\Services\ConfigService;
+use OCA\Stalwart\Services\UsersService;
 use OCA\Stalwart\Settings\Admin;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -21,12 +22,14 @@ use OCP\IRequest;
 /**
  * @psalm-suppress UnusedClass
  * @psalm-import-type StalwartServerConfig from ResponseDefinitions
+ * @psalm-import-type StalwartServerUser from ResponseDefinitions
  */
 class ApiController extends OCSController {
 	public function __construct(
 		string                         $appName,
 		IRequest                       $request,
 		private readonly ConfigService $configService,
+		private readonly UsersService  $usersService,
 	) {
 		parent::__construct($appName, $request);
 	}
@@ -155,5 +158,75 @@ class ApiController extends OCSController {
 		unset($result['health_expires']);
 		return new DataResponse($result);
 
+	}
+
+	/**
+	 * Get the users of the server number `id`
+	 * @param int $id The server number
+	 * @return DataResponse<Http::STATUS_OK, StalwartServerUser[], array{}>
+	 * @throws OCSException if an error occurs
+	 *
+	 * 200: Returns the list of users
+	 */
+	#[AuthorizedAdminSetting(Admin::class)]
+	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
+	#[ApiRoute(verb: 'GET', url: '/config/{id}/users')]
+	public function getUsers(int $id): DataResponse {
+		try {
+			$result = $this->usersService->findMany($id);
+		} catch (Exception $e) {
+			throw new OCSException(previous: $e);
+		}
+		return new DataResponse($result);
+	}
+
+	/**
+	 * Add a user to the server number `id`
+	 * @param int $id The server number
+	 * @param string $uid The user ID
+	 * @return DataResponse<Http::STATUS_OK, StalwartServerUser, array{}>
+	 * @throws OCSNotFoundException If the user does not exist
+	 * @throws OCSException if an error occurs
+	 *
+	 * 200: The user has been added to the server
+	 */
+	#[AuthorizedAdminSetting(Admin::class)]
+	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
+	#[ApiRoute(verb: 'POST', url: '/config/{id}/users')]
+	public function postUsers(int $id, string $uid): DataResponse {
+		try {
+			$user = $this->usersService->add($id, $uid);
+		} catch (Exception $e) {
+			throw new OCSException(previous: $e);
+		}
+		if ($user === null) {
+			throw new OCSNotFoundException();
+		}
+		return new DataResponse($user);
+	}
+
+	/**
+	 * Remove a user from the server number `id`
+	 * @param int $id The server number
+	 * @param string $uid The user ID
+	 * @return DataResponse<Http::STATUS_OK, StalwartServerUser, array{}>
+	 * @throws OCSNotFoundException If the user does not exist
+	 * @throws OCSException if an error occurs
+	 *
+	 * 200: The user has been removed from the server
+	 */
+	#[AuthorizedAdminSetting(Admin::class)]
+	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
+	#[ApiRoute(verb: 'DELETE', url: '/config/{id}/users')]
+	public function deleteUsers(int $id, string $uid): DataResponse {
+		try {
+			$user = $this->usersService->remove($id, $uid);
+		} catch (Exception $e) {
+			throw new OCSException(previous: $e);
+		}
+		if ($user === null) {
+			throw new OCSNotFoundException();
+		}
+		return new DataResponse($user);
 	}
 }

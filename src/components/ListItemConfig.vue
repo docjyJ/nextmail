@@ -1,104 +1,82 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
-import NcChip from '@nextcloud/vue/dist/Components/NcChip.js'
 import NcAvatar from '@nextcloud/vue/dist/Components/NcAvatar.js'
-import AccessPointIcon from 'vue-material-design-icons/AccessPoint.vue'
-import FingerprintOffIcon from 'vue-material-design-icons/FingerprintOff.vue'
-import NetworkStrengthOffOutlineIcon from 'vue-material-design-icons/NetworkStrengthOffOutline.vue'
-import ServerNetworkOffIcon from 'vue-material-design-icons/ServerNetworkOff.vue'
-import TextBoxOutlineIcon from 'vue-material-design-icons/TextBoxOutline.vue'
+import NcIconSvgWrapper from '@nextcloud/vue/dist/Components/NcIconSvgWrapper.js'
+import mdiAccessPoint from '@mdi/svg/svg/access-point.svg?raw'
+import mdiFingerprintOff from '@mdi/svg/svg/fingerprint-off.svg?raw'
+import mdiServerNetworkOff from '@mdi/svg/svg/server-network-off.svg?raw'
+import mdiNetworkStrengthOffOutline from '@mdi/svg/svg/network-strength-off-outline.svg?raw'
+import mdiTextBoxOutline from '@mdi/svg/svg/text-box-outline.svg?raw'
 import type { ServerConfig } from '~/type'
-import { useStalwartTranslate } from '~/composable'
 
 defineProps<{
   config: ServerConfig
 }>()
 
-const { t } = useStalwartTranslate()
-
 </script>
 
 <template>
-	<div>
-		<NcAvatar :display-name="config.id.toString()" :no-user="true" />
-		<p>{{ /^[a-z0-9-]+:\/*([a-z0-9-.:]+).*$/.exec(config.endpoint)?.at(1) || config.endpoint || '?????' }}</p>
-		<NcChip
+	<div style="display: inline-flex; align-items: center; gap: 8px">
+		<NcAvatar
 			v-if="config.health === 0"
-			:text="t('Connected and healthy')"
-			type="primary"
-			style="background-color: green"
-			no-close>
+			style="background-color: rgba(var(--color-success-rgb), 0.1)">
 			<template #icon>
-				<AccessPointIcon :size="20" />
+				<NcIconSvgWrapper
+					:svg="mdiAccessPoint"
+					name="AccessPoint"
+					style="color: var(--color-success); min-width: var(--size); min-height: var(--size)" />
 			</template>
-		</NcChip>
-		<NcChip
+		</NcAvatar>
+		<NcAvatar
 			v-else-if="config.health === 1"
-			:text="t('The account is not administrator')"
-			type="primary"
-			style="background-color: orange"
-			no-close>
+			style="background-color: rgba(var(--color-warning-rgb), 0.1)">
 			<template #icon>
-				<AccessPointIcon :size="20" />
+				<NcIconSvgWrapper
+					:svg="mdiAccessPoint"
+					name="AccessPoint"
+					style="color: var(--color-warning); min-width: var(--size); min-height: var(--size)" />
 			</template>
-		</NcChip>
-		<NcChip
+		</NcAvatar>
+		<NcAvatar
 			v-else-if="config.health === 2"
-			:text="t('Invalid credentials')"
-			type="primary"
-			style="background-color: darkred"
-			no-close>
+			style="background-color: rgba(var(--color-error-rgb), 0.1)">
 			<template #icon>
-				<FingerprintOffIcon :size="20" />
+				<NcIconSvgWrapper
+					:svg="mdiFingerprintOff"
+					name="FingerprintOff"
+					style="color: var(--color-error); min-width: var(--size); min-height: var(--size)" />
 			</template>
-		</NcChip>
-		<NcChip
+		</NcAvatar>
+		<NcAvatar
 			v-else-if="config.health === 3"
-			:text="t('The server failed to respond')"
-			type="primary"
-			style="background-color: darkred"
-			no-close>
+			style="background-color: rgba(var(--color-error-rgb), 0.1)">
 			<template #icon>
-				<ServerNetworkOffIcon :size="20" />
+				<NcIconSvgWrapper
+					:svg="mdiServerNetworkOff"
+					name="ServerNetworkOff"
+					style="color: var(--color-error); min-width: var(--size); min-height: var(--size)" />
 			</template>
-		</NcChip>
-		<NcChip
+		</NcAvatar>
+		<NcAvatar
 			v-else-if="config.health === 4"
-			:text="t('The server is not reachable')"
-			type="primary"
-			style="background-color: darkred"
-			no-close>
+			style="background-color: rgba(var(--color-error-rgb), 0.1)">
 			<template #icon>
-				<NetworkStrengthOffOutlineIcon :size="20" />
+				<NcIconSvgWrapper
+					:svg="mdiNetworkStrengthOffOutline"
+					name="NetworkStrengthOffOutline"
+					style="color: var(--color-error); min-width: var(--size); min-height: var(--size)" />
 			</template>
-		</NcChip>
-		<NcChip
-			v-else-if="config.health === 5"
-			:text="t('The configuration is invalid')"
-			type="primary"
-			style="background-color: dimgrey"
-			no-close>
+		</NcAvatar>
+		<NcAvatar
+			v-else
+			style="background-color: rgba(var(--color-error-rgb), 0.1)">
 			<template #icon>
-				<TextBoxOutlineIcon :size="20" />
+				<NcIconSvgWrapper
+					:svg="mdiTextBoxOutline"
+					name="TextBoxOutline"
+					style="color: var(--color-error); min-width: var(--size); min-height: var(--size)" />
 			</template>
-		</NcChip>
+		</NcAvatar>
+		<p>{{ /^[a-z0-9-]+:\/*([a-z0-9-.:]+).*$/.exec(config.endpoint)?.at(1) || config.endpoint || '?????' }}</p>
 	</div>
 </template>
-
-<style scoped>
-div {
-  display: grid;
-  grid-template-columns: min-content auto;
-  gap: 0.2em;
-}
-
-div > :first-child {
-  justify-self: stretch;
-  grid-row: span 2;
-  align-self: center;
-}
-
-div > p {
-  margin: 0;
-}
-</style>

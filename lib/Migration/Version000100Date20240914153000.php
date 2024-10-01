@@ -48,6 +48,21 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 			$table->setPrimaryKey(['id']);
 		}
 
+		if (!$schema->hasTable('stalwart_users')) {
+			$table = $schema->createTable('stalwart_users');
+			$table->addColumn('config_id', Types::BIGINT, [
+				'autoincrement' => true,
+				'notnull' => true,
+				'length' => 4,
+			]);
+			$table->addColumn('uid', Types::STRING, [
+				'notnull' => true,
+				'length' => 128,
+			]);
+			$table->addForeignKeyConstraint('stalwart_config', ['config_id'], ['id'], ['onDelete' => 'CASCADE']);
+			$table->setPrimaryKey(['config_id', 'uid']);
+		}
+
 		return $schema;
 	}
 

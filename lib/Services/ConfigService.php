@@ -21,7 +21,7 @@ use Throwable;
  * @psalm-import-type StalwartServerConfig from ResponseDefinitions
  */
 class ConfigService {
-	private const TABLE_NAME = 'stalwart_config';
+	private const TABLE_CONFIG = 'stalwart_config';
 
 	/** @psalm-suppress PossiblyUnusedMethod */
 	public function __construct(
@@ -39,7 +39,7 @@ class ConfigService {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-			->from(self::TABLE_NAME)
+			->from(self::TABLE_CONFIG)
 			->where($qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)));
 
 		$result = $qb->executeQuery();
@@ -79,13 +79,12 @@ class ConfigService {
 	public function findMany(): array {
 		$result = $this->db->getQueryBuilder()
 			->select('id', 'endpoint', 'username', 'health')
-			->from(ConfigService::TABLE_NAME)
+			->from(ConfigService::TABLE_CONFIG)
 			->executeQuery();
 		$entities = [];
 		while (true) {
 			/** @psalm-suppress MixedAssignment */
 			$row = $result->fetch();
-
 			if (is_array($row) &&
 				is_int($row['id']) &&
 				is_string($row['endpoint']) &&
@@ -98,11 +97,10 @@ class ConfigService {
 					'health' => $row['health']
 				];
 			} else {
-				break;
+				$result->closeCursor();
+				return $entities;
 			}
 		}
-		$result->closeCursor();
-		return $entities;
 	}
 
 	/**
@@ -111,27 +109,27 @@ class ConfigService {
 	public function updateExpiredHealth(): void {
 		$q = $this->db->getQueryBuilder();
 		$result = $q->select('id')
-			->from(ConfigService::TABLE_NAME)
+			->from(ConfigService::TABLE_CONFIG)
 			->where($q->expr()->lt('health_expires', $q->createNamedParameter(new DateTime(), IQueryBuilder::PARAM_DATE)))
 			->executeQuery();
 		while (true) {
 			/** @psalm-suppress MixedAssignment */
 			$row = $result->fetch();
-
 			if (is_array($row) && is_int($row['id']) && $entity = $this->findId($row['id'])) {
 				$healthResult = $this->apiService->challenge($entity['endpoint'], $entity['username'], $entity['password']);
 				$entity['health'] = $healthResult[0];
 				$entity['health_expires'] = $healthResult[1];
 
 				$q = $this->db->getQueryBuilder();
-				$q->update(ConfigService::TABLE_NAME)
+				$q->update(ConfigService::TABLE_CONFIG)
 					->set('health', $q->createNamedParameter($healthResult[0], IQueryBuilder::PARAM_INT))
 					->set('health_expires', $q->createNamedParameter($healthResult[1], IQueryBuilder::PARAM_DATE))
 					->where($q->expr()->eq('id', $q->createNamedParameter($entity['id'], IQueryBuilder::PARAM_INT)))
 					->executeStatement();
 
 			} else {
-				break;
+				$result->closeCursor();
+				return;
 			}
 		}
 	}
@@ -147,7 +145,7 @@ class ConfigService {
 		$healthResult = $this->apiService->challenge($endpoint, $username, $password);
 
 		$q = $this->db->getQueryBuilder();
-		$q->insert(ConfigService::TABLE_NAME)
+		$q->insert(ConfigService::TABLE_CONFIG)
 			->setValue('endpoint', $q->createNamedParameter(strtolower($endpoint)))
 			->setValue('username', $q->createNamedParameter($username))
 			->setValue('password', $q->createNamedParameter($password))
@@ -186,7 +184,7 @@ class ConfigService {
 			$entity['health_expires'] = $healthResult[1];
 
 			$q = $this->db->getQueryBuilder();
-			$q->update(ConfigService::TABLE_NAME)
+			$q->update(ConfigService::TABLE_CONFIG)
 				->set('endpoint', $q->createNamedParameter($entity['endpoint']))
 				->set('username', $q->createNamedParameter($entity['username']))
 				->set('password', $q->createNamedParameter($entity['password']))
@@ -209,7 +207,7 @@ class ConfigService {
 		$entity = $this->findId($id);
 		if ($entity !== null) {
 			$q = $this->db->getQueryBuilder();
-			$q->delete(ConfigService::TABLE_NAME)
+			$q->delete(ConfigService::TABLE_CONFIG)
 				->where($q->expr()->eq('id', $q->createNamedParameter($id, IQueryBuilder::PARAM_INT)))
 				->executeStatement();
 		}

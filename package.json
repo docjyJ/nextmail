@@ -21,13 +21,13 @@
     "extends @nextcloud/browserslist-config"
   ],
   "dependencies": {
+    "@mdi/svg": "^7.4.47",
     "@nextcloud/axios": "^2.5.1",
     "@nextcloud/babel-config": "^1.2.0",
     "@nextcloud/l10n": "^3.1.0",
     "@nextcloud/router": "^3.0.1",
     "@nextcloud/vue": "9.0.0-alpha.5",
-    "vue": "^3.5.8",
-    "vue-material-design-icons": "^5.3.0"
+    "vue": "^3.5.8"
   },
   "devDependencies": {
     "@nextcloud/browserslist-config": "^3.0.1",
