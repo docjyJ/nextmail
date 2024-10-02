@@ -11,12 +11,11 @@ use OCP\DB\Types;
 use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
-/** @psalm-suppress UnusedClass */
 class Version000100Date20240914153000 extends SimpleMigrationStep {
 	public function preSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
 	}
 
-	public function changeSchema(IOutput $output, Closure $schemaClosure, array $options): ?ISchemaWrapper {
+	public function changeSchema(IOutput $output, Closure $schemaClosure, array $options): ISchemaWrapper {
 		/** @type ISchemaWrapper $schema */
 		$schema = $schemaClosure();
 

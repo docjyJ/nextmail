@@ -19,7 +19,6 @@ class StalwartAPIService {
 	public const INVALID_CONNECTION = 5;
 
 
-	/** @psalm-suppress PossiblyUnusedMethod */
 	public function __construct(
 		private readonly IClientService $clientService,
 	) {
@@ -60,7 +59,7 @@ class StalwartAPIService {
 	 * @param string $endpoint
 	 * @param string $username
 	 * @param string $password
-	 * @return array{0: int, 1: DateTime}
+	 * @return list{int, DateTime}
 	 */
 	public function challenge(string $endpoint, string $username, string $password): array {
 		if ($username === '' || $password === '' || preg_match(self::URL_PATTERN, $endpoint) !== 1) {

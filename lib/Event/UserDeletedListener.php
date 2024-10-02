@@ -12,7 +12,6 @@ use OCP\User\Events\UserDeletedEvent;
  * @implements IEventListener<UserDeletedEvent>
  */
 class UserDeletedListener implements IEventListener {
-	/** @psalm-suppress PossiblyUnusedMethod */
 	public function __construct(
 		private readonly UsersService $usersService,
 	) {

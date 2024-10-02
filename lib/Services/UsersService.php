@@ -14,7 +14,6 @@ use OCP\IUserManager;
 class UsersService {
 	private const TABLE_USERS = 'stalwart_users';
 
-	/** @psalm-suppress PossiblyUnusedMethod */
 	public function __construct(
 		private readonly IDBConnection $db,
 		private readonly IUserManager  $userManager,
@@ -36,7 +35,7 @@ class UsersService {
 
 	/**
 	 * @param int $id
-	 * @return StalwartServerUser[]
+	 * @return list<StalwartServerUser>
 	 * @throws Exception
 	 */
 	public function findMany(int $id): array {
@@ -47,7 +46,6 @@ class UsersService {
 			->executeQuery();
 		$entities = [];
 		while (true) {
-			/** @psalm-suppress MixedAssignment */
 			$row = $result->fetch();
 			if (is_array($row) && is_string($row['uid'])) {
 				$user = $this->findUser($row['uid']);

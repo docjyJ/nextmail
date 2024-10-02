@@ -20,7 +20,7 @@ use OCP\DB\Exception;
 use OCP\IRequest;
 
 /**
- * @psalm-suppress UnusedClass
+ * @psalm-api
  * @psalm-import-type StalwartServerConfig from ResponseDefinitions
  * @psalm-import-type StalwartServerUser from ResponseDefinitions
  */
@@ -37,7 +37,7 @@ class ApiController extends OCSController {
 
 	/**
 	 * List all available servers
-	 * @return DataResponse<Http::STATUS_OK, StalwartServerConfig[], array{}>
+	 * @return DataResponse<Http::STATUS_OK, list<StalwartServerConfig>, array{}>
 	 * @throws OCSException If an error occurs
 	 *
 	 * 200: Returns the list of available servers
@@ -163,7 +163,7 @@ class ApiController extends OCSController {
 	/**
 	 * Get the users of the server number `id`
 	 * @param int $id The server number
-	 * @return DataResponse<Http::STATUS_OK, StalwartServerUser[], array{}>
+	 * @return DataResponse<Http::STATUS_OK, list<StalwartServerUser>, array{}>
 	 * @throws OCSException if an error occurs
 	 *
 	 * 200: Returns the list of users

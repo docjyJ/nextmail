@@ -10,10 +10,6 @@ use OCP\Settings\IIconSection;
 class Section implements IIconSection {
 	public const SETTING_ID = 'stalwart';
 
-	/**
-	 * @psalm-suppress PossiblyUnusedParam
-	 * @psalm-suppress PossiblyUnusedMethod
-	 */
 	public function __construct(
 		string                         $appName,
 		private readonly IL10N         $l,
@@ -21,6 +17,9 @@ class Section implements IIconSection {
 	) {
 	}
 
+	/**
+	 * @return self::SETTING_ID
+	 */
 	public function getID(): string {
 		return self::SETTING_ID;
 	}
@@ -29,6 +28,9 @@ class Section implements IIconSection {
 		return $this->l->t('Stalwart');
 	}
 
+	/**
+	 * @return 80
+	 */
 	public function getPriority(): int {
 		return 80;
 	}

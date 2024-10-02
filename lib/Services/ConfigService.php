@@ -23,7 +23,6 @@ use Throwable;
 class ConfigService {
 	private const TABLE_CONFIG = 'stalwart_config';
 
-	/** @psalm-suppress PossiblyUnusedMethod */
 	public function __construct(
 		private readonly IDBConnection      $db,
 		private readonly StalwartAPIService $apiService,
@@ -44,7 +43,6 @@ class ConfigService {
 
 		$result = $qb->executeQuery();
 
-		/** @psalm-suppress MixedAssignment */
 		$row = $result->fetch();
 
 		$result->closeCursor();
@@ -73,7 +71,7 @@ class ConfigService {
 	}
 
 	/**
-	 * @return StalwartServerConfig[]
+	 * @return list<StalwartServerConfig>
 	 * @throws Exception
 	 */
 	public function findMany(): array {
@@ -83,7 +81,6 @@ class ConfigService {
 			->executeQuery();
 		$entities = [];
 		while (true) {
-			/** @psalm-suppress MixedAssignment */
 			$row = $result->fetch();
 			if (is_array($row) &&
 				is_int($row['id']) &&
@@ -113,7 +110,6 @@ class ConfigService {
 			->where($q->expr()->lt('health_expires', $q->createNamedParameter(new DateTime(), IQueryBuilder::PARAM_DATE)))
 			->executeQuery();
 		while (true) {
-			/** @psalm-suppress MixedAssignment */
 			$row = $result->fetch();
 			if (is_array($row) && is_int($row['id']) && $entity = $this->findId($row['id'])) {
 				$healthResult = $this->apiService->challenge($entity['endpoint'], $entity['username'], $entity['password']);
