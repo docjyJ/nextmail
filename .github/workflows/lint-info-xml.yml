@@ -5,7 +5,10 @@
 
 name: Lint info.xml
 
-on: pull_request
+on:
+  push:
+    branches: [main]
+  pull_request:
 
 permissions:
   contents: read
