@@ -58,8 +58,8 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 				'notnull' => true,
 				'length' => 128,
 			]);
-			$table->addForeignKeyConstraint('stalwart_config', ['config_id'], ['id'], ['onDelete' => 'CASCADE']);
 			$table->setPrimaryKey(['config_id', 'uid']);
+			$table->addForeignKeyConstraint('stalwart_config', ['config_id'], ['id'], ['onDelete' => 'CASCADE']);
 		}
 
 		return $schema;

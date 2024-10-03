@@ -1,23 +1,64 @@
 services:
-  app:
-    image: ghcr.io/juliushaertl/nextcloud-dev-php81:latest
+  main:
+    image: ghcr.io/juliushaertl/nextcloud-dev-php${PHP_VERSION}:latest
     ports:
       - "127.0.0.1:8080:80"
     environment:
-      - SERVER_BRANCH=v30.0.0
+      - SERVER_BRANCH=stable${HUB_VERSION}
+      - SQL=${SQL}
+      - VIRTUAL_HOST=localhost
     volumes:
       - .:/var/www/html/apps-extra/stalwart:Z
+      - nextcloud-${PHP_VERSION}-${HUB_VERSION}-${SQL}:/var/www/html:Zrw
+    depends_on:
+        - database-${SQL}
+        - stalwart
     networks:
         - my_network
 
+  database-mysql:
+    image: mariadb:10.6
+    hostname: database-mysql
+    ports:
+      - "127.0.0.1:3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=nextcloud
+      - MYSQL_PASSWORD=admin
+      - MYSQL_USER=admin
+      - MYSQL_DATABASE=localhost
+    depends_on:
+      - phpmyadmin
+    volumes:
+        - nextcloud-db-${PHP_VERSION}-${HUB_VERSION}-mysql:/var/lib/mysql
+    networks:
+      - my_network
+
   stalwart:
-    image: docker.io/stalwartlabs/mail-server:latest
+    image: stalwartlabs/mail-server:latest
     hostname: stalwart
     ports:
       - "127.0.0.1:9090:8080"
+    volumes:
+      - nextcloud-stalwart:/opt/stalwart
+    networks:
+        - my_network
+
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - "127.0.0.1:8989:80"
+    environment:
+        - PMA_HOST=database-mysql
+        - PMA_USER=root
+        - PMA_PASSWORD=nextcloud
     networks:
         - my_network
 
 networks:
   my_network:
     driver: bridge
+
+volumes:
+    nextcloud-81-30-mysql:
+    nextcloud-db-81-30-mysql:
+    nextcloud-stalwart:

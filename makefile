@@ -1,7 +1,7 @@
 MAKEFLAGS += -j2
+COMPOSE_CLI=podman compose
 
-
-run-dev: start watch
+run-dev-81-30-mysql: start-81-30-mysql watch
 
 build-all: build-api build-js
 
@@ -9,17 +9,14 @@ install:
 	@npm install
 	@composer install
 
-start:
-	podman compose up
+start-81-30-mysql:
+	PHP_VERSION=81 HUB_VERSION=30 SQL=mysql $(COMPOSE_CLI) up main
 
-stop:
-	podman compose stop
+stop-81-30-mysql:
+	PHP_VERSION=81 HUB_VERSION=30 SQL=mysql $(COMPOSE_CLI) down
 
 watch:
 	npm run watch
-
-remove:
-	podman compose down
 
 lint-php:
 	composer run lint

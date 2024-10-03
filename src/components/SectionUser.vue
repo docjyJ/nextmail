@@ -14,7 +14,7 @@ const props = defineProps<{
 }>()
 
 const { users, usersServer, loading, reload, addUser } = useServerUserList(props.serverId)
-const newUserId = ref()
+const newUser = ref<{id: string} | null>()
 
 onMounted(() => {
 	reload()
@@ -25,26 +25,25 @@ onMounted(() => {
 	<NcSettingsSection
 		name="Server Users"
 		description="Manage the users for the selected server.">
-		<NcSelect
-			v-model="newUserId"
-			:options="usersServer.map(e => ({
-				id: e.uid,
-				displayName: e.displayName,
-				isNoUser: false,
-				user: e.uid,
-			}))"
-			:user-select="true" />
-		<NcButton :disabled="loading" :type="ButtonType.Primary" @click="addUser(newUserId)">
-			<template #icon>
-				<NcLoadingIcon v-if="loading" />
-				<NcIconSvgWrapper v-else :svg="mdiContentSave" name="ContentSave" />
-			</template>
-			Add User
-		</NcButton>
-		{{ newUserId }}
-		<NcButton :disabled="loading" :type="ButtonType.Primary" @click="reload">
-			Reload Users
-		</NcButton>
+		<div style="display: inline-flex; gap:8px; width:100%">
+			<NcSelect
+				v-model="newUser"
+				style="flex-grow: 1"
+				:options="usersServer.map(e => ({
+					id: e.uid,
+					displayName: e.displayName,
+					isNoUser: false,
+					user: e.uid,
+				}))"
+				:user-select="true" />
+			<NcButton :disabled="loading" :type="ButtonType.Primary" @click="newUser ? addUser(newUser.id) : undefined">
+				<template #icon>
+					<NcLoadingIcon v-if="loading" />
+					<NcIconSvgWrapper v-else :svg="mdiContentSave" name="ContentSave" />
+				</template>
+				Add User
+			</NcButton>
+		</div>
 		<ul>
 			<NcListItemIcon
 				v-for="user in users"

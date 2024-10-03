@@ -20,7 +20,6 @@ use OCP\DB\Exception;
 use OCP\IRequest;
 
 /**
- * @psalm-api
  * @psalm-import-type StalwartServerConfig from ResponseDefinitions
  * @psalm-import-type StalwartServerUser from ResponseDefinitions
  */
@@ -194,11 +193,11 @@ class ApiController extends OCSController {
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
 	#[ApiRoute(verb: 'POST', url: '/config/{id}/users')]
 	public function postUsers(int $id, string $uid): DataResponse {
-		try {
-			$user = $this->usersService->add($id, $uid);
-		} catch (Exception $e) {
-			throw new OCSException(previous: $e);
-		}
+		//		try {
+		$user = $this->usersService->add($id, $uid);
+		//		} catch (Exception $e) {
+		//			throw new OCSException(previous: $e);
+		//		}
 		if ($user === null) {
 			throw new OCSNotFoundException();
 		}
