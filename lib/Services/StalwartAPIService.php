@@ -69,7 +69,7 @@ class StalwartAPIService {
 	 * @param string $username
 	 * @param string $password
 	 *
-	 * @return array{ServerStatus, DateTime}
+	 * @return array{0: ServerStatus, 1: DateTime}
 	 * @psalm-return list{ServerStatus, DateTime}
 	 */
 	public function challenge(string $endpoint, string $username, string $password): array {

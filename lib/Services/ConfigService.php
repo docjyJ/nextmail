@@ -11,13 +11,13 @@ use Throwable;
 
 /**
  * @psalm-type ServerConfig = array{
- *      id: int,
- *      endpoint: string,
+ *     id: int,
+ *     endpoint: string,
  *      username: string,
- *      password: string,
+ *     password: string,
  *      health: int,
  *      health_expires: DateTime
- *  }
+ * }
  * @psalm-import-type StalwartServerConfig from ResponseDefinitions
  */
 class ConfigService {
@@ -228,8 +228,8 @@ class ConfigService {
 					->set('endpoint', $q->createNamedParameter($entity['endpoint']))
 					->set('username', $q->createNamedParameter($entity['username']))
 					->set('password', $q->createNamedParameter($entity['password']))
-					->set('health', $q->createNamedParameter($healthResult[0], IQueryBuilder::PARAM_INT))
-					->set('health_expires', $q->createNamedParameter($healthResult[1], IQueryBuilder::PARAM_DATE))
+					->set('health', $q->createNamedParameter($entity['health'], IQueryBuilder::PARAM_INT))
+					->set('health_expires', $q->createNamedParameter($entity['health_expires'], IQueryBuilder::PARAM_DATE))
 					->where($q->expr()->eq('cid', $q->createNamedParameter($entity['id'], IQueryBuilder::PARAM_INT)))
 					->executeStatement();
 				$this->db->commit();
