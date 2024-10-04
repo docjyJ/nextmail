@@ -20,6 +20,7 @@ use OCP\DB\Exception;
 use OCP\IRequest;
 
 /**
+ * @psalm-api
  * @psalm-import-type StalwartServerConfig from ResponseDefinitions
  * @psalm-import-type StalwartServerUser from ResponseDefinitions
  */
@@ -194,7 +195,7 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'POST', url: '/config/{id}/users')]
 	public function postUsers(int $id, string $uid): DataResponse {
 		try {
-			$user = $this->usersService->add($id, $uid);
+			$user = $this->usersService->addUser($id, $uid);
 		} catch (Exception $e) {
 			throw new OCSException(previous: $e);
 		}
@@ -219,7 +220,7 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'DELETE', url: '/config/{id}/users')]
 	public function deleteUsers(int $id, string $uid): DataResponse {
 		try {
-			$user = $this->usersService->remove($id, $uid);
+			$user = $this->usersService->removeUser($id, $uid);
 		} catch (Exception $e) {
 			throw new OCSException(previous: $e);
 		}

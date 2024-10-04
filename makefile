@@ -1,7 +1,7 @@
 MAKEFLAGS += -j2
 COMPOSE_CLI=podman compose
 
-run-dev-81-30-mysql: start-81-30-mysql watch
+run-dev-mysql: start-mysql watch
 
 build-all: build-api build-js
 
@@ -9,11 +9,14 @@ install:
 	@npm install
 	@composer install
 
-start-81-30-mysql:
-	PHP_VERSION=81 HUB_VERSION=30 SQL=mysql $(COMPOSE_CLI) up main
+start-mysql:
+	$(COMPOSE_CLI) -f compose.mysql.yml up
 
-stop-81-30-mysql:
-	PHP_VERSION=81 HUB_VERSION=30 SQL=mysql $(COMPOSE_CLI) down
+stop-mysql:
+	$(COMPOSE_CLI) -f compose.mysql.yml down
+
+remove-mysql:
+	$(COMPOSE_CLI) -f compose.mysql.yml down --volumes
 
 watch:
 	npm run watch

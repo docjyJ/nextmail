@@ -20,7 +20,7 @@
 		"cs:fix": "php-cs-fixer fix",
 		"psalter:check": "psalter --issues=all --dry-run",
 		"psalter:fix": "psalter --issues=all",
-		"psalm": "psalm --find-dead-code --no-cache",
+		"psalm": "psalm --no-cache",
 		"openapi": "generate-spec"
 	},
 	"require": {

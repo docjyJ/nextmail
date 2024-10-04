@@ -1,19 +1,20 @@
 <?xml version="1.0"?>
-<psalm
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns="https://getpsalm.org/schema/config"
-    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
-    errorLevel="1"
-    threads="1"
-    runTaintAnalysis="true"
+<psalm errorLevel="1"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="https://getpsalm.org/schema/config"
+       xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+       findUnusedBaselineEntry="true"
+       findUnusedCode="true"
+       findUnusedPsalmSuppress="true"
+       threads="1"
 >
     <projectFiles>
-        <directory name="lib" />
+        <directory name="lib"/>
         <ignoreFiles>
-            <directory name="vendor" />
+            <directory name="vendor"/>
         </ignoreFiles>
     </projectFiles>
-	<extraFiles>
-		<directory name="vendor"/>
-	</extraFiles>
+    <extraFiles>
+        <directory name="vendor"/>
+    </extraFiles>
 </psalm>

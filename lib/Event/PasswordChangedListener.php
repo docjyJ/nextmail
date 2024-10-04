@@ -6,12 +6,12 @@ use OCA\Stalwart\Services\UsersService;
 use OCP\DB\Exception;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
-use OCP\User\Events\UserDeletedEvent;
+use OCP\User\Events\PasswordUpdatedEvent;
 
 /**
- * @implements IEventListener<UserDeletedEvent>
+ * @implements IEventListener<PasswordUpdatedEvent>
  */
-class UserDeletedListener implements IEventListener {
+class PasswordChangedListener implements IEventListener {
 	/** @psalm-suppress PossiblyUnusedMethod */
 	public function __construct(
 		private readonly UsersService $usersService,
@@ -19,10 +19,11 @@ class UserDeletedListener implements IEventListener {
 	}
 
 	/**
-	 * @param UserDeletedEvent $event
+	 * @param PasswordUpdatedEvent $event
 	 * @throws Exception
 	 */
 	public function handle(Event $event): void {
-		$this->usersService->dropUser($event->getUser()->getUID());
+		$sha512 = hash('sha512', $event->getPassword());
+		$this->usersService->updatePassword($event->getUser()->getUID(), $sha512);
 	}
 }

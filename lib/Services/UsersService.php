@@ -12,8 +12,14 @@ use OCP\IUserManager;
  * @psalm-import-type StalwartServerUser from ResponseDefinitions
  */
 class UsersService {
-	private const TABLE_USERS = 'stalwart_users';
+	public const TABLE_USERS = 'stalwart_users';
+	public const TABLE_EMAILS = 'stalwart_alias';
+	private const TYPE_USER = 'individual';
+	private const EMAIL_PRIMARY = 0;
+	//	private const EMAIL_ALIAS = 1;
+	//	private const EMAIL_LIST = 2;
 
+	/** @psalm-suppress PossiblyUnusedMethod */
 	public function __construct(
 		private readonly IDBConnection $db,
 		private readonly IUserManager  $userManager,
@@ -46,6 +52,7 @@ class UsersService {
 			->executeQuery();
 		$entities = [];
 		while (true) {
+			/** @psalm-suppress MixedAssignment */
 			$row = $result->fetch();
 			if (is_array($row) && is_string($row['uid'])) {
 				$user = $this->findUser($row['uid']);
@@ -62,22 +69,42 @@ class UsersService {
 	}
 
 	/**
-	 * @param int $id
+	 * @param int $cid
 	 * @param string $uid
 	 * @return ?StalwartServerUser
 	 * @throws Exception
 	 */
-	public function add(int $id, string $uid): ?array {
+	public function addUser(int $cid, string $uid): ?array {
 		$user = $this->findUser($uid);
 		if ($user !== null) {
-			$q = $this->db->getQueryBuilder();
-			$q->insert(self::TABLE_USERS)
-				->setValue('config_id', $q->createNamedParameter($id, IQueryBuilder::PARAM_INT))
-				->setValue('uid', $q->createNamedParameter($uid))
-				->executeStatement();
+			$this->db->beginTransaction();
+			try {
+				$q = $this->db->getQueryBuilder();
+				$q->insert(self::TABLE_USERS)
+					->setValue('cid', $q->createNamedParameter($cid, IQueryBuilder::PARAM_INT))
+					->setValue('uid', $q->createNamedParameter($uid))
+					->setValue('type', $q->createNamedParameter(self::TYPE_USER))
+					->setValue('display_name', $q->createNamedParameter($user['displayName']))
+					->setValue('password', $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL))
+					->setValue('quota', $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL))
+					->executeStatement();
+
+				if ($user['email'] !== null) {
+					$q = $this->db->getQueryBuilder();
+					$q->insert(self::TABLE_EMAILS)
+						->setValue('cid', $q->createNamedParameter($cid, IQueryBuilder::PARAM_INT))
+						->setValue('uid', $q->createNamedParameter($uid))
+						->setValue('email', $q->createNamedParameter($user['email']))
+						->setValue('mode', $q->createNamedParameter(self::EMAIL_PRIMARY, IQueryBuilder::PARAM_INT))
+						->executeStatement();
+				}
+				$this->db->commit();
+			} catch (Exception $e) {
+				$this->db->rollBack();
+				throw $e;
+			}
 		}
 		return $user;
-
 	}
 
 	/**
@@ -86,14 +113,21 @@ class UsersService {
 	 * @return ?StalwartServerUser
 	 * @throws Exception
 	 */
-	public function remove(int $id, string $uid): ?array {
+	public function removeUser(int $id, string $uid): ?array {
 		$user = $this->findUser($uid);
 		if ($user !== null) {
-			$q = $this->db->getQueryBuilder();
-			$q->delete(self::TABLE_USERS)
-				->where($q->expr()->eq('config_id', $q->createNamedParameter($id, IQueryBuilder::PARAM_INT)))
-				->andWhere($q->expr()->eq('uid', $q->createNamedParameter($uid)))
-				->executeStatement();
+			$this->db->beginTransaction();
+			try {
+				$q = $this->db->getQueryBuilder();
+				$q->delete(self::TABLE_USERS)
+					->where($q->expr()->eq('config_id', $q->createNamedParameter($id, IQueryBuilder::PARAM_INT)))
+					->andWhere($q->expr()->eq('uid', $q->createNamedParameter($uid)))
+					->executeStatement();
+				$this->db->commit();
+			} catch (Exception $e) {
+				$this->db->rollBack();
+				throw $e;
+			}
 		}
 		return $user;
 	}
@@ -107,4 +141,49 @@ class UsersService {
 			->where($q->expr()->eq('uid', $q->createNamedParameter($uid)))
 			->executeStatement();
 	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function updatePrimaryEmail(string $uid, ?string $email): void {
+		$this->db->beginTransaction();
+		try {
+			$q = $this->db->getQueryBuilder();
+			$q->delete(self::TABLE_EMAILS)
+				->where($q->expr()->eq('uid', $q->createNamedParameter($uid)))
+				->andWhere($q->expr()->eq('mode', $q->createNamedParameter(self::EMAIL_PRIMARY, IQueryBuilder::PARAM_INT)))
+				->executeStatement();
+			if ($email !== null) {
+				$q = $this->db->getQueryBuilder();
+				$q->insert(self::TABLE_EMAILS)
+					->setValue('uid', $q->createNamedParameter($uid))
+					->setValue('email', $q->createNamedParameter($email))
+					->setValue('mode', $q->createNamedParameter(self::EMAIL_PRIMARY, IQueryBuilder::PARAM_INT))
+					->executeStatement();
+			}
+			$this->db->commit();
+		} catch (Exception $e) {
+			$this->db->rollBack();
+			throw $e;
+		}
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function updatePassword(string $uid, string $sha512): void {
+		$this->db->beginTransaction();
+		try {
+			$q = $this->db->getQueryBuilder();
+			$q->update(self::TABLE_USERS)
+				->set('password', $q->createNamedParameter($sha512))
+				->where($q->expr()->eq('uid', $q->createNamedParameter($uid)))
+				->executeStatement();
+			$this->db->commit();
+		} catch (Exception $e) {
+			$this->db->rollBack();
+			throw $e;
+		}
+	}
+
 }

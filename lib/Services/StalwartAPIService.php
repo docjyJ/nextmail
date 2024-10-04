@@ -12,28 +12,25 @@ use Throwable;
 
 class StalwartAPIService {
 	private const URL_PATTERN = '/^https?:\\/\\/([a-z0-9-]+\\.)*[a-z0-9-]+(:\\d{1,5})?\\/api$/';
-
-	public const SUCCESS_CONNECTION = 0;
-	public const NO_ADMIN_CONNECTION = 1;
-	public const UNAUTHORIZED_CONNECTION = 2;
-	public const ERROR_SERVER = 3;
-	public const ERROR_CONNECTION = 4;
-	public const INVALID_CONNECTION = 5;
-
 	private readonly ISqlService $sqlService;
 
 
 	/**
+	 * @psalm-suppress PossiblyUnusedMethod
 	 * @throws Exception
 	 */
 	public function __construct(
 		private readonly IClientService $clientService,
 		IConfig $config,
 	) {
-		match ($config->getSystemValue('dbtype')) {
-			'mysql' => $this->sqlService = new MysqlService($config),
-			default => throw new Exception('This app only supports MySQL')
-		};
+		/** @psalm-suppress MixedAssignment */
+		$type = $config->getSystemValue('dbtype');
+		if ($type === 'mysql') {
+			$sqlService = new MysqlService($config);
+		} else {
+			throw new Exception('This app only supports MySQL');
+		}
+		$this->sqlService = $sqlService;
 	}
 
 	private static function genCred(string $username, string $password): string {
@@ -71,11 +68,13 @@ class StalwartAPIService {
 	 * @param string $endpoint
 	 * @param string $username
 	 * @param string $password
-	 * @return array{0: int, 1:DateTime}
+	 *
+	 * @return array{ServerStatus, DateTime}
+	 * @psalm-return list{ServerStatus, DateTime}
 	 */
 	public function challenge(string $endpoint, string $username, string $password): array {
 		if ($username === '' || $password === '' || preg_match(self::URL_PATTERN, $endpoint) !== 1) {
-			return [self::INVALID_CONNECTION, self::getExpiration(false)];
+			return [ServerStatus::InvalidConfig, self::getExpiration(false)];
 		}
 
 		$client = $this->clientService->newClient();
@@ -89,18 +88,18 @@ class StalwartAPIService {
 				'headers' => ['Authorization' => self::genCred($username, $password)]
 			]);
 			return [
-				str_contains(self::readBody($response), '"is_admin":true') ? self::SUCCESS_CONNECTION : self::NO_ADMIN_CONNECTION,
+				str_contains(self::readBody($response), '"is_admin":true') ? ServerStatus::Success : ServerStatus::NoAdmin,
 				self::getExpiration(true)
 			];
 		} catch (Throwable $e) {
 			try {
 				$response = $client->getResponseFromThrowable($e);
 				return [
-					$response->getStatusCode() === 401 ? self::UNAUTHORIZED_CONNECTION : self::ERROR_SERVER,
+					$response->getStatusCode() === 401 ? ServerStatus::Unauthorized : ServerStatus::ErrorServer,
 					self::getExpiration(false)
 				];
 			} catch (Throwable) {
-				return [self::ERROR_CONNECTION, self::getExpiration(false)];
+				return [ServerStatus::ErrorNetwork, self::getExpiration(false)];
 			}
 		}
 	}
@@ -108,9 +107,8 @@ class StalwartAPIService {
 	/**
 	 * @throws Exception
 	 */
-	public function pushDataBase(string $endpoint, string $username, string $password, int $config_id): void {
-		$client = $this->clientService->newClient();
-		$response = $client->post($endpoint . '/settings', [
+	public function pushDataBase(int $config_id, string $endpoint, string $username, string $password): void {
+		$this->clientService->newClient()->post($endpoint . '/settings', [
 			'body' => $this->sqlService->getStalwartConfig($config_id),
 			'headers' => ['Authorization' => self::genCred($username, $password)]
 		]);

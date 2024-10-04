@@ -3,6 +3,7 @@
 namespace OCA\Stalwart;
 
 /**
+ * @psalm-api
  * @psalm-type StalwartServerConfig = array{
  *      id: int,
  *      endpoint: string,

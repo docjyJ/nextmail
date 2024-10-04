@@ -11,6 +11,7 @@ use OCP\DB\Types;
 use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
+/** @psalm-suppress UnusedClass */
 class Version000100Date20240914153000 extends SimpleMigrationStep {
 	public function preSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
 	}
@@ -19,9 +20,9 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 		/** @type ISchemaWrapper $schema */
 		$schema = $schemaClosure();
 
-		if (!$schema->hasTable('stalwart_config')) {
-			$table = $schema->createTable('stalwart_config');
-			$table->addColumn('id', Types::BIGINT, [
+		if (!$schema->hasTable('stalwart_configs')) {
+			$table = $schema->createTable('stalwart_configs');
+			$table->addColumn('cid', Types::BIGINT, [
 				'autoincrement' => true,
 				'notnull' => true,
 				'length' => 4,
@@ -44,12 +45,12 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 			$table->addColumn('health_expires', Types::DATETIME, [
 				'notnull' => true,
 			]);
-			$table->setPrimaryKey(['id']);
+			$table->setPrimaryKey(['cid']);
 		}
 
 		if (!$schema->hasTable('stalwart_users')) {
 			$table = $schema->createTable('stalwart_users');
-			$table->addColumn('config_id', Types::BIGINT, [
+			$table->addColumn('cid', Types::BIGINT, [
 				'autoincrement' => true,
 				'notnull' => true,
 				'length' => 4,
@@ -71,8 +72,31 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 			$table->addColumn('quota', Types::BIGINT, [
 				'length' => 4,
 			]);
-			$table->setPrimaryKey(['config_id', 'uid']);
-			$table->addForeignKeyConstraint('stalwart_config', ['config_id'], ['id'], ['onDelete' => 'CASCADE']);
+			$table->setPrimaryKey(['cid', 'uid']);
+			$table->addForeignKeyConstraint('stalwart_configs', ['cid'], ['cid'], ['onDelete' => 'CASCADE']);
+		}
+
+		if (!$schema->hasTable('stalwart_emails')) {
+			$table = $schema->createTable('stalwart_emails');
+			$table->addColumn('cid', Types::BIGINT, [
+				'autoincrement' => true,
+				'notnull' => true,
+				'length' => 4,
+			]);
+			$table->addColumn('uid', Types::STRING, [
+				'notnull' => true,
+				'length' => 128,
+			]);
+			$table->addColumn('email', Types::STRING, [
+				'notnull' => true,
+				'length' => 128,
+			]);
+			$table->addColumn('mode', Types::STRING, [
+				'notnull' => true,
+				'length' => 128,
+			]);
+			$table->setPrimaryKey(['cid', 'uid', 'email']);
+			$table->addForeignKeyConstraint('stalwart_users', ['cid', 'uid'], ['cid', 'uid'], ['onDelete' => 'CASCADE']);
 		}
 
 		return $schema;

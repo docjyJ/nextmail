@@ -8,6 +8,7 @@ use OCP\IL10N;
 use OCP\Settings\IDelegatedSettings;
 
 class Admin implements IDelegatedSettings {
+	/** @psalm-suppress PossiblyUnusedMethod */
 	public function __construct(
 		private readonly IL10N $l,
 	) {
@@ -21,14 +22,14 @@ class Admin implements IDelegatedSettings {
 	}
 
 	/**
-	 * @return Section::SETTING_ID
+	 * @psalm-return 'stalwart'
 	 */
 	public function getSection(): string {
 		return Section::SETTING_ID;
 	}
 
 	/**
-	 * @return 50
+	 * @psalm-return 50
 	 */
 	public function getPriority(): int {
 		return 50;

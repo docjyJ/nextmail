@@ -7,6 +7,7 @@ use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use OCP\DB\Exception;
 
+/** @psalm-suppress UnusedClass */
 class CheckTask extends TimedJob {
 	public function __construct(
 		ITimeFactory                   $time,
