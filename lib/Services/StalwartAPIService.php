@@ -4,8 +4,10 @@ namespace OCA\Stalwart\Services;
 
 use DateInterval;
 use DateTime;
+use Exception;
 use OCP\Http\Client\IClientService;
 use OCP\Http\Client\IResponse;
+use OCP\IConfig;
 use Throwable;
 
 class StalwartAPIService {
@@ -18,10 +20,20 @@ class StalwartAPIService {
 	public const ERROR_CONNECTION = 4;
 	public const INVALID_CONNECTION = 5;
 
+	private readonly ISqlService $sqlService;
 
+
+	/**
+	 * @throws Exception
+	 */
 	public function __construct(
 		private readonly IClientService $clientService,
+		IConfig $config,
 	) {
+		match ($config->getSystemValue('dbtype')) {
+			'mysql' => $this->sqlService = new MysqlService($config),
+			default => throw new Exception('This app only supports MySQL')
+		};
 	}
 
 	private static function genCred(string $username, string $password): string {
@@ -59,7 +71,7 @@ class StalwartAPIService {
 	 * @param string $endpoint
 	 * @param string $username
 	 * @param string $password
-	 * @return list{int, DateTime}
+	 * @return array{0: int, 1:DateTime}
 	 */
 	public function challenge(string $endpoint, string $username, string $password): array {
 		if ($username === '' || $password === '' || preg_match(self::URL_PATTERN, $endpoint) !== 1) {
@@ -69,7 +81,11 @@ class StalwartAPIService {
 		$client = $this->clientService->newClient();
 		try {
 			$response = $client->post($endpoint . '/oauth', [
-				'body' => '{"type":"Code","client_id":"nextcloud","redirect_uri":null}',
+				'body' => [
+					'type' => 'Code',
+					'client_id' => 'nextcloud',
+					'redirect_uri' => null
+				],
 				'headers' => ['Authorization' => self::genCred($username, $password)]
 			]);
 			return [
@@ -87,5 +103,16 @@ class StalwartAPIService {
 				return [self::ERROR_CONNECTION, self::getExpiration(false)];
 			}
 		}
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function pushDataBase(string $endpoint, string $username, string $password, int $config_id): void {
+		$client = $this->clientService->newClient();
+		$response = $client->post($endpoint . '/settings', [
+			'body' => $this->sqlService->getStalwartConfig($config_id),
+			'headers' => ['Authorization' => self::genCred($username, $password)]
+		]);
 	}
 }

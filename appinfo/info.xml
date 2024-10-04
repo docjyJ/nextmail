@@ -14,7 +14,9 @@ Users, groups and authentication information will be directly integrated into Ne
 	<category>tools</category>
 	<bugs>https://github.com/docjyJ/nextcloud-stalwart/issues</bugs>
 	<dependencies>
-		<nextcloud min-version="29" max-version="29"/>
+		<php min-version="8.1" max-version="8.3"/>
+		<database>mysql</database>
+		<nextcloud min-version="30" max-version="30"/>
 	</dependencies>
 	<background-jobs>
 		<job>OCA\Stalwart\Cron\CheckTask</job>

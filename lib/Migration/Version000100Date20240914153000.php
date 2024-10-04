@@ -58,6 +58,19 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 				'notnull' => true,
 				'length' => 128,
 			]);
+			$table->addColumn('type', Types::STRING, [
+				'notnull' => true,
+				'length' => 128,
+			]);
+			$table->addColumn('display_name', Types::STRING, [
+				'length' => 128,
+			]);
+			$table->addColumn('password', Types::STRING, [
+				'length' => 300,
+			]);
+			$table->addColumn('quota', Types::BIGINT, [
+				'length' => 4,
+			]);
 			$table->setPrimaryKey(['config_id', 'uid']);
 			$table->addForeignKeyConstraint('stalwart_config', ['config_id'], ['id'], ['onDelete' => 'CASCADE']);
 		}
