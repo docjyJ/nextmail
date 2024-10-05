@@ -18,6 +18,7 @@ use OCP\AppFramework\OCS\OCSNotFoundException;
 use OCP\AppFramework\OCSController;
 use OCP\DB\Exception;
 use OCP\IRequest;
+use Psr\Log\LoggerInterface;
 
 /**
  * @psalm-api
@@ -30,6 +31,7 @@ class ApiController extends OCSController {
 		IRequest                       $request,
 		private readonly ConfigService $configService,
 		private readonly UsersService  $usersService,
+        private readonly LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);
 	}
@@ -49,7 +51,8 @@ class ApiController extends OCSController {
 		try {
 			$result = $this->configService->findMany();
 		} catch (Exception $e) {
-			throw new OCSException(previous: $e);
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
+            throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 		return new DataResponse($result);
 	}
@@ -71,7 +74,8 @@ class ApiController extends OCSController {
 		try {
 			$result = $this->configService->create($endpoint, $username, $password);
 		} catch (Exception $e) {
-			throw new OCSException(previous: $e);
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 		unset($result['password']);
 		unset($result['health_expires']);
@@ -94,7 +98,8 @@ class ApiController extends OCSController {
 		try {
 			$result = $this->configService->findId($id);
 		} catch (Exception $e) {
-			throw new OCSException(previous: $e);
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
+            throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 		if ($result === null) {
 			throw new OCSNotFoundException();
@@ -123,7 +128,8 @@ class ApiController extends OCSController {
 		try {
 			$result = $this->configService->updateCredentials($id, $endpoint, $username, $password);
 		} catch (Exception $e) {
-			throw new OCSException(previous: $e);
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
+            throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 		if ($result === null) {
 			throw new OCSNotFoundException();
@@ -149,7 +155,8 @@ class ApiController extends OCSController {
 		try {
 			$result = $this->configService->delete($id);
 		} catch (Exception $e) {
-			throw new OCSException(previous: $e);
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
+            throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 		if ($result === null) {
 			throw new OCSNotFoundException();
@@ -175,7 +182,8 @@ class ApiController extends OCSController {
 		try {
 			$result = $this->usersService->findMany($id);
 		} catch (Exception $e) {
-			throw new OCSException(previous: $e);
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
+            throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 		return new DataResponse($result);
 	}
@@ -197,7 +205,8 @@ class ApiController extends OCSController {
 		try {
 			$user = $this->usersService->addUser($id, $uid);
 		} catch (Exception $e) {
-			throw new OCSException(previous: $e);
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
+            throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 		if ($user === null) {
 			throw new OCSNotFoundException();
@@ -222,7 +231,8 @@ class ApiController extends OCSController {
 		try {
 			$user = $this->usersService->removeUser($id, $uid);
 		} catch (Exception $e) {
-			throw new OCSException(previous: $e);
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
+            throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 		if ($user === null) {
 			throw new OCSNotFoundException();

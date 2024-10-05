@@ -67,9 +67,11 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 				'length' => 128,
 			]);
 			$table->addColumn('password', Types::STRING, [
+                'notnull' => false,
 				'length' => 300,
 			]);
 			$table->addColumn('quota', Types::BIGINT, [
+                'notnull' => false,
 				'length' => 4,
 			]);
 			$table->setPrimaryKey(['cid', 'uid']);

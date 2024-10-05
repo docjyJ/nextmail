@@ -8,6 +8,7 @@ use Exception;
 use OCP\Http\Client\IClientService;
 use OCP\Http\Client\IResponse;
 use OCP\IConfig;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
 class StalwartAPIService {
@@ -21,6 +22,7 @@ class StalwartAPIService {
 	 */
 	public function __construct(
 		private readonly IClientService $clientService,
+		private readonly LoggerInterface $logger,
 		IConfig $config,
 	) {
 		/** @psalm-suppress MixedAssignment */
@@ -74,31 +76,36 @@ class StalwartAPIService {
 	 */
 	public function challenge(string $endpoint, string $username, string $password): array {
 		if ($username === '' || $password === '' || preg_match(self::URL_PATTERN, $endpoint) !== 1) {
+			$this->logger->warning('A Stalwart server configuration is invalid');
 			return [ServerStatus::InvalidConfig, self::getExpiration(false)];
 		}
 
 		$client = $this->clientService->newClient();
 		try {
 			$response = $client->post($endpoint . '/oauth', [
-				'body' => [
+				'body' => json_encode([
 					'type' => 'Code',
 					'client_id' => 'nextcloud',
 					'redirect_uri' => null
-				],
+				], JSON_THROW_ON_ERROR),
 				'headers' => ['Authorization' => self::genCred($username, $password)]
 			]);
-			return [
-				str_contains(self::readBody($response), '"is_admin":true') ? ServerStatus::Success : ServerStatus::NoAdmin,
-				self::getExpiration(true)
-			];
+			if (str_contains(self::readBody($response), '"is_admin":true')) {
+				return [ ServerStatus::Success, self::getExpiration(true) ];
+			} else {
+				$this->logger->warning('The user of a Stalwart server is not an admin');
+				return [ ServerStatus::NoAdmin, self::getExpiration(true) ];
+			}
 		} catch (Throwable $e) {
 			try {
 				$response = $client->getResponseFromThrowable($e);
+                $this->logger->warning($e->getMessage(), ['exception' => $e]);
 				return [
 					$response->getStatusCode() === 401 ? ServerStatus::Unauthorized : ServerStatus::ErrorServer,
 					self::getExpiration(false)
 				];
-			} catch (Throwable) {
+			} catch (Throwable $e) {
+                $this->logger->warning($e->getMessage(), ['exception' => $e]);
 				return [ServerStatus::ErrorNetwork, self::getExpiration(false)];
 			}
 		}

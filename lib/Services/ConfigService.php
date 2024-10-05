@@ -21,7 +21,7 @@ use Throwable;
  * @psalm-import-type StalwartServerConfig from ResponseDefinitions
  */
 class ConfigService {
-	private const TABLE_CONFIG = 'stalwart_config';
+	private const TABLE_CONFIG = 'stalwart_configs';
 
 	/** @psalm-suppress PossiblyUnusedMethod */
 	public function __construct(

@@ -69,7 +69,7 @@ SQL;
 	/**
 	 * @throws Exception
 	 */
-	public function getStalwartConfig(int $config_id): array {
+	public function getStalwartConfig(int $config_id): string {
 		$dbType = $this->config->getSystemValueString('dbtype');
 		if ($dbType !== 'mysql') {
 			throw new Exception('This app only supports MySQL');
@@ -100,7 +100,7 @@ SQL;
 		$tableAlias = $dbTablePrefix . UsersService::TABLE_EMAILS;
 		$config_name = $dbName . '_' . $config_id;
 
-		return [
+		return json_encode([
 			[
 				'prefix' => 'directory.' . $config_name,
 				'type' => 'Clear',
@@ -161,6 +161,6 @@ SQL;
 					[ 'storage.directory.', $config_name ],
 				],
 			],
-		];
+		], JSON_THROW_ON_ERROR);
 	}
 }

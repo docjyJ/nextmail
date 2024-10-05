@@ -48,7 +48,7 @@ class UsersService {
 		$q = $this->db->getQueryBuilder();
 		$result = $q->select('uid')
 			->from(self::TABLE_USERS)
-			->where($q->expr()->eq('config_id', $q->createNamedParameter($id, IQueryBuilder::PARAM_INT)))
+			->where($q->expr()->eq('cid', $q->createNamedParameter($id, IQueryBuilder::PARAM_INT)))
 			->executeQuery();
 		$entities = [];
 		while (true) {
@@ -85,7 +85,7 @@ class UsersService {
 					->setValue('uid', $q->createNamedParameter($uid))
 					->setValue('type', $q->createNamedParameter(self::TYPE_USER))
 					->setValue('display_name', $q->createNamedParameter($user['displayName']))
-					->setValue('password', $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL))
+					->setValue('password', $q->createNamedParameter(''))
 					->setValue('quota', $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL))
 					->executeStatement();
 
@@ -120,7 +120,7 @@ class UsersService {
 			try {
 				$q = $this->db->getQueryBuilder();
 				$q->delete(self::TABLE_USERS)
-					->where($q->expr()->eq('config_id', $q->createNamedParameter($id, IQueryBuilder::PARAM_INT)))
+					->where($q->expr()->eq('cid', $q->createNamedParameter($id, IQueryBuilder::PARAM_INT)))
 					->andWhere($q->expr()->eq('uid', $q->createNamedParameter($uid)))
 					->executeStatement();
 				$this->db->commit();
