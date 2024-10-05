@@ -2,7 +2,8 @@
 
 namespace OCA\Stalwart\Cron;
 
-use OCA\Stalwart\Services\ConfigService;
+use DateTime;
+use OCA\Stalwart\Db\ConfigManager;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use OCP\DB\Exception;
@@ -11,7 +12,7 @@ use OCP\DB\Exception;
 class CheckTask extends TimedJob {
 	public function __construct(
 		ITimeFactory                   $time,
-		private readonly ConfigService $configService,
+		private readonly ConfigManager $configService,
 	) {
 		parent::__construct($time);
 		$this->setInterval(3600);
@@ -19,7 +20,12 @@ class CheckTask extends TimedJob {
 
 	/** @throws Exception */
 	protected function run(mixed $argument): void {
-		$this->configService->updateExpiredHealth();
+		$now = new DateTime();
+		foreach ($this->configService->list() as $item) {
+			if ($item->expires < $now) {
+				$this->configService->update($item);
+			}
+		}
 	}
 
 }

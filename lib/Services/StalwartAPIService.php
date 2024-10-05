@@ -5,6 +5,7 @@ namespace OCA\Stalwart\Services;
 use DateInterval;
 use DateTime;
 use Exception;
+use OCA\Stalwart\Models\ServerStatus;
 use OCP\Http\Client\IClientService;
 use OCP\Http\Client\IResponse;
 use OCP\IConfig;
@@ -77,7 +78,7 @@ class StalwartAPIService {
 	public function challenge(string $endpoint, string $username, string $password): array {
 		if ($username === '' || $password === '' || preg_match(self::URL_PATTERN, $endpoint) !== 1) {
 			$this->logger->warning('A Stalwart server configuration is invalid');
-			return [ServerStatus::InvalidConfig, self::getExpiration(false)];
+			return [ServerStatus::Invalid, self::getExpiration(false)];
 		}
 
 		$client = $this->clientService->newClient();
@@ -99,14 +100,14 @@ class StalwartAPIService {
 		} catch (Throwable $e) {
 			try {
 				$response = $client->getResponseFromThrowable($e);
-                $this->logger->warning($e->getMessage(), ['exception' => $e]);
+				$this->logger->warning($e->getMessage(), ['exception' => $e]);
 				return [
-					$response->getStatusCode() === 401 ? ServerStatus::Unauthorized : ServerStatus::ErrorServer,
+					$response->getStatusCode() === 401 ? ServerStatus::Unauthorized : ServerStatus::BadServer,
 					self::getExpiration(false)
 				];
 			} catch (Throwable $e) {
-                $this->logger->warning($e->getMessage(), ['exception' => $e]);
-				return [ServerStatus::ErrorNetwork, self::getExpiration(false)];
+				$this->logger->warning($e->getMessage(), ['exception' => $e]);
+				return [ServerStatus::BadNetwork, self::getExpiration(false)];
 			}
 		}
 	}

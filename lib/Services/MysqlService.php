@@ -3,12 +3,14 @@
 namespace OCA\Stalwart\Services;
 
 use Exception;
+use OCA\Stalwart\Models\AccountEntity;
+use OCA\Stalwart\Models\EmailEntity;
 use OCP\IConfig;
 
 class MysqlService implements ISqlService {
 	// SELECT name, type, secret, description, quota FROM accounts WHERE name = ? AND active = true
 	private const QUERY_NAME = <<<SQL
-SELECT uid, type, display_name, password, quota FROM oc_stalwart_users
+SELECT uid, type, display_name, password, quota FROM oc_stalwart_accounts
 WHERE cid = :cid AND uid = ?
 SQL;
 
@@ -26,14 +28,14 @@ SQL;
 	// SELECT address FROM emails WHERE name = ? AND type != 'list' ORDER BY type DESC, address ASC
 	private const QUERY_EMAILS = <<<SQL
 SELECT email FROM oc_stalwart_emails
-WHERE cid = :cid AND uid = ? AND mode != 2
-ORDER BY mode, email;
+WHERE cid = :cid AND uid = ? AND type != 2
+ORDER BY type DESC , email;
 SQL;
 
 	// SELECT address FROM emails WHERE address LIKE CONCAT('%', ?, '%') AND type = 'primary' ORDER BY address LIMIT 5
 	private const QUERY_VERIFY = <<<SQL
 SELECT email FROM oc_stalwart_emails
-WHERE cid = :cid AND email LIKE CONCAT('%', ?, '%') AND mode = 0
+WHERE cid = :cid AND email LIKE CONCAT('%', ?, '%') AND type = 0
 SQL;
 
 	// SELECT p.address FROM emails AS p JOIN emails AS l ON p.name = l.name WHERE p.type = 'primary' AND l.address = ? AND l.type = 'list' ORDER BY p.address LIMIT 50
@@ -41,7 +43,7 @@ SQL;
 SELECT p.email FROM oc_stalwart_emails AS p
 JOIN oc_stalwart_emails AS l
 ON p.cid = l.cid AND p.uid = l.uid
-WHERE p.cid = :cid AND p.mode = 0 AND l.email = ? AND l.mode = 1;
+WHERE p.cid = :cid AND p.type = 0 AND l.email = ? AND l.type = 1;
 SQL;
 
 	// SELECT 1 FROM emails WHERE address LIKE CONCAT('%@', ?) LIMIT 1
@@ -61,7 +63,7 @@ SQL;
 
 	private static function parseQuery(string $query, int $cid, string $tableUsers, string $tableAlias): string {
 		$query = str_replace("\n", ' ', $query);
-		$query = str_replace('oc_stalwart_users', $tableUsers, $query);
+		$query = str_replace('oc_stalwart_accounts', $tableUsers, $query);
 		$query = str_replace('oc_stalwart_aliases', $tableAlias, $query);
 		return str_replace(':cid', strval($cid), $query);
 	}
@@ -96,8 +98,8 @@ SQL;
 			throw new Exception('Invalid database table prefix');
 		}
 		$dbPort = $this->config->getSystemValueInt('dbport', 3306);
-		$tableUsers = $dbTablePrefix . UsersService::TABLE_USERS;
-		$tableAlias = $dbTablePrefix . UsersService::TABLE_EMAILS;
+		$tableAccounts = $dbTablePrefix . AccountEntity::TABLE;
+		$tableEmail = $dbTablePrefix . EmailEntity::TABLE;
 		$config_name = $dbName . '_' . $config_id;
 
 		return json_encode([
@@ -128,13 +130,13 @@ SQL;
 					[ 'compression', 'lz4'],
 					[ 'purge.frequency', '0 3 *'],
 					['read-from-replicas', 'true'],
-					['query.name', self::parseQuery(self::QUERY_NAME, $config_id, $tableUsers, $tableAlias)],
-					['query.members', self::parseQuery(self::QUERY_MEMBERS, $config_id, $tableUsers, $tableAlias)],
-					['query.recipients', self::parseQuery(self::QUERY_RECIPIENTS, $config_id, $tableUsers, $tableAlias)],
-					['query.emails', self::parseQuery(self::QUERY_EMAILS, $config_id, $tableUsers, $tableAlias)],
-					['query.verify', self::parseQuery(self::QUERY_VERIFY, $config_id, $tableUsers, $tableAlias)],
-					['query.expand', self::parseQuery(self::QUERY_EXPAND, $config_id, $tableUsers, $tableAlias)],
-					['query.domains', self::parseQuery(self::QUERY_DOMAINS, $config_id, $tableUsers, $tableAlias)]
+					['query.name', self::parseQuery(self::QUERY_NAME, $config_id, $tableAccounts, $tableEmail)],
+					['query.members', self::parseQuery(self::QUERY_MEMBERS, $config_id, $tableAccounts, $tableEmail)],
+					['query.recipients', self::parseQuery(self::QUERY_RECIPIENTS, $config_id, $tableAccounts, $tableEmail)],
+					['query.emails', self::parseQuery(self::QUERY_EMAILS, $config_id, $tableAccounts, $tableEmail)],
+					['query.verify', self::parseQuery(self::QUERY_VERIFY, $config_id, $tableAccounts, $tableEmail)],
+					['query.expand', self::parseQuery(self::QUERY_EXPAND, $config_id, $tableAccounts, $tableEmail)],
+					['query.domains', self::parseQuery(self::QUERY_DOMAINS, $config_id, $tableAccounts, $tableEmail)]
 				],
 			],
 			[

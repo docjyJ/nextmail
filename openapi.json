@@ -64,8 +64,15 @@
                         "type": "string"
                     },
                     "health": {
-                        "type": "integer",
-                        "format": "int64"
+                        "type": "string",
+                        "enum": [
+                            "bad_network",
+                            "bad_server",
+                            "invalid",
+                            "success",
+                            "unauthorized",
+                            "unprivileged"
+                        ]
                     }
                 }
             },
@@ -171,35 +178,6 @@
                         "basic_auth": []
                     }
                 ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "required": [
-                                    "endpoint",
-                                    "username",
-                                    "password"
-                                ],
-                                "properties": {
-                                    "endpoint": {
-                                        "type": "string",
-                                        "description": "The server endpoint (e.g. `https://mail.example.com:443/api`)"
-                                    },
-                                    "username": {
-                                        "type": "string",
-                                        "description": "The username to authenticate with"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "description": "The password to authenticate with"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
                 "parameters": [
                     {
                         "name": "OCS-APIRequest",
@@ -234,7 +212,8 @@
                                                     "$ref": "#/components/schemas/OCSMeta"
                                                 },
                                                 "data": {
-                                                    "$ref": "#/components/schemas/ServerConfig"
+                                                    "type": "integer",
+                                                    "format": "int64"
                                                 }
                                             }
                                         }
@@ -531,36 +510,8 @@
                                                     "$ref": "#/components/schemas/OCSMeta"
                                                 },
                                                 "data": {
-                                                    "$ref": "#/components/schemas/ServerConfig"
+                                                    "nullable": true
                                                 }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "If the server number `id` does not exist",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {}
                                             }
                                         }
                                     }
@@ -830,7 +781,7 @@
                                                     "$ref": "#/components/schemas/OCSMeta"
                                                 },
                                                 "data": {
-                                                    "$ref": "#/components/schemas/ServerUser"
+                                                    "nullable": true
                                                 }
                                             }
                                         }

@@ -2,7 +2,7 @@
 
 namespace OCA\Stalwart\Event;
 
-use OCA\Stalwart\Services\UsersService;
+use OCA\Stalwart\Db\AccountManager;
 use OCP\DB\Exception;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -14,7 +14,7 @@ use OCP\User\Events\UserDeletedEvent;
 class UserDeletedListener implements IEventListener {
 	/** @psalm-suppress PossiblyUnusedMethod */
 	public function __construct(
-		private readonly UsersService $usersService,
+		private readonly AccountManager $accountManager,
 	) {
 	}
 
@@ -23,6 +23,6 @@ class UserDeletedListener implements IEventListener {
 	 * @throws Exception
 	 */
 	public function handle(Event $event): void {
-		$this->usersService->dropUser($event->getUser()->getUID());
+		$this->accountManager->drop($event->getUser()->getUID());
 	}
 }

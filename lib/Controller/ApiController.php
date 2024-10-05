@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace OCA\Stalwart\Controller;
 
+use OCA\Stalwart\Db\AccountManager;
+use OCA\Stalwart\Db\ConfigManager;
+use OCA\Stalwart\Db\EmailManager;
+use OCA\Stalwart\Models\AccountEntity;
+use OCA\Stalwart\Models\AccountsType;
+use OCA\Stalwart\Models\EmailEntity;
+use OCA\Stalwart\Models\EmailType;
 use OCA\Stalwart\ResponseDefinitions;
-use OCA\Stalwart\Services\ConfigService;
-use OCA\Stalwart\Services\UsersService;
 use OCA\Stalwart\Settings\Admin;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -18,6 +23,7 @@ use OCP\AppFramework\OCS\OCSNotFoundException;
 use OCP\AppFramework\OCSController;
 use OCP\DB\Exception;
 use OCP\IRequest;
+use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -27,11 +33,13 @@ use Psr\Log\LoggerInterface;
  */
 class ApiController extends OCSController {
 	public function __construct(
-		string                         $appName,
-		IRequest                       $request,
-		private readonly ConfigService $configService,
-		private readonly UsersService  $usersService,
-        private readonly LoggerInterface $logger,
+		string                           $appName,
+		IRequest                         $request,
+		private readonly ConfigManager   $configManager,
+		private readonly AccountManager  $accountManager,
+		private readonly EmailManager    $emailManager,
+		private readonly IUserManager    $userManager,
+		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);
 	}
@@ -39,7 +47,7 @@ class ApiController extends OCSController {
 
 	/**
 	 * List all available servers
-	 * @return DataResponse<Http::STATUS_OK, list<StalwartServerConfig>, array{}>
+	 * @return DataResponse<Http::STATUS_OK, StalwartServerConfig[], array{}>
 	 * @throws OCSException If an error occurs
 	 *
 	 * 200: Returns the list of available servers
@@ -49,20 +57,17 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/config')]
 	public function list(): DataResponse {
 		try {
-			$result = $this->configService->findMany();
+			$result = $this->configManager->list();
 		} catch (Exception $e) {
-            $this->logger->error($e->getMessage(), ['exception' => $e]);
-            throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
-		return new DataResponse($result);
+		return new DataResponse(array_map(static fn ($c) => $c->toData(), $result));
 	}
 
 	/**
 	 * Add a new server
-	 * @param string $endpoint The server endpoint (e.g. `https://mail.example.com:443/api`)
-	 * @param string $username The username to authenticate with
-	 * @param string $password The password to authenticate with
-	 * @return DataResponse<Http::STATUS_OK, StalwartServerConfig, array{}>
+	 * @return DataResponse<Http::STATUS_OK, int, array{}>
 	 *
 	 * 200: Returns the new server configuration
 	 * @throws OCSException
@@ -70,16 +75,14 @@ class ApiController extends OCSController {
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
 	#[ApiRoute(verb: 'POST', url: '/config')]
-	public function post(string $endpoint, string $username, string $password): DataResponse {
+	public function post(): DataResponse {
 		try {
-			$result = $this->configService->create($endpoint, $username, $password);
+			$id = $this->configManager->create();
 		} catch (Exception $e) {
-            $this->logger->error($e->getMessage(), ['exception' => $e]);
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
 			throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
-		unset($result['password']);
-		unset($result['health_expires']);
-		return new DataResponse($result);
+		return new DataResponse($id);
 	}
 
 	/**
@@ -96,17 +99,15 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/config/{id}')]
 	public function get(int $id): DataResponse {
 		try {
-			$result = $this->configService->findId($id);
+			$result = $this->configManager->find($id);
 		} catch (Exception $e) {
-            $this->logger->error($e->getMessage(), ['exception' => $e]);
-            throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 		if ($result === null) {
 			throw new OCSNotFoundException();
 		}
-		unset($result['password']);
-		unset($result['health_expires']);
-		return new DataResponse($result);
+		return new DataResponse($result->toData());
 	}
 
 	/**
@@ -126,24 +127,29 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'PUT', url: '/config/{id}')]
 	public function put(int $id, string $endpoint, string $username, string $password): DataResponse {
 		try {
-			$result = $this->configService->updateCredentials($id, $endpoint, $username, $password);
+			$entity = $this->configManager->find($id);
+			if ($entity !== null) {
+				$entity->endpoint = $endpoint;
+				$entity->username = $username;
+				if ($password !== '') {
+					$entity->password = $password;
+				}
+				$this->configManager->update($entity);
+			}
 		} catch (Exception $e) {
-            $this->logger->error($e->getMessage(), ['exception' => $e]);
-            throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
-		if ($result === null) {
+		if ($entity === null) {
 			throw new OCSNotFoundException();
 		}
-		unset($result['password']);
-		unset($result['health_expires']);
-		return new DataResponse($result);
+		return new DataResponse($entity->toData());
 	}
 
 	/**
 	 * Delete the configuration of a server number `id`
 	 * @param int $id The server number
-	 * @return DataResponse<Http::STATUS_OK, StalwartServerConfig, array{}>
-	 * @throws OCSNotFoundException If the server number `id` does not exist
+	 * @return DataResponse<Http::STATUS_OK, null, array{}>
 	 * @throws OCSException if an error occurs
 	 *
 	 * 200: The server configuration has been deleted
@@ -153,24 +159,19 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'DELETE', url: '/config/{id}')]
 	public function delete(int $id): DataResponse {
 		try {
-			$result = $this->configService->delete($id);
+			$this->configManager->delete($id);
 		} catch (Exception $e) {
-            $this->logger->error($e->getMessage(), ['exception' => $e]);
-            throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
-		if ($result === null) {
-			throw new OCSNotFoundException();
-		}
-		unset($result['password']);
-		unset($result['health_expires']);
-		return new DataResponse($result);
+		return new DataResponse(null);
 
 	}
 
 	/**
 	 * Get the users of the server number `id`
 	 * @param int $id The server number
-	 * @return DataResponse<Http::STATUS_OK, list<StalwartServerUser>, array{}>
+	 * @return DataResponse<Http::STATUS_OK, StalwartServerUser[], array{}>
 	 * @throws OCSException if an error occurs
 	 *
 	 * 200: Returns the list of users
@@ -180,12 +181,12 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/config/{id}/users')]
 	public function getUsers(int $id): DataResponse {
 		try {
-			$result = $this->usersService->findMany($id);
+			$result = $this->accountManager->listConfig($id);
 		} catch (Exception $e) {
-            $this->logger->error($e->getMessage(), ['exception' => $e]);
-            throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
-		return new DataResponse($result);
+		return new DataResponse(array_map(static fn ($u) => ['uid' => $u->uid, 'displayName' => $u->displayName, 'email' => null], $result));
 	}
 
 	/**
@@ -203,22 +204,29 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'POST', url: '/config/{id}/users')]
 	public function postUsers(int $id, string $uid): DataResponse {
 		try {
-			$user = $this->usersService->addUser($id, $uid);
+			$user = $this->userManager->get($uid);
+			if ($user !== null) {
+				$this->accountManager->create(new AccountEntity($id, $uid, AccountsType::Individual, $user->getDisplayName(), $user->getPasswordHash() ?? '', 0));
+				$email = $user->getEMailAddress();
+				if ($email !== null) {
+					$this->emailManager->create(new EmailEntity($id, $uid, $email, EmailType::Primary));
+				}
+			}
 		} catch (Exception $e) {
-            $this->logger->error($e->getMessage(), ['exception' => $e]);
-            throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 		if ($user === null) {
 			throw new OCSNotFoundException();
 		}
-		return new DataResponse($user);
+		return new DataResponse(['uid' => $uid,'displayName' => $user->getDisplayName(),'email' => $user->getEMailAddress()]);
 	}
 
 	/**
 	 * Remove a user from the server number `id`
 	 * @param int $id The server number
 	 * @param string $uid The user ID
-	 * @return DataResponse<Http::STATUS_OK, StalwartServerUser, array{}>
+	 * @return DataResponse<Http::STATUS_OK, null, array{}>
 	 * @throws OCSNotFoundException If the user does not exist
 	 * @throws OCSException if an error occurs
 	 *
@@ -229,14 +237,11 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'DELETE', url: '/config/{id}/users')]
 	public function deleteUsers(int $id, string $uid): DataResponse {
 		try {
-			$user = $this->usersService->removeUser($id, $uid);
+			$this->accountManager->delete($id, $uid);
 		} catch (Exception $e) {
-            $this->logger->error($e->getMessage(), ['exception' => $e]);
-            throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
-		if ($user === null) {
-			throw new OCSNotFoundException();
-		}
-		return new DataResponse($user);
+		return new DataResponse(null);
 	}
 }

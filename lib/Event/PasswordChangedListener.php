@@ -2,7 +2,7 @@
 
 namespace OCA\Stalwart\Event;
 
-use OCA\Stalwart\Services\UsersService;
+use OCA\Stalwart\Db\AccountManager;
 use OCP\DB\Exception;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -14,7 +14,7 @@ use OCP\User\Events\PasswordUpdatedEvent;
 class PasswordChangedListener implements IEventListener {
 	/** @psalm-suppress PossiblyUnusedMethod */
 	public function __construct(
-		private readonly UsersService $usersService,
+		private readonly AccountManager $accountManager,
 	) {
 	}
 
@@ -23,7 +23,9 @@ class PasswordChangedListener implements IEventListener {
 	 * @throws Exception
 	 */
 	public function handle(Event $event): void {
-		$sha512 = hash('sha512', $event->getPassword());
-		$this->usersService->updatePassword($event->getUser()->getUID(), $sha512);
+		$password = $event->getUser()->getPasswordHash();
+		if ($password !== null) {
+			$this->accountManager->updatePassword($event->getUser()->getUID(), $password);
+		}
 	}
 }

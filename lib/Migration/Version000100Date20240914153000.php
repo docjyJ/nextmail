@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace OCA\Stalwart\Migration;
 
 use Closure;
+use Doctrine\DBAL\Schema\SchemaException;
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
 use OCP\Migration\IOutput;
@@ -13,92 +14,106 @@ use OCP\Migration\SimpleMigrationStep;
 
 /** @psalm-suppress UnusedClass */
 class Version000100Date20240914153000 extends SimpleMigrationStep {
+	private const TABLE_CONFIGS = 'stalwart_configs';
+	private const STALWART_ACCOUNTS = 'stalwart_accounts';
+	private const TABLE_EMAILS = 'stalwart_emails';
+
 	public function preSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
 	}
 
+	/** @throws SchemaException */
 	public function changeSchema(IOutput $output, Closure $schemaClosure, array $options): ISchemaWrapper {
 		/** @type ISchemaWrapper $schema */
 		$schema = $schemaClosure();
 
-		if (!$schema->hasTable('stalwart_configs')) {
-			$table = $schema->createTable('stalwart_configs');
-			$table->addColumn('cid', Types::BIGINT, [
+		if (!$schema->hasTable(self::TABLE_CONFIGS)) {
+			$tableConfigs = $schema->createTable(self::TABLE_CONFIGS);
+			$tableConfigs->addColumn('cid', Types::INTEGER, [
 				'autoincrement' => true,
 				'notnull' => true,
-				'length' => 4,
 			]);
-			$table->addColumn('endpoint', Types::STRING, [
+			$tableConfigs->addColumn('endpoint', Types::STRING, [
 				'notnull' => true,
 				'length' => 128,
 			]);
-			$table->addColumn('username', Types::STRING, [
+			$tableConfigs->addColumn('username', Types::STRING, [
 				'notnull' => true,
-				'length' => 300,
+				'length' => 128,
 			]);
-			$table->addColumn('password', Types::STRING, [
+			$tableConfigs->addColumn('password', Types::STRING, [
 				'notnull' => true,
-				'length' => 300,
+				'length' => 256,
 			]);
-			$table->addColumn('health', Types::INTEGER, [
+			$tableConfigs->addColumn('health', Types::STRING, [
+				'notnull' => true,
+				'length' => 32,
+			]);
+			$tableConfigs->addColumn('expires', Types::DATETIME, [
 				'notnull' => true,
 			]);
-			$table->addColumn('health_expires', Types::DATETIME, [
-				'notnull' => true,
-			]);
-			$table->setPrimaryKey(['cid']);
+			$tableConfigs->setPrimaryKey(['cid']);
+		} else {
+			$tableConfigs = $schema->getTable(self::TABLE_CONFIGS);
 		}
 
-		if (!$schema->hasTable('stalwart_users')) {
-			$table = $schema->createTable('stalwart_users');
-			$table->addColumn('cid', Types::BIGINT, [
-				'autoincrement' => true,
+		if (!$schema->hasTable(self::STALWART_ACCOUNTS)) {
+			$tableAccounts = $schema->createTable(self::STALWART_ACCOUNTS);
+			$tableAccounts->addColumn('cid', Types::INTEGER, [
 				'notnull' => true,
-				'length' => 4,
+			]);
+			$tableAccounts->addColumn('uid', Types::STRING, [
+				'notnull' => true,
+				'length' => 64,
+			]);
+			$tableAccounts->addColumn('type', Types::STRING, [
+				'notnull' => true,
+				'length' => 32,
+			]);
+			$tableAccounts->addColumn('display_name', Types::STRING, [
+				'notnull' => true,
+				'length' => 64,
+			]);
+			$tableAccounts->addColumn('password', Types::STRING, [
+				'notnull' => true,
+				'length' => 256,
+			]);
+			$tableAccounts->addColumn('quota', Types::INTEGER, [
+				'notnull' => true,
+			]);
+			$tableAccounts->setPrimaryKey(['cid', 'uid']);
+			$tableAccounts->addForeignKeyConstraint(
+				$tableConfigs->getName(),
+				['cid'],
+				['cid'],
+				['onDelete' => 'CASCADE']
+			);
+		} else {
+			$tableAccounts = $schema->getTable(self::STALWART_ACCOUNTS);
+		}
+
+		if (!$schema->hasTable(self::TABLE_EMAILS)) {
+			$table = $schema->createTable(self::TABLE_EMAILS);
+			$table->addColumn('cid', Types::INTEGER, [
+				'notnull' => true,
 			]);
 			$table->addColumn('uid', Types::STRING, [
 				'notnull' => true,
-				'length' => 128,
-			]);
-			$table->addColumn('type', Types::STRING, [
-				'notnull' => true,
-				'length' => 128,
-			]);
-			$table->addColumn('display_name', Types::STRING, [
-				'length' => 128,
-			]);
-			$table->addColumn('password', Types::STRING, [
-                'notnull' => false,
-				'length' => 300,
-			]);
-			$table->addColumn('quota', Types::BIGINT, [
-                'notnull' => false,
-				'length' => 4,
-			]);
-			$table->setPrimaryKey(['cid', 'uid']);
-			$table->addForeignKeyConstraint('stalwart_configs', ['cid'], ['cid'], ['onDelete' => 'CASCADE']);
-		}
-
-		if (!$schema->hasTable('stalwart_emails')) {
-			$table = $schema->createTable('stalwart_emails');
-			$table->addColumn('cid', Types::BIGINT, [
-				'autoincrement' => true,
-				'notnull' => true,
-				'length' => 4,
-			]);
-			$table->addColumn('uid', Types::STRING, [
-				'notnull' => true,
-				'length' => 128,
+				'length' => 64,
 			]);
 			$table->addColumn('email', Types::STRING, [
 				'notnull' => true,
 				'length' => 128,
 			]);
-			$table->addColumn('mode', Types::STRING, [
+			$table->addColumn('type', Types::STRING, [
 				'notnull' => true,
-				'length' => 128,
+				'length' => 32,
 			]);
 			$table->setPrimaryKey(['cid', 'uid', 'email']);
-			$table->addForeignKeyConstraint('stalwart_users', ['cid', 'uid'], ['cid', 'uid'], ['onDelete' => 'CASCADE']);
+			$table->addForeignKeyConstraint(
+				$tableAccounts->getName(),
+				['cid', 'uid'],
+				['cid', 'uid'],
+				['onDelete' => 'CASCADE']);
 		}
 
 		return $schema;
