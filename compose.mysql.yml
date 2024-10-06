@@ -5,7 +5,7 @@ services:
     ports:
       - "127.0.0.1:3306:3306"
     volumes:
-      - mysql:/var/lib/mysql:Z
+      - mysql:/var/lib/mysql:z
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=nextcloud
@@ -23,7 +23,7 @@ services:
     ports:
       - "127.0.0.1:8080:80"
     volumes:
-      - .:/var/www/html/custom_apps/stalwart:Z
+      - .:/var/www/html/custom_apps/stalwart:z
       - nextcloud:/var/www/html:z
     environment:
       - MYSQL_HOST=mysql
@@ -54,7 +54,7 @@ services:
     ports:
       - "127.0.0.1:9090:8080"
     volumes:
-      - stalwart:/opt/stalwart:Z
+      - stalwart:/opt/stalwart:z
     depends_on:
       mysql:
         condition: service_healthy

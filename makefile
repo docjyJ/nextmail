@@ -18,6 +18,9 @@ stop-mysql:
 remove-mysql:
 	$(COMPOSE_CLI) -f compose.mysql.yml down --volumes
 
+fix-mysql:
+	$(COMPOSE_CLI) -f compose.mysql.yml exec -u 33 nextcloud php occ config:system:set --type bool --value true allow_local_remote_servers
+
 watch:
 	npm run watch
 

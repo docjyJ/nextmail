@@ -265,7 +265,7 @@ class ApiController extends OCSController {
 	public function postUsers(int $cid, string $uid): DataResponse {
 		try {
 			if (($config = $this->configManager->find($cid)) && $user = $this->userManager->get($uid)) {
-				$account = $this->accountManager->create($config, $user);
+				$account = $this->accountManager->createIndividual($config, $user);
 				if (null !== $userEmail = $user->getEMailAddress()) {
 					return new DataResponse(self::getUserData($this->emailManager->setPrimary($account, $userEmail)));
 				} else {

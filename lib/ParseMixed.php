@@ -17,10 +17,6 @@ class ParseMixed {
 		return is_int($value) ? $value : null;
 	}
 
-	public static function string(mixed $value): ?string {
-		return is_string($value) ? $value : null;
-	}
-
 	public static function dateTime(mixed $value): ?DateTime {
 		try {
 			return is_string($value) ? new DateTime($value) : null;

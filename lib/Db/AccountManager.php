@@ -49,8 +49,10 @@ class AccountManager {
 	}
 
 	/** @throws Exception */
-	public function create(ConfigEntity $config, IUser $user): AccountEntity {
-		$account = new AccountEntity($config, $user->getUID(), $user->getDisplayName(), $user->getPasswordHash() ?? '');
+	public function createIndividual(ConfigEntity $config, IUser $user): AccountEntity {
+		$password = $user->getPasswordHash() ?? null;
+		$password = $password !== null ? preg_replace('/^[^|]*|/', '', $password) ?? $password : '';
+		$account = new AccountEntity($config, $user->getUID(), $user->getDisplayName(), $password);
 		$this->db->beginTransaction();
 		try {
 			$q = $this->db->getQueryBuilder();

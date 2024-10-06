@@ -224,7 +224,7 @@
                 }
             }
         },
-        "/ocs/v2.php/apps/stalwart/config/{id}": {
+        "/ocs/v2.php/apps/stalwart/config/{cid}": {
             "get": {
                 "operationId": "api-get",
                 "summary": "Get the configuration of a server number `id`",
@@ -242,16 +242,8 @@
                 ],
                 "parameters": [
                     {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
                         "name": "cid",
-                        "in": "query",
+                        "in": "path",
                         "description": "The server number",
                         "required": true,
                         "schema": {
@@ -353,17 +345,11 @@
                             "schema": {
                                 "type": "object",
                                 "required": [
-                                    "cid",
                                     "endpoint",
                                     "username",
                                     "password"
                                 ],
                                 "properties": {
-                                    "cid": {
-                                        "type": "integer",
-                                        "format": "int64",
-                                        "description": "The server number"
-                                    },
                                     "endpoint": {
                                         "type": "string",
                                         "description": "The server endpoint (e.g. `https://mail.example.com:443/api`)"
@@ -383,11 +369,13 @@
                 },
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "cid",
                         "in": "path",
+                        "description": "The server number",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer",
+                            "format": "int64"
                         }
                     },
                     {
@@ -479,16 +467,8 @@
                 ],
                 "parameters": [
                     {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
                         "name": "cid",
-                        "in": "query",
+                        "in": "path",
                         "description": "The server number",
                         "required": true,
                         "schema": {
@@ -569,7 +549,7 @@
                 }
             }
         },
-        "/ocs/v2.php/apps/stalwart/config/{id}/users": {
+        "/ocs/v2.php/apps/stalwart/config/{cid}/users": {
             "get": {
                 "operationId": "api-get-users",
                 "summary": "Get the users of the server number `id`",
@@ -587,16 +567,8 @@
                 ],
                 "parameters": [
                     {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
                         "name": "cid",
-                        "in": "query",
+                        "in": "path",
                         "description": "The server number",
                         "required": true,
                         "schema": {
@@ -866,9 +838,7 @@
                         }
                     }
                 }
-            }
-        },
-        "/ocs/v2.php/apps/stalwart/config/{id}/users/{uid}": {
+            },
             "delete": {
                 "operationId": "api-delete-users",
                 "summary": "Remove a user from the server number `id`",
@@ -886,11 +856,13 @@
                 ],
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "cid",
                         "in": "path",
+                        "description": "The server number",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer",
+                            "format": "int64"
                         }
                     },
                     {
@@ -900,16 +872,6 @@
                         "required": true,
                         "schema": {
                             "type": "string"
-                        }
-                    },
-                    {
-                        "name": "cid",
-                        "in": "query",
-                        "description": "The server number",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
                         }
                     },
                     {
