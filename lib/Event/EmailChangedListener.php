@@ -4,6 +4,8 @@ namespace OCA\Stalwart\Event;
 
 use OCA\Stalwart\Db\AccountManager;
 use OCA\Stalwart\Db\EmailManager;
+use OCA\Stalwart\Models\AccountEntity;
+use OCA\Stalwart\Models\ConfigEntity;
 use OCP\DB\Exception;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -27,10 +29,11 @@ class EmailChangedListener implements IEventListener {
 	public function handle(Event $event): void {
 		if ($event->getFeature() === 'email') {
 			/** @psalm-suppress MixedAssignment */
-			$value = $event->getValue();
-			if (is_string($value)) {
-				foreach ($this->accountManager->listUser($event->getUser()->getUID()) as $item) {
-					$this->emailManager->updatePrimary($item->cid, $item->uid, $value);
+			$email = $event->getValue();
+			if (is_string($email)) {
+				$uid = $event->getUser()->getUID();
+				foreach ($this->accountManager->listUser($event->getUser()->getUID()) as $cid) {
+					$this->emailManager->setPrimary(new AccountEntity(new ConfigEntity($cid), $uid), $email);
 				}
 			}
 		}

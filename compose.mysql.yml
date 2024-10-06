@@ -35,8 +35,6 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-      stalwart:
-        condition: service_started
 
   phpmyadmin:
     image: phpmyadmin
@@ -57,6 +55,9 @@ services:
       - "127.0.0.1:9090:8080"
     volumes:
       - stalwart:/opt/stalwart:Z
+    depends_on:
+      mysql:
+        condition: service_healthy
 
 networks:
     default:

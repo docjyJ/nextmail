@@ -3,10 +3,12 @@
 namespace OCA\Stalwart\Db;
 
 use OCA\Stalwart\Models\AccountEntity;
-use OCA\Stalwart\Models\AccountsType;
+use OCA\Stalwart\Models\ConfigEntity;
+use OCA\Stalwart\ParseMixed;
 use OCP\DB\Exception;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
+use OCP\IUser;
 
 class AccountManager {
 	/** @psalm-suppress PossiblyUnusedMethod */
@@ -19,54 +21,51 @@ class AccountManager {
 	 * @return AccountEntity[]
 	 * @throws Exception
 	 */
-	public function listConfig(int $cid): array {
+	public function list(ConfigEntity $config): array {
 		$q = $this->db->getQueryBuilder();
 		$q->select('*')
 			->from(AccountEntity::TABLE)
-			->where($q->expr()->eq('cid', $q->createNamedParameter($cid, IQueryBuilder::PARAM_INT)));
+			->where($q->expr()->eq('cid', $q->createNamedParameter($config->cid, IQueryBuilder::PARAM_INT)));
 		$result = $q->executeQuery();
 		$entities = [];
-		while ($row = AccountEntity::fromRow($result->fetch())) {
-			$entities[] = $row;
-		}
-		$result->closeCursor();
-		return $entities;
-	}
-
-	/**
-	 * @return AccountEntity[]
-	 * @throws Exception
-	 */
-	public function listUser(string $uid): array {
-		$q = $this->db->getQueryBuilder();
-		$q->select('*')
-			->from(AccountEntity::TABLE)
-			->where($q->expr()->eq('uid', $q->createNamedParameter($uid)));
-		$result = $q->executeQuery();
-		$entities = [];
-		while ($row = AccountEntity::fromRow($result->fetch())) {
-			$entities[] = $row;
+		while ($account = ParseMixed::accuntEntity($config, $result->fetch())) {
+			$entities[] = $account;
 		}
 		$result->closeCursor();
 		return $entities;
 	}
 
 	/** @throws Exception */
-	public function create(AccountEntity $entity): void {
+	public function find(ConfigEntity $config, string $uid): ?AccountEntity {
+		$q = $this->db->getQueryBuilder();
+		$q->select('*')
+			->from(AccountEntity::TABLE)
+			->where($q->expr()->eq('cid', $q->createNamedParameter($config->cid, IQueryBuilder::PARAM_INT)))
+			->andWhere($q->expr()->eq('uid', $q->createNamedParameter($uid)));
+		$result = $q->executeQuery();
+		$account = ParseMixed::accuntEntity($config, $result->fetch());
+		$result->closeCursor();
+		return $account;
+	}
+
+	/** @throws Exception */
+	public function create(ConfigEntity $config, IUser $user): AccountEntity {
+		$account = new AccountEntity($config, $user->getUID(), $user->getDisplayName(), $user->getPasswordHash() ?? '');
 		$this->db->beginTransaction();
 		try {
 			$q = $this->db->getQueryBuilder();
 			$q->insert(AccountEntity::TABLE)
 				->values([
-					'cid' => $q->createNamedParameter($entity->cid, IQueryBuilder::PARAM_INT),
-					'uid' => $q->createNamedParameter($entity->uid),
-					'type' => $q->createNamedParameter(AccountsType::Individual->value),
-					'display_name' => $q->createNamedParameter($entity->displayName),
-					'password' => $q->createNamedParameter($entity->password),
-					'quota' => $q->createNamedParameter($entity->quota, IQueryBuilder::PARAM_INT),
+					'cid' => $q->createNamedParameter($account->config->cid, IQueryBuilder::PARAM_INT),
+					'uid' => $q->createNamedParameter($account->uid),
+					'type' => $q->createNamedParameter($account->type->value),
+					'display_name' => $q->createNamedParameter($account->displayName),
+					'password' => $q->createNamedParameter($account->password),
+					'quota' => $q->createNamedParameter($account->quota, IQueryBuilder::PARAM_INT),
 				])
 				->executeStatement();
 			$this->db->commit();
+			return $account;
 		} catch (Exception $e) {
 			$this->db->rollBack();
 			throw $e;
@@ -74,13 +73,13 @@ class AccountManager {
 	}
 
 	/** @throws Exception */
-	public function delete(int $cid, string $uid): void {
+	public function delete(AccountEntity $account): void {
 		$this->db->beginTransaction();
 		try {
 			$q = $this->db->getQueryBuilder();
 			$q->delete(AccountEntity::TABLE)
-				->where($q->expr()->eq('cid', $q->createNamedParameter($cid, IQueryBuilder::PARAM_INT)))
-				->andWhere($q->expr()->eq('uid', $q->createNamedParameter($uid)))
+				->where($q->expr()->eq('cid', $q->createNamedParameter($account->config->cid, IQueryBuilder::PARAM_INT)))
+				->andWhere($q->expr()->eq('uid', $q->createNamedParameter($account->uid)))
 				->executeStatement();
 			$this->db->commit();
 		} catch (Exception $e) {
@@ -89,8 +88,26 @@ class AccountManager {
 		}
 	}
 
+	/**
+	 * @return int[]
+	 * @throws Exception
+	 */
+	public function listUser(string $uid): array {
+		$q = $this->db->getQueryBuilder();
+		$q->select('cid')
+			->from(AccountEntity::TABLE)
+			->where($q->expr()->eq('uid', $q->createNamedParameter($uid)));
+		$result = $q->executeQuery();
+		$entities = [];
+		while ($cid = ParseMixed::int($result->fetch())) {
+			$entities[] = $cid;
+		}
+		$result->closeCursor();
+		return $entities;
+	}
+
 	/** @throws Exception */
-	public function drop(string $uid): void {
+	public function forceDelete(string $uid): void {
 		$this->db->beginTransaction();
 		try {
 			$q = $this->db->getQueryBuilder();
@@ -105,7 +122,7 @@ class AccountManager {
 	}
 
 	/** @throws Exception */
-	public function updatePassword(string $uid, string $password): void {
+	public function forceUpdatePassword(string $uid, string $password): void {
 		$this->db->beginTransaction();
 		try {
 			$q = $this->db->getQueryBuilder();

@@ -212,8 +212,7 @@
                                                     "$ref": "#/components/schemas/OCSMeta"
                                                 },
                                                 "data": {
-                                                    "type": "integer",
-                                                    "format": "int64"
+                                                    "$ref": "#/components/schemas/ServerConfig"
                                                 }
                                             }
                                         }
@@ -245,6 +244,14 @@
                     {
                         "name": "id",
                         "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cid",
+                        "in": "query",
                         "description": "The server number",
                         "required": true,
                         "schema": {
@@ -346,11 +353,17 @@
                             "schema": {
                                 "type": "object",
                                 "required": [
+                                    "cid",
                                     "endpoint",
                                     "username",
                                     "password"
                                 ],
                                 "properties": {
+                                    "cid": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "description": "The server number"
+                                    },
                                     "endpoint": {
                                         "type": "string",
                                         "description": "The server endpoint (e.g. `https://mail.example.com:443/api`)"
@@ -372,11 +385,9 @@
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "The server number",
                         "required": true,
                         "schema": {
-                            "type": "integer",
-                            "format": "int64"
+                            "type": "string"
                         }
                     },
                     {
@@ -470,6 +481,14 @@
                     {
                         "name": "id",
                         "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cid",
+                        "in": "query",
                         "description": "The server number",
                         "required": true,
                         "schema": {
@@ -510,8 +529,36 @@
                                                     "$ref": "#/components/schemas/OCSMeta"
                                                 },
                                                 "data": {
-                                                    "nullable": true
+                                                    "$ref": "#/components/schemas/ServerConfig"
                                                 }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "If the server number `id` does not exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {}
                                             }
                                         }
                                     }
@@ -542,6 +589,14 @@
                     {
                         "name": "id",
                         "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cid",
+                        "in": "query",
                         "description": "The server number",
                         "required": true,
                         "schema": {
@@ -595,6 +650,115 @@
                         }
                     }
                 }
+            }
+        },
+        "/ocs/v2.php/apps/stalwart/config/{cid}/users/{uid}": {
+            "get": {
+                "operationId": "api-get-user",
+                "summary": "Get the user of the server number `id`",
+                "description": "This endpoint requires admin access",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "cid",
+                        "in": "path",
+                        "description": "The server number",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "uid",
+                        "in": "path",
+                        "description": "The user ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "description": "Required to be true for the API request to pass",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/ServerUser"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "If the user does not exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             },
             "post": {
                 "operationId": "api-post-users",
@@ -611,34 +775,24 @@
                         "basic_auth": []
                     }
                 ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "required": [
-                                    "uid"
-                                ],
-                                "properties": {
-                                    "uid": {
-                                        "type": "string",
-                                        "description": "The user ID"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "cid",
                         "in": "path",
                         "description": "The server number",
                         "required": true,
                         "schema": {
                             "type": "integer",
                             "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "uid",
+                        "in": "path",
+                        "description": "The user ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     {
@@ -712,7 +866,9 @@
                         }
                     }
                 }
-            },
+            }
+        },
+        "/ocs/v2.php/apps/stalwart/config/{id}/users/{uid}": {
             "delete": {
                 "operationId": "api-delete-users",
                 "summary": "Remove a user from the server number `id`",
@@ -732,20 +888,28 @@
                     {
                         "name": "id",
                         "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "uid",
+                        "in": "path",
+                        "description": "The user ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cid",
+                        "in": "query",
                         "description": "The server number",
                         "required": true,
                         "schema": {
                             "type": "integer",
                             "format": "int64"
-                        }
-                    },
-                    {
-                        "name": "uid",
-                        "in": "query",
-                        "description": "The user ID",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
                         }
                     },
                     {

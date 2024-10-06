@@ -19,10 +19,10 @@ export type ServerConfigForm = {
 };
 
 export type ServerConfig = {
-    id: number;
+    id: int;
     endpoint: string;
     username: string;
-    health: number;
+    health: 'bad_network' | 'bad_server' | 'invalid' | 'success' | 'unauthorized' | 'unprivileged';
 };
 
 export type ServerUser = {

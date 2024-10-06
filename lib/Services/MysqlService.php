@@ -97,7 +97,10 @@ SQL;
 		if (!preg_match('/^\w+$/', $dbTablePrefix)) {
 			throw new Exception('Invalid database table prefix');
 		}
-		$dbPort = $this->config->getSystemValueInt('dbport', 3306);
+		$dbPort = $this->config->getSystemValueInt('dbport');
+		if ($dbPort === 0) {
+			$dbPort = 3306;
+		}
 		$tableAccounts = $dbTablePrefix . AccountEntity::TABLE;
 		$tableEmail = $dbTablePrefix . EmailEntity::TABLE;
 		$config_name = $dbName . '_' . $config_id;
@@ -125,7 +128,7 @@ SQL;
 					[ 'tls.enabled', 'false' ],
 					[ 'tls.allow-invalid-certs', 'false'],
 					[ 'pool.max-connections', '10' ],
-					[ 'pool.min-connections', '30' ],
+					[ 'pool.min-connections', '5' ],
 					[ 'timeout', '15s'],
 					[ 'compression', 'lz4'],
 					[ 'purge.frequency', '0 3 *'],
@@ -147,7 +150,7 @@ SQL;
 					[ 'type', 'sql' ],
 					[ 'store', $config_name ],
 					[ 'columns.class', 'type' ],
-					[ 'columns.description', 'displayName' ],
+					[ 'columns.description', 'display_name' ],
 					[ 'columns.secret', 'password' ],
 					[ 'columns.quota', 'quota' ],
 					[ 'cache.entries', '500' ],
@@ -160,7 +163,7 @@ SQL;
 				'prefix' => null,
 				'type' => 'Insert',
 				'values' => [
-					[ 'storage.directory.', $config_name ],
+					[ 'storage.directory', $config_name ],
 				],
 			],
 		], JSON_THROW_ON_ERROR);

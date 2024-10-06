@@ -2,8 +2,10 @@
 
 namespace OCA\Stalwart\Db;
 
+use OCA\Stalwart\Models\AccountEntity;
 use OCA\Stalwart\Models\EmailEntity;
 use OCA\Stalwart\Models\EmailType;
+use OCA\Stalwart\ParseMixed;
 use OCP\DB\Exception;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
@@ -16,45 +18,41 @@ class EmailManager {
 	}
 
 	/** @throws Exception */
-	public function create(EmailEntity $entity): void {
-		$this->db->beginTransaction();
-		try {
-			$q = $this->db->getQueryBuilder();
-			$q->insert(EmailEntity::TABLE)
-				->values([
-					'cid' => $q->createNamedParameter($entity->cid, IQueryBuilder::PARAM_INT),
-					'uid' => $q->createNamedParameter($entity->uid),
-					'email' => $q->createNamedParameter($entity->email),
-					'type' => $q->createNamedParameter($entity->type->value),
-				])
-				->executeStatement();
-			$this->db->commit();
-		} catch (Exception $e) {
-			$this->db->rollBack();
-			throw $e;
-		}
+	public function findPrimary(AccountEntity $account): ?EmailEntity {
+		$q = $this->db->getQueryBuilder();
+		$q->select('*')
+			->from(EmailEntity::TABLE)
+			->where($q->expr()->eq('cid', $q->createNamedParameter($account->config->cid, IQueryBuilder::PARAM_INT)))
+			->andWhere($q->expr()->eq('uid', $q->createNamedParameter($account->uid)))
+			->andWhere($q->expr()->eq('type', $q->createNamedParameter(EmailType::Primary->value)));
+		$result = $q->executeQuery();
+		$row = ParseMixed::emailEntity($account, $result->fetch());
+		$result->closeCursor();
+		return $row;
 	}
 
 	/** @throws Exception */
-	public function updatePrimary(int $cid, string $uid, string $email): void {
+	public function setPrimary(AccountEntity $account, string $email): EmailEntity {
+		$email = new EmailEntity($account, strtolower($email), EmailType::Primary);
 		$this->db->beginTransaction();
 		try {
 			$q = $this->db->getQueryBuilder();
 			$q->delete(EmailEntity::TABLE)
-				->where($q->expr()->eq('cid', $q->createNamedParameter($cid, IQueryBuilder::PARAM_INT)))
-				->andWhere($q->expr()->eq('uid', $q->createNamedParameter($uid)))
+				->where($q->expr()->eq('cid', $q->createNamedParameter($email->account->config->cid, IQueryBuilder::PARAM_INT)))
+				->andWhere($q->expr()->eq('uid', $q->createNamedParameter($email->account->uid)))
 				->andWhere($q->expr()->eq('type', $q->createNamedParameter(EmailType::Primary->value)))
 				->executeStatement();
 			$q = $this->db->getQueryBuilder();
 			$q->insert(EmailEntity::TABLE)
 				->values([
-					'cid' => $q->createNamedParameter($cid, IQueryBuilder::PARAM_INT),
-					'uid' => $q->createNamedParameter($uid),
-					'email' => $q->createNamedParameter($email),
-					'type' => $q->createNamedParameter(EmailType::Primary->value),
+					'cid' => $q->createNamedParameter($email->account->config->cid, IQueryBuilder::PARAM_INT),
+					'uid' => $q->createNamedParameter($email->account->uid),
+					'email' => $q->createNamedParameter($email->email),
+					'type' => $q->createNamedParameter($email->type->value),
 				])
 				->executeStatement();
 			$this->db->commit();
+			return $email;
 		} catch (Exception $e) {
 			$this->db->rollBack();
 			throw $e;

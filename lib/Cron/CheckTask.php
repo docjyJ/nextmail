@@ -21,11 +21,10 @@ class CheckTask extends TimedJob {
 	/** @throws Exception */
 	protected function run(mixed $argument): void {
 		$now = new DateTime();
-		foreach ($this->configService->list() as $item) {
-			if ($item->expires < $now) {
-				$this->configService->update($item);
+		foreach ($this->configService->list() as $config) {
+			if ($config->expires <= $now) {
+				$this->configService->update($config);
 			}
 		}
 	}
-
 }

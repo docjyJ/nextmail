@@ -8,6 +8,7 @@ export default function useServerUserList(id: number) {
 	const users = ref<ServerUser[]>([])
 	const usersServer = ref<ServerUser[]>([])
 	const usersUrl = generateOcsUrl(`/apps/stalwart/config/${id}/users`)
+	const userUrl = (uid: string) => generateOcsUrl(`/apps/stalwart/config/${id}/users/${uid}`)
 
 	const reload = async () => {
 		if (!loading.value) {
@@ -33,7 +34,7 @@ export default function useServerUserList(id: number) {
 		if (!loading.value) {
 			loading.value = true
 			try {
-				const user = await axios.post<OCSResponse<ServerUser>>(usersUrl, { uid }).then(r => r.data.ocs.data)
+				const user = await axios.post<OCSResponse<ServerUser>>(userUrl(uid)).then(r => r.data.ocs.data)
 				users.value.push(user)
 				// showSuccess(t('User added to server'))
 			} catch (error) {
@@ -48,7 +49,7 @@ export default function useServerUserList(id: number) {
 		if (!loading.value) {
 			loading.value = true
 			try {
-				await axios.delete(`${usersUrl}/${uid}`)
+				await axios.delete(userUrl(uid))
 				users.value = users.value.filter(user => user.uid !== uid)
 				// showSuccess(t('User removed from server'))
 			} catch (error) {

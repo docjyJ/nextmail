@@ -40,11 +40,7 @@ export default function useServerConfigList() {
 			if (!loading.value) {
 				loading.value = true
 				try {
-					const a = await axios.post<OCSResponse<ServerConfig>>(configUrl, {
-						endpoint: '',
-						username: '',
-						password: '',
-					}).then(r => r.data.ocs.data)
+					const a = await axios.post<OCSResponse<ServerConfig>>(configUrl).then(r => r.data.ocs.data)
 					servers.value.push(a)
 					if (active.value === null || active.value.id === a.id) {
 						active.value = a

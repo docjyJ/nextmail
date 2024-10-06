@@ -23,6 +23,6 @@ class UserDeletedListener implements IEventListener {
 	 * @throws Exception
 	 */
 	public function handle(Event $event): void {
-		$this->accountManager->drop($event->getUser()->getUID());
+		$this->accountManager->forceDelete($event->getUser()->getUID());
 	}
 }
