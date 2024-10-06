@@ -11,7 +11,7 @@ class EmailEntity implements JsonSerializable {
 		public int $cid,
 		public string $uid,
 		public string $email,
-		public EmailType $type = EmailType::Primary,
+		public EmailType $type,
 	) {
 	}
 
