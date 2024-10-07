@@ -2,7 +2,7 @@
 
 namespace OCA\Stalwart\Db;
 
-use DateTime;
+use DateTimeImmutable;
 use OCA\Stalwart\Models\ConfigEntity;
 use OCA\Stalwart\Models\ServerStatus;
 use OCA\Stalwart\ParseMixed;
@@ -49,17 +49,8 @@ class ConfigManager {
 	}
 
 	/** @throws Exception */
-	public function update(ConfigEntity $config): void {
-		$heathResult = $this->apiService->challenge($config->endpoint, $config->username, $config->password);
-		$config->health = $heathResult[0];
-		$config->expires = $heathResult[1];
-		if ($heathResult[0] === ServerStatus::Success || $heathResult[0] === ServerStatus::NoAdmin) {
-			try {
-				$this->apiService->pushDataBase($config->cid, $config->endpoint, $config->username, $config->password);
-			} catch (\Exception $e) {
-				throw new Exception('Failed to push data to server', previous: $e);
-			}
-		}
+	public function update(ConfigEntity $config): ConfigEntity {
+		$config = $config->updateHealth($this->apiService->challenge($config));
 		$this->db->beginTransaction();
 		try {
 			$q = $this->db->getQueryBuilder();
@@ -72,6 +63,7 @@ class ConfigManager {
 				->where($q->expr()->eq('cid', $q->createNamedParameter($config->cid, IQueryBuilder::PARAM_INT)))
 				->executeStatement();
 			$this->db->commit();
+			return $config;
 		} catch (Exception $e) {
 			$this->db->rollBack();
 			throw $e;
@@ -80,28 +72,22 @@ class ConfigManager {
 
 	/** @throws Exception */
 	public function create(): ConfigEntity {
-		$config = new ConfigEntity(
-			0,
-			'',
-			'',
-			'',
-			ServerStatus::Invalid,
-			new DateTime(),
-		);
+		$date = new DateTimeImmutable();
+		$state = ServerStatus::Invalid;
 		$this->db->beginTransaction();
 		try {
 			$q = $this->db->getQueryBuilder();
 			$q->insert(ConfigEntity::TABLE)
 				->values([
-					'endpoint' => $q->createNamedParameter($config->endpoint),
-					'username' => $q->createNamedParameter($config->username),
-					'password' => $q->createNamedParameter($config->password),
-					'health' => $q->createNamedParameter($config->health->value),
-					'expires' => $q->createNamedParameter($config->expires, IQueryBuilder::PARAM_DATE),
+					'endpoint' => $q->createNamedParameter(''),
+					'username' => $q->createNamedParameter(''),
+					'password' => $q->createNamedParameter(''),
+					'health' => $q->createNamedParameter($state->value),
+					'expires' => $q->createNamedParameter($date, IQueryBuilder::PARAM_DATE),
 				])
 				->executeStatement();
 
-			$config->cid = $q->getLastInsertId();
+			$config = new ConfigEntity($q->getLastInsertId(), '', '', '', $state, $date);
 			$this->db->commit();
 		} catch (Exception $e) {
 			$this->db->rollBack();

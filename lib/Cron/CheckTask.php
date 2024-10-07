@@ -2,7 +2,6 @@
 
 namespace OCA\Stalwart\Cron;
 
-use DateTime;
 use OCA\Stalwart\Db\ConfigManager;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
@@ -20,9 +19,8 @@ class CheckTask extends TimedJob {
 
 	/** @throws Exception */
 	protected function run(mixed $argument): void {
-		$now = new DateTime();
 		foreach ($this->configService->list() as $config) {
-			if ($config->expires <= $now) {
+			if ($config->hasExpired()) {
 				$this->configService->update($config);
 			}
 		}

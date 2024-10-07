@@ -23,11 +23,6 @@ class PasswordChangedListener implements IEventListener {
 	 * @throws Exception
 	 */
 	public function handle(Event $event): void {
-		$password = $event->getUser()->getPasswordHash();
-		if ($password !== null) {
-			$this->accountManager->forceUpdatePassword(
-				$event->getUser()->getUID(),
-				preg_replace('/^[^|]*|/', '', $password) ?? $password);
-		}
+		$this->accountManager->updateUser($event->getUser());
 	}
 }

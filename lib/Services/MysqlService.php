@@ -16,7 +16,9 @@ SQL;
 
 	// SELECT member_of FROM group_members WHERE name = ?
 	private const QUERY_MEMBERS = <<<SQL
-SELECT '' as member_of LIMIT 0;
+SELECT 'TODO'
+WHERE 'TODO' = ?
+LIMIT 1
 SQL;
 
 	// SELECT name FROM emails WHERE address = ? ORDER BY name ASC

@@ -8,7 +8,7 @@ namespace OCA\Stalwart;
  *      id: int,
  *      endpoint: string,
  *      username: string,
- *      health: 'bad_network'|'bad_server'|'invalid'|'success'|'unauthorized'|'unprivileged',
+ *      health: 'bad_network'|'bad_server'|'invalid'|'success'|'unauthorized',
  *  }
  * @psalm-type StalwartServerUser = array{
  *     uid: string,

@@ -10,16 +10,16 @@ install:
 	@composer install
 
 start-mysql:
-	$(COMPOSE_CLI) -f compose.mysql.yml up
+	docker compose -f compose.mysql.yml up
 
 stop-mysql:
-	$(COMPOSE_CLI) -f compose.mysql.yml down
+	docker compose -f compose.mysql.yml down
 
 remove-mysql:
-	$(COMPOSE_CLI) -f compose.mysql.yml down --volumes
+	docker compose -f compose.mysql.yml down --volumes
 
 fix-mysql:
-	$(COMPOSE_CLI) -f compose.mysql.yml exec -u 33 nextcloud php occ config:system:set --type bool --value true allow_local_remote_servers
+	docker compose -f compose.mysql.yml exec -u 33 nextcloud php occ config:system:set --type bool --value true allow_local_remote_servers
 
 watch:
 	npm run watch

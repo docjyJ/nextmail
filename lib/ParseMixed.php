@@ -2,7 +2,7 @@
 
 namespace OCA\Stalwart;
 
-use DateTime;
+use DateTimeImmutable;
 use Exception;
 use OCA\Stalwart\Models\AccountEntity;
 use OCA\Stalwart\Models\AccountType;
@@ -17,9 +17,13 @@ class ParseMixed {
 		return is_int($value) ? $value : null;
 	}
 
-	public static function dateTime(mixed $value): ?DateTime {
+	public static function string(mixed $value): ?string {
+		return is_string($value) ? $value : null;
+	}
+
+	public static function dateTime(mixed $value): ?DateTimeImmutable {
 		try {
-			return is_string($value) ? new DateTime($value) : null;
+			return is_string($value) ? new DateTimeImmutable($value) : null;
 		} catch (Exception) {
 			return null;
 		}
@@ -28,7 +32,6 @@ class ParseMixed {
 	public static function serverStatus(mixed $value): ?ServerStatus {
 		return is_string($value) ? match ($value) {
 			'success' => ServerStatus::Success,
-			'unprivileged' => ServerStatus::NoAdmin,
 			'unauthorized' => ServerStatus::Unauthorized,
 			'bad_server' => ServerStatus::BadServer,
 			'bad_network' => ServerStatus::BadNetwork,
@@ -56,28 +59,19 @@ class ParseMixed {
 
 	public static function configEntity(mixed $value): ?ConfigEntity {
 		if (is_array($value) && is_int($value['cid'])) {
-			$entity = new ConfigEntity($value['cid']);
-			if (is_string($value['endpoint'])) {
-				$entity->endpoint = $value['endpoint'];
-			}
-			if (is_string($value['username'])) {
-				$entity->username = $value['username'];
-			}
-			if (is_string($value['password'])) {
-				$entity->password = $value['password'];
-			}
-			if ($health = self::serverStatus($value['health'])) {
-				$entity->health = $health;
-			}
-			if ($expires = self::dateTime($value['expires'])) {
-				$entity->expires = $expires;
-			}
-			return $entity;
+			return new ConfigEntity(
+				$value['cid'],
+				self::string($value['endpoint']) ?? '',
+				self::string($value['username']) ?? '',
+				self::string($value['password']) ?? '',
+				self::serverStatus($value['health']) ?? ServerStatus::Invalid,
+				self::dateTime($value['expires']) ?? new DateTimeImmutable(),
+			);
 		}
 		return null;
 	}
 
-	public static function accuntEntity(ConfigEntity $conf, mixed $value): ?AccountEntity {
+	public static function accountEntity(ConfigEntity $conf, mixed $value): ?AccountEntity {
 		if (is_array($value) && $value['cid'] === $conf->cid && is_string($value['uid'])) {
 			$entity = new AccountEntity($conf, $value['uid']);
 			if ($type = self::accountType($value['type'])) {

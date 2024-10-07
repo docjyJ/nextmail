@@ -8,7 +8,6 @@ use OCA\Stalwart\Db\AccountManager;
 use OCA\Stalwart\Db\ConfigManager;
 use OCA\Stalwart\Db\EmailManager;
 use OCA\Stalwart\Models\AccountEntity;
-use OCA\Stalwart\Models\ConfigEntity;
 use OCA\Stalwart\Models\EmailEntity;
 use OCA\Stalwart\ResponseDefinitions;
 use OCA\Stalwart\Settings\Admin;
@@ -43,16 +42,6 @@ class ApiController extends OCSController {
 		parent::__construct($appName, $request);
 	}
 
-	/** @return StalwartServerConfig */
-	private static function getConfigData(ConfigEntity $config): array {
-		return [
-			'id' => $config->cid,
-			'endpoint' => $config->endpoint,
-			'username' => $config->username,
-			'health' => $config->health->value,
-		];
-	}
-
 	/** @return StalwartServerUser */
 	private static function getUserDataWithoutMail(AccountEntity $account): array {
 		return [
@@ -84,7 +73,7 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/config')]
 	public function list(): DataResponse {
 		try {
-			return new DataResponse(array_map(fn ($c) => self::getConfigData($c), $this->configManager->list()));
+			return new DataResponse(array_map(fn ($c) => $c->toArrayData(), $this->configManager->list()));
 		} catch (Exception $config) {
 			$this->logger->error($config->getMessage(), ['exception' => $config]);
 			throw new OCSException($config->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -103,7 +92,7 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'POST', url: '/config')]
 	public function post(): DataResponse {
 		try {
-			return new DataResponse(self::getConfigData($this->configManager->create()));
+			return new DataResponse($this->configManager->create()->toArrayData());
 		} catch (Exception $e) {
 			$this->logger->error($e->getMessage(), ['exception' => $e]);
 			throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -125,7 +114,7 @@ class ApiController extends OCSController {
 	public function get(int $cid): DataResponse {
 		try {
 			if ($config = $this->configManager->find($cid)) {
-				return new DataResponse(self::getConfigData($config));
+				return new DataResponse($config->toArrayData());
 			} else {
 				throw new OCSNotFoundException();
 			}
@@ -153,13 +142,9 @@ class ApiController extends OCSController {
 	public function put(int $cid, string $endpoint, string $username, string $password): DataResponse {
 		try {
 			if ($config = $this->configManager->find($cid)) {
-				$config->endpoint = $endpoint;
-				$config->username = $username;
-				if ($password !== '') {
-					$config->password = $password;
-				}
-				$this->configManager->update($config);
-				return new DataResponse(self::getConfigData($config));
+				$config = $config->updateCredential($endpoint, $username, $password);
+				$config = $this->configManager->update($config);
+				return new DataResponse($config->toArrayData());
 			} else {
 				throw new OCSNotFoundException();
 			}
@@ -185,7 +170,7 @@ class ApiController extends OCSController {
 		try {
 			if ($config = $this->configManager->find($cid)) {
 				$this->configManager->delete($config);
-				return new DataResponse(self::getConfigData($config));
+				return new DataResponse($config->toArrayData());
 			} else {
 				throw new OCSNotFoundException();
 			}

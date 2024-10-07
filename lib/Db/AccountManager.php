@@ -17,6 +17,10 @@ class AccountManager {
 	) {
 	}
 
+	private static function getHashFromUser(IUser $user): string {
+		return preg_replace('/^[^$]*/', '', $user->getPasswordHash() ?? '') ?? '';
+	}
+
 	/**
 	 * @return AccountEntity[]
 	 * @throws Exception
@@ -28,7 +32,7 @@ class AccountManager {
 			->where($q->expr()->eq('cid', $q->createNamedParameter($config->cid, IQueryBuilder::PARAM_INT)));
 		$result = $q->executeQuery();
 		$entities = [];
-		while ($account = ParseMixed::accuntEntity($config, $result->fetch())) {
+		while ($account = ParseMixed::accountEntity($config, $result->fetch())) {
 			$entities[] = $account;
 		}
 		$result->closeCursor();
@@ -43,16 +47,14 @@ class AccountManager {
 			->where($q->expr()->eq('cid', $q->createNamedParameter($config->cid, IQueryBuilder::PARAM_INT)))
 			->andWhere($q->expr()->eq('uid', $q->createNamedParameter($uid)));
 		$result = $q->executeQuery();
-		$account = ParseMixed::accuntEntity($config, $result->fetch());
+		$account = ParseMixed::accountEntity($config, $result->fetch());
 		$result->closeCursor();
 		return $account;
 	}
 
 	/** @throws Exception */
 	public function createIndividual(ConfigEntity $config, IUser $user): AccountEntity {
-		$password = $user->getPasswordHash() ?? null;
-		$password = $password !== null ? preg_replace('/^[^|]*|/', '', $password) ?? $password : '';
-		$account = new AccountEntity($config, $user->getUID(), $user->getDisplayName(), $password);
+		$account = new AccountEntity($config, $user->getUID(), $user->getDisplayName(), self::getHashFromUser($user));
 		$this->db->beginTransaction();
 		try {
 			$q = $this->db->getQueryBuilder();
@@ -109,12 +111,12 @@ class AccountManager {
 	}
 
 	/** @throws Exception */
-	public function forceDelete(string $uid): void {
+	public function deleteUser(IUser $user): void {
 		$this->db->beginTransaction();
 		try {
 			$q = $this->db->getQueryBuilder();
 			$q->delete(AccountEntity::TABLE)
-				->where($q->expr()->eq('uid', $q->createNamedParameter($uid)))
+				->where($q->expr()->eq('uid', $q->createNamedParameter($user->getUID())))
 				->executeStatement();
 			$this->db->commit();
 		} catch (Exception $e) {
@@ -124,13 +126,14 @@ class AccountManager {
 	}
 
 	/** @throws Exception */
-	public function forceUpdatePassword(string $uid, string $password): void {
+	public function updateUser(IUser $user): void {
 		$this->db->beginTransaction();
 		try {
 			$q = $this->db->getQueryBuilder();
 			$q->update(AccountEntity::TABLE)
-				->set('password', $q->createNamedParameter($password))
-				->where($q->expr()->eq('uid', $q->createNamedParameter($uid)))
+				->set('password', $q->createNamedParameter(self::getHashFromUser($user)))
+				->set('display_name', $q->createNamedParameter($user->getDisplayName()))
+				->where($q->expr()->eq('uid', $q->createNamedParameter($user->getUID())))
 				->executeStatement();
 			$this->db->commit();
 		} catch (Exception $e) {

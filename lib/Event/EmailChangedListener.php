@@ -27,14 +27,12 @@ class EmailChangedListener implements IEventListener {
 	 * @throws Exception
 	 */
 	public function handle(Event $event): void {
-		if ($event->getFeature() === 'email') {
-			/** @psalm-suppress MixedAssignment */
-			$email = $event->getValue();
-			if (is_string($email)) {
-				$uid = $event->getUser()->getUID();
-				foreach ($this->accountManager->listUser($event->getUser()->getUID()) as $cid) {
-					$this->emailManager->setPrimary(new AccountEntity(new ConfigEntity($cid), $uid), $email);
-				}
+		$this->accountManager->updateUser($event->getUser());
+		$email = $event->getUser()->getEMailAddress();
+		if ($email !== null) {
+			$uid = $event->getUser()->getUID();
+			foreach ($this->accountManager->listUser($event->getUser()->getUID()) as $cid) {
+				$this->emailManager->setPrimary(new AccountEntity(new ConfigEntity($cid), $uid), $email);
 			}
 		}
 	}
