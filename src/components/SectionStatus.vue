@@ -20,7 +20,7 @@ const { t } = useStalwartTranslate()
 
 <template>
 	<NcNoteCard
-		v-if="config.health === 0"
+		v-if="config.health === 'success'"
 		type="success"
 		style="margin: calc(var(--default-grid-baseline) * 7)">
 		<template #icon>
@@ -33,22 +33,7 @@ const { t } = useStalwartTranslate()
 		</p>
 	</NcNoteCard>
 	<NcNoteCard
-		v-else-if="config.health === 1"
-		type="warning"
-		style="margin: calc(var(--default-grid-baseline) * 7)">
-		<template #icon>
-			<NcIconSvgWrapper
-				:svg="mdiAccessPoint"
-				name="AccessPoint"
-				style="color: var(--note-theme)" />
-		</template>
-		<p style="font-size: var(--note-card-icon-size); font-weight: 600;">
-			{{ t('The account is not administrator') }}
-		</p>
-		<p>{{ t('Use an administrator account to prevent any issues with sending configuration') }}</p>
-	</NcNoteCard>
-	<NcNoteCard
-		v-else-if="config.health === 2"
+		v-else-if="config.health === 'unauthorized'"
 		type="error"
 		style="margin: calc(var(--default-grid-baseline) * 7)">
 		<template #icon>
@@ -63,7 +48,7 @@ const { t } = useStalwartTranslate()
 		<p>{{ t('The credentials you provided are invalid. Please check them and try again.') }}</p>
 	</NcNoteCard>
 	<NcNoteCard
-		v-else-if="config.health === 3"
+		v-else-if="config.health === 'bad_network'"
 		type="error"
 		style="margin: calc(var(--default-grid-baseline) * 7)">
 		<template #icon>
@@ -78,7 +63,7 @@ const { t } = useStalwartTranslate()
 		<p>{{ t('The server respond with an error, check the server status and the endpoint you provided.') }}</p>
 	</NcNoteCard>
 	<NcNoteCard
-		v-else-if="config.health === 4"
+		v-else-if="config.health === 'bad_server'"
 		type="error"
 		style="margin: calc(var(--default-grid-baseline) * 7)">
 		<template #icon>
@@ -98,7 +83,7 @@ const { t } = useStalwartTranslate()
 	</NcNoteCard>
 	<NcNoteCard
 		v-else
-		type="error"
+		type="warning"
 		style="margin: calc(var(--default-grid-baseline) * 7)">
 		<template #icon>
 			<NcIconSvgWrapper

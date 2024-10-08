@@ -6,6 +6,9 @@ import NcSelect from '@nextcloud/vue/dist/Components/NcSelect.js'
 import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
 import NcIconSvgWrapper from '@nextcloud/vue/dist/Components/NcIconSvgWrapper.js'
 import NcListItemIcon from '@nextcloud/vue/dist/Components/NcListItemIcon.js'
+import NcActions from '@nextcloud/vue/dist/Components/NcActions.js'
+import NcActionButton from '@nextcloud/vue/dist/Components/NcActionButton.js'
+import mdiDelete from '@mdi/svg/svg/delete.svg?raw'
 import mdiContentSave from '@mdi/svg/svg/content-save.svg?raw'
 import useServerUserList from '~/composable/useServerUserList'
 
@@ -13,8 +16,8 @@ const props = defineProps<{
   serverId: number
 }>()
 
-const { users, usersServer, loading, reload, addUser } = useServerUserList(props.serverId)
-const newUser = ref<{id: string} | null>()
+const { usersRegistered, usersAvailable, loading, reload, addUser, removeUser } = useServerUserList(props.serverId)
+const newUser = ref<{ id: string } | null>()
 
 onMounted(() => {
 	reload()
@@ -29,13 +32,14 @@ onMounted(() => {
 			<NcSelect
 				v-model="newUser"
 				style="flex-grow: 1"
-				:options="usersServer.map(e => ({
+				:options="usersAvailable.map(e => ({
 					id: e.uid,
 					displayName: e.displayName,
-					isNoUser: false,
 					user: e.uid,
+					subname: e.email || undefined,
 				}))"
-				:user-select="true" />
+				:user-select="true"
+				:disabled="loading" />
 			<NcButton :disabled="loading" :type="ButtonType.Primary" @click="newUser ? addUser(newUser.id) : undefined">
 				<template #icon>
 					<NcLoadingIcon v-if="loading" />
@@ -46,11 +50,21 @@ onMounted(() => {
 		</div>
 		<ul>
 			<NcListItemIcon
-				v-for="user in users"
+				v-for="user in usersRegistered"
 				:id="user.uid"
 				:key="user.uid"
 				:name="user.displayName"
-				:display-name="user.displayName" />
+				:display-name="user.displayName"
+				:subname="user.email || undefined">
+				<NcActions>
+					<NcActionButton :disabled="loading" @click="() => removeUser(user.uid)">
+						<template #icon>
+							<NcIconSvgWrapper :svg="mdiDelete" name="Save" />
+						</template>
+						Delete
+					</NcActionButton>
+				</NcActions>
+			</NcListItemIcon>
 		</ul>
 	</NcSettingsSection>
 </template>

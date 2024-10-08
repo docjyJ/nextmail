@@ -5,7 +5,6 @@ namespace OCA\Stalwart\Db;
 use OCA\Stalwart\Models\AccountEntity;
 use OCA\Stalwart\Models\EmailEntity;
 use OCA\Stalwart\Models\EmailType;
-use OCA\Stalwart\ParseMixed;
 use OCP\DB\Exception;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
@@ -26,7 +25,7 @@ class EmailManager {
 			->andWhere($q->expr()->eq('uid', $q->createNamedParameter($account->uid)))
 			->andWhere($q->expr()->eq('type', $q->createNamedParameter(EmailType::Primary->value)));
 		$result = $q->executeQuery();
-		$row = ParseMixed::emailEntity($account, $result->fetch());
+		$row = EmailEntity::fromMixed($account, $result->fetch());
 		$result->closeCursor();
 		return $row;
 	}

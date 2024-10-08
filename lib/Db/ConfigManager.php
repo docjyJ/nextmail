@@ -5,7 +5,6 @@ namespace OCA\Stalwart\Db;
 use DateTimeImmutable;
 use OCA\Stalwart\Models\ConfigEntity;
 use OCA\Stalwart\Models\ServerStatus;
-use OCA\Stalwart\ParseMixed;
 use OCA\Stalwart\Services\StalwartAPIService;
 use OCP\DB\Exception;
 use OCP\DB\QueryBuilder\IQueryBuilder;
@@ -26,7 +25,7 @@ class ConfigManager {
 			->from(ConfigEntity::TABLE)
 			->where($qb->expr()->eq('cid', $qb->createNamedParameter($cid, IQueryBuilder::PARAM_INT)));
 		$result = $qb->executeQuery();
-		$config = ParseMixed::configEntity($result->fetch());
+		$config = ConfigEntity::fromMixed($result->fetch());
 		$result->closeCursor();
 		return $config;
 	}
@@ -41,7 +40,7 @@ class ConfigManager {
 			->from(ConfigEntity::TABLE);
 		$result = $q->executeQuery();
 		$entities = [];
-		while ($id = ParseMixed::configEntity($result->fetch())) {
+		while ($id = ConfigEntity::fromMixed($result->fetch())) {
 			$entities[] = $id;
 		}
 		$result->closeCursor();

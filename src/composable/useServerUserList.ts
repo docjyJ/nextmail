@@ -1,12 +1,13 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import axios from '@nextcloud/axios'
 import { generateOcsUrl } from '@nextcloud/router'
 import type { OCSResponse, ServerUser, UserResponse } from '~/type'
 
 export default function useServerUserList(id: number) {
 	const loading = ref(false)
-	const users = ref<ServerUser[]>([])
-	const usersServer = ref<ServerUser[]>([])
+	const usersAll = ref<ServerUser[]>([])
+	const usersRegistered = ref<ServerUser[]>([])
+	const usersAvailable = computed<ServerUser[]>(() => usersAll.value.filter(user => usersRegistered.value.every(u => u.uid !== user.uid)))
 	const usersUrl = generateOcsUrl(`/apps/stalwart/config/${id}/users`)
 	const userUrl = (uid: string) => generateOcsUrl(`/apps/stalwart/config/${id}/users/${uid}`)
 
@@ -14,16 +15,15 @@ export default function useServerUserList(id: number) {
 		if (!loading.value) {
 			loading.value = true
 			try {
-				usersServer.value = await axios.get<OCSResponse<UserResponse>>('/ocs/v2.php/cloud/users/details')
+				usersAll.value = await axios.get<OCSResponse<UserResponse>>('/ocs/v2.php/cloud/users/details')
 					.then(r => Object.values(r.data.ocs.data.users).map(user => ({
 						uid: user.id,
 						displayName: user.displayname,
 						email: user.email,
 					})))
-				users.value = await axios.get<OCSResponse<ServerUser[]>>(usersUrl).then(r => r.data.ocs.data)
+				usersRegistered.value = await axios.get<OCSResponse<ServerUser[]>>(usersUrl).then(r => r.data.ocs.data)
 			} catch (error) {
 				// showError(error)
-				users.value = []
 			} finally {
 				loading.value = false
 			}
@@ -35,7 +35,7 @@ export default function useServerUserList(id: number) {
 			loading.value = true
 			try {
 				const user = await axios.post<OCSResponse<ServerUser>>(userUrl(uid)).then(r => r.data.ocs.data)
-				users.value.push(user)
+				usersRegistered.value.push(user)
 				// showSuccess(t('User added to server'))
 			} catch (error) {
 				// showError(error)
@@ -50,7 +50,7 @@ export default function useServerUserList(id: number) {
 			loading.value = true
 			try {
 				await axios.delete(userUrl(uid))
-				users.value = users.value.filter(user => user.uid !== uid)
+				usersRegistered.value = usersRegistered.value.filter(user => user.uid !== uid)
 				// showSuccess(t('User removed from server'))
 			} catch (error) {
 				// showError(error)
@@ -61,8 +61,8 @@ export default function useServerUserList(id: number) {
 	}
 
 	return {
-		users,
-		usersServer,
+		usersRegistered,
+		usersAvailable,
 		loading,
 		reload,
 		addUser,

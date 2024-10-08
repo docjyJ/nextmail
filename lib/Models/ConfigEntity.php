@@ -5,6 +5,7 @@ namespace OCA\Stalwart\Models;
 use DateInterval;
 use DateTime;
 use DateTimeImmutable;
+use OCA\Stalwart\FromMixed;
 use OCA\Stalwart\ResponseDefinitions;
 
 /** @psalm-import-type StalwartServerConfig from ResponseDefinitions */
@@ -21,6 +22,19 @@ class ConfigEntity {
 		public readonly ServerStatus $health = ServerStatus::Invalid,
 		public readonly DateTimeImmutable $expires = new DateTimeImmutable(),
 	) {
+	}
+
+	public static function fromMixed(mixed $value): ?self {
+		return is_array($value)
+			&& ($cid = FromMixed::int($value['cid'])) !== null
+			? new self(
+				$cid,
+				FromMixed::string($value['endpoint']) ?? '',
+				FromMixed::string($value['username']) ?? '',
+				FromMixed::string($value['password']) ?? '',
+				ServerStatus::fromMixed($value['health']) ?? ServerStatus::Invalid,
+				FromMixed::dateTime($value['expires']) ?? new DateTimeImmutable(),
+			) : null;
 	}
 
 	/** @return StalwartServerConfig */

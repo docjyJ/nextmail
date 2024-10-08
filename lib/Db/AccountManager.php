@@ -2,9 +2,9 @@
 
 namespace OCA\Stalwart\Db;
 
+use OCA\Stalwart\FromMixed;
 use OCA\Stalwart\Models\AccountEntity;
 use OCA\Stalwart\Models\ConfigEntity;
-use OCA\Stalwart\ParseMixed;
 use OCP\DB\Exception;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
@@ -32,7 +32,7 @@ class AccountManager {
 			->where($q->expr()->eq('cid', $q->createNamedParameter($config->cid, IQueryBuilder::PARAM_INT)));
 		$result = $q->executeQuery();
 		$entities = [];
-		while ($account = ParseMixed::accountEntity($config, $result->fetch())) {
+		while ($account = AccountEntity::fromMixed($config, $result->fetch())) {
 			$entities[] = $account;
 		}
 		$result->closeCursor();
@@ -47,7 +47,7 @@ class AccountManager {
 			->where($q->expr()->eq('cid', $q->createNamedParameter($config->cid, IQueryBuilder::PARAM_INT)))
 			->andWhere($q->expr()->eq('uid', $q->createNamedParameter($uid)));
 		$result = $q->executeQuery();
-		$account = ParseMixed::accountEntity($config, $result->fetch());
+		$account = AccountEntity::fromMixed($config, $result->fetch());
 		$result->closeCursor();
 		return $account;
 	}
@@ -103,7 +103,7 @@ class AccountManager {
 			->where($q->expr()->eq('uid', $q->createNamedParameter($uid)));
 		$result = $q->executeQuery();
 		$entities = [];
-		while ($cid = ParseMixed::int($result->fetch())) {
+		while ($cid = FromMixed::int($result->fetch())) {
 			$entities[] = $cid;
 		}
 		$result->closeCursor();

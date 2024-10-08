@@ -22,7 +22,7 @@ export type ServerConfig = {
     id: int;
     endpoint: string;
     username: string;
-    health: 'bad_network' | 'bad_server' | 'invalid' | 'success' | 'unauthorized' | 'unprivileged';
+    health: 'bad_network' | 'bad_server' | 'invalid' | 'success' | 'unauthorized';
 };
 
 export type ServerUser = {

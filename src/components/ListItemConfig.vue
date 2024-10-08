@@ -18,7 +18,7 @@ defineProps<{
 <template>
 	<div style="display: inline-flex; align-items: center; gap: 8px">
 		<NcAvatar
-			v-if="config.health === 0"
+			v-if="config.health === 'success'"
 			style="background-color: rgba(var(--color-success-rgb), 0.1)">
 			<template #icon>
 				<NcIconSvgWrapper
@@ -28,17 +28,7 @@ defineProps<{
 			</template>
 		</NcAvatar>
 		<NcAvatar
-			v-else-if="config.health === 1"
-			style="background-color: rgba(var(--color-warning-rgb), 0.1)">
-			<template #icon>
-				<NcIconSvgWrapper
-					:svg="mdiAccessPoint"
-					name="AccessPoint"
-					style="color: var(--color-warning); min-width: var(--size); min-height: var(--size)" />
-			</template>
-		</NcAvatar>
-		<NcAvatar
-			v-else-if="config.health === 2"
+			v-else-if="config.health === 'unauthorized'"
 			style="background-color: rgba(var(--color-error-rgb), 0.1)">
 			<template #icon>
 				<NcIconSvgWrapper
@@ -48,7 +38,7 @@ defineProps<{
 			</template>
 		</NcAvatar>
 		<NcAvatar
-			v-else-if="config.health === 3"
+			v-else-if="config.health === 'bad_network'"
 			style="background-color: rgba(var(--color-error-rgb), 0.1)">
 			<template #icon>
 				<NcIconSvgWrapper
@@ -58,7 +48,7 @@ defineProps<{
 			</template>
 		</NcAvatar>
 		<NcAvatar
-			v-else-if="config.health === 4"
+			v-else-if="config.health === 'bad_server'"
 			style="background-color: rgba(var(--color-error-rgb), 0.1)">
 			<template #icon>
 				<NcIconSvgWrapper
@@ -69,12 +59,12 @@ defineProps<{
 		</NcAvatar>
 		<NcAvatar
 			v-else
-			style="background-color: rgba(var(--color-error-rgb), 0.1)">
+			style="background-color: rgba(var(--color-warning-rgb), 0.1)">
 			<template #icon>
 				<NcIconSvgWrapper
 					:svg="mdiTextBoxOutline"
 					name="TextBoxOutline"
-					style="color: var(--color-error); min-width: var(--size); min-height: var(--size)" />
+					style="color: var(--color-warning); min-width: var(--size); min-height: var(--size)" />
 			</template>
 		</NcAvatar>
 		<p>{{ /^[a-z0-9-]+:\/*([a-z0-9-.:]+).*$/.exec(config.endpoint)?.at(1) || config.endpoint || '?????' }}</p>

@@ -25,19 +25,19 @@ SQL;
 	private const QUERY_RECIPIENTS = <<<SQL
 SELECT uid FROM oc_stalwart_emails
 WHERE cid = :cid AND email = ?
-ORDER BY uid;
+ORDER BY uid
 SQL;
 	// SELECT address FROM emails WHERE name = ? AND type != 'list' ORDER BY type DESC, address ASC
 	private const QUERY_EMAILS = <<<SQL
 SELECT email FROM oc_stalwart_emails
-WHERE cid = :cid AND uid = ? AND type != 2
-ORDER BY type DESC , email;
+WHERE cid = :cid AND uid = ? AND type != 'list'
+ORDER BY type DESC, email
 SQL;
 
 	// SELECT address FROM emails WHERE address LIKE CONCAT('%', ?, '%') AND type = 'primary' ORDER BY address LIMIT 5
 	private const QUERY_VERIFY = <<<SQL
 SELECT email FROM oc_stalwart_emails
-WHERE cid = :cid AND email LIKE CONCAT('%', ?, '%') AND type = 0
+WHERE cid = :cid AND email LIKE CONCAT('%', ?, '%') AND type = 'primary'
 SQL;
 
 	// SELECT p.address FROM emails AS p JOIN emails AS l ON p.name = l.name WHERE p.type = 'primary' AND l.address = ? AND l.type = 'list' ORDER BY p.address LIMIT 50
@@ -45,14 +45,14 @@ SQL;
 SELECT p.email FROM oc_stalwart_emails AS p
 JOIN oc_stalwart_emails AS l
 ON p.cid = l.cid AND p.uid = l.uid
-WHERE p.cid = :cid AND p.type = 0 AND l.email = ? AND l.type = 1;
+WHERE p.cid = :cid AND p.type = 'primary' AND l.email = ? AND l.type = 'alias'
 SQL;
 
 	// SELECT 1 FROM emails WHERE address LIKE CONCAT('%@', ?) LIMIT 1
 	private const QUERY_DOMAINS = <<<SQL
 SELECT 1 FROM oc_stalwart_emails
 WHERE cid = :cid AND email LIKE CONCAT('%@', ?)
-LIMIT 1;
+LIMIT 1
 SQL;
 
 	/**

@@ -8,4 +8,13 @@ enum ServerStatus: string {
 	case BadServer = 'bad_server';
 	case BadNetwork = 'bad_network';
 	case Invalid = 'invalid';
+
+	public static function fromMixed(mixed $value): ?self {
+		foreach (self::cases() as $case) {
+			if ($case->value === $value) {
+				return $case;
+			}
+		}
+		return null;
+	}
 }
