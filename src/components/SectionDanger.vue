@@ -13,7 +13,7 @@ defineProps<{
 }>()
 
 defineEmits<{
-  (e: 'delete', id: number): void
+  (e: 'delete', id: string): void
 }>()
 
 const { t } = useStalwartTranslate()

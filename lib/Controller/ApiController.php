@@ -44,7 +44,7 @@ class ApiController extends OCSController {
 	/** @return StalwartServerUser */
 	private static function getUserDataWithoutMail(AccountEntity $account): array {
 		return [
-			'uid' => $account->uid,
+			'id' => $account->uid,
 			'displayName' => $account->displayName,
 			'email' => null
 		];
@@ -53,7 +53,7 @@ class ApiController extends OCSController {
 	/** @return StalwartServerUser */
 	private static function getUserData(EmailEntity $email): array {
 		return [
-			'uid' => $email->account->uid,
+			'id' => $email->account->uid,
 			'displayName' => $email->account->displayName,
 			'email' => $email->email
 		];

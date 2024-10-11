@@ -8,7 +8,7 @@ use OCP\IURLGenerator;
 use OCP\Settings\IIconSection;
 
 readonly class Section implements IIconSection {
-	public const string SETTING_ID = 'stalwart';
+	public const SETTING_ID = 'stalwart';
 
 	public function __construct(
 		private IL10N         $l,

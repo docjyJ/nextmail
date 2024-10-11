@@ -9,27 +9,27 @@ use OCP\IConfig;
 
 readonly class MysqlService implements ISqlService {
 	// SELECT name, type, secret, description, quota FROM accounts WHERE name = ? AND active = true
-	private const string QUERY_NAME = <<<SQL
+	private const QUERY_NAME = <<<SQL
 SELECT uid, type, display_name, password, quota FROM oc_stalwart_accounts
 WHERE cid = ':cid' AND uid = ?
 SQL;
 
 	// SELECT member_of FROM group_members WHERE name = ?
-	private const string QUERY_MEMBERS = <<<SQL
+	private const QUERY_MEMBERS = <<<SQL
 SELECT 'TODO'
 WHERE 'TODO' = ?
 LIMIT 1
 SQL;
 
 	// SELECT name FROM emails WHERE address = ? ORDER BY name ASC
-	private const string QUERY_RECIPIENTS = <<<SQL
+	private const QUERY_RECIPIENTS = <<<SQL
 SELECT uid FROM oc_stalwart_emails
 JOIN oc_stalwart_accounts USING (uid)
 WHERE cid = ':cid' AND email = ?
 ORDER BY uid
 SQL;
 	// SELECT address FROM emails WHERE name = ? AND type != 'list' ORDER BY type DESC, address ASC
-	private const string QUERY_EMAILS = <<<SQL
+	private const QUERY_EMAILS = <<<SQL
 SELECT email FROM oc_stalwart_emails
 JOIN oc_stalwart_accounts USING (uid)
 WHERE cid = ':cid' AND uid = ? AND type != 'list'
@@ -37,14 +37,14 @@ ORDER BY type DESC, email
 SQL;
 
 	// SELECT address FROM emails WHERE address LIKE CONCAT('%', ?, '%') AND type = 'primary' ORDER BY address LIMIT 5
-	private const string QUERY_VERIFY = <<<SQL
+	private const QUERY_VERIFY = <<<SQL
 SELECT email FROM oc_stalwart_emails
 JOIN oc_stalwart_accounts USING (uid)
 WHERE cid = ':cid' AND email LIKE CONCAT('%', ?, '%') AND type = 'primary'
 SQL;
 
 	// SELECT p.address FROM emails AS p JOIN emails AS l ON p.name = l.name WHERE p.type = 'primary' AND l.address = ? AND l.type = 'list' ORDER BY p.address LIMIT 50
-	private const string QUERY_EXPAND = <<<SQL
+	private const QUERY_EXPAND = <<<SQL
 SELECT p.email FROM oc_stalwart_emails AS p
 JOIN oc_stalwart_emails AS l USING (uid)
 JOIN oc_stalwart_accounts USING (uid)
@@ -52,7 +52,7 @@ WHERE cid = :cid AND p.type = 'primary' AND l.email = ? AND l.type = 'alias'
 SQL;
 
 	// SELECT 1 FROM emails WHERE address LIKE CONCAT('%@', ?) LIMIT 1
-	private const string QUERY_DOMAINS = <<<SQL
+	private const QUERY_DOMAINS = <<<SQL
 SELECT 1 FROM oc_stalwart_emails
 WHERE cid = :cid AND email LIKE CONCAT('%@', ?)
 LIMIT 1

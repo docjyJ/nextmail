@@ -3,13 +3,13 @@ import axios from '@nextcloud/axios'
 import { generateOcsUrl } from '@nextcloud/router'
 import type { OCSResponse, ServerUser, UserResponse } from '~/type'
 
-export default function useServerUserList(id: number) {
+export default function useServerUserList(cid: string) {
 	const loading = ref(false)
 	const usersAll = ref<ServerUser[]>([])
 	const usersRegistered = ref<ServerUser[]>([])
-	const usersAvailable = computed<ServerUser[]>(() => usersAll.value.filter(user => usersRegistered.value.every(u => u.uid !== user.uid)))
-	const usersUrl = generateOcsUrl(`/apps/stalwart/config/${id}/users`)
-	const userUrl = (uid: string) => generateOcsUrl(`/apps/stalwart/config/${id}/users/${uid}`)
+	const usersAvailable = computed<ServerUser[]>(() => usersAll.value.filter(user => usersRegistered.value.every(u => u.id !== user.id)))
+	const usersUrl = generateOcsUrl(`/apps/stalwart/config/${cid}/users`)
+	const userUrl = (uid: string) => generateOcsUrl(`/apps/stalwart/config/${cid}/users/${uid}`)
 
 	const reload = async () => {
 		if (!loading.value) {
@@ -17,7 +17,7 @@ export default function useServerUserList(id: number) {
 			try {
 				usersAll.value = await axios.get<OCSResponse<UserResponse>>('/ocs/v2.php/cloud/users/details')
 					.then(r => Object.values(r.data.ocs.data.users).map(user => ({
-						uid: user.id,
+						id: user.id,
 						displayName: user.displayname,
 						email: user.email,
 					})))
@@ -50,7 +50,7 @@ export default function useServerUserList(id: number) {
 			loading.value = true
 			try {
 				await axios.delete(userUrl(uid))
-				usersRegistered.value = usersRegistered.value.filter(user => user.uid !== uid)
+				usersRegistered.value = usersRegistered.value.filter(user => user.id !== uid)
 				// showSuccess(t('User removed from server'))
 			} catch (error) {
 				// showError(error)

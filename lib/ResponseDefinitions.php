@@ -11,7 +11,7 @@ namespace OCA\Stalwart;
  *      health: 'bad_network'|'bad_server'|'invalid'|'success'|'unauthorized',
  *  }
  * @psalm-type StalwartServerUser = array{
- *     uid: string,
+ *     id: string,
  *     displayName: string,
  *     email: ?string,
  *   }

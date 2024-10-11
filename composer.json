@@ -24,7 +24,7 @@
 		"openapi": "generate-spec"
 	},
 	"require": {
-		"php": "^8.3"
+		"php": "^8.2"
 	},
 	"require-dev": {
 		"doctrine/dbal": "^4.1",
@@ -38,7 +38,7 @@
 		"optimize-autoloader": true,
 		"sort-packages": true,
 		"platform": {
-			"php": "8.3"
+			"php": "8.2.4"
 		}
 	}
 }

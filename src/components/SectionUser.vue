@@ -13,7 +13,7 @@ import mdiContentSave from '@mdi/svg/svg/content-save.svg?raw'
 import useServerUserList from '~/composable/useServerUserList'
 
 const props = defineProps<{
-  serverId: number
+  serverId: string
 }>()
 
 const { usersRegistered, usersAvailable, loading, reload, addUser, removeUser } = useServerUserList(props.serverId)
@@ -33,9 +33,9 @@ onMounted(() => {
 				v-model="newUser"
 				style="flex-grow: 1"
 				:options="usersAvailable.map(e => ({
-					id: e.uid,
+					id: e.id,
 					displayName: e.displayName,
-					user: e.uid,
+					user: e.id,
 					subname: e.email || undefined,
 				}))"
 				:user-select="true"
@@ -51,13 +51,13 @@ onMounted(() => {
 		<ul>
 			<NcListItemIcon
 				v-for="user in usersRegistered"
-				:id="user.uid"
-				:key="user.uid"
+				:id="user.id"
+				:key="user.id"
 				:name="user.displayName"
 				:display-name="user.displayName"
 				:subname="user.email || undefined">
 				<NcActions>
-					<NcActionButton :disabled="loading" @click="() => removeUser(user.uid)">
+					<NcActionButton :disabled="loading" @click="() => removeUser(user.id)">
 						<template #icon>
 							<NcIconSvgWrapper :svg="mdiDelete" name="Save" />
 						</template>

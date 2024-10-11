@@ -14,9 +14,9 @@ use OCP\Migration\SimpleMigrationStep;
 
 /** @psalm-suppress UnusedClass */
 class Version000100Date20240914153000 extends SimpleMigrationStep {
-	private const string TABLE_CONFIGS = 'stalwart_configs';
-	private const string STALWART_ACCOUNTS = 'stalwart_accounts';
-	private const string TABLE_EMAILS = 'stalwart_emails';
+	private const TABLE_CONFIGS = 'stalwart_configs';
+	private const STALWART_ACCOUNTS = 'stalwart_accounts';
+	private const TABLE_EMAILS = 'stalwart_emails';
 
 	public function preSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
 	}
@@ -28,9 +28,9 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 
 		if (!$schema->hasTable(self::TABLE_CONFIGS)) {
 			$tableConfigs = $schema->createTable(self::TABLE_CONFIGS);
-			$tableConfigs->addColumn('cid', Types::INTEGER, [
-				'length' => 32,
+			$tableConfigs->addColumn('cid', Types::STRING, [
 				'notnull' => true,
+				'length' => 32,
 			]);
 			$tableConfigs->addColumn('endpoint', Types::STRING, [
 				'notnull' => true,
@@ -59,8 +59,9 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 				'notnull' => true,
 				'length' => 64,
 			]);
-			$tableAccounts->addColumn('cid', Types::INTEGER, [
+			$tableAccounts->addColumn('cid', Types::STRING, [
 				'notnull' => true,
+				'length' => 32,
 			]);
 			$tableAccounts->addColumn('type', Types::STRING, [
 				'notnull' => true,

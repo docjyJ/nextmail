@@ -7,14 +7,14 @@ export default function useServerConfigList() {
 	const loading = ref(false)
 	const servers = ref<ServerConfig[]>([])
 	const configUrl = generateOcsUrl('/apps/stalwart/config')
-	const configIdUrl = (id: number) => generateOcsUrl(`/apps/stalwart/config/${id}`)
+	const configIdUrl = (id: string) => generateOcsUrl(`/apps/stalwart/config/${id}`)
 	const active = ref<ServerConfig | null>(null)
 
 	return {
 		servers,
 		loading,
 		active,
-		to: (id: number | null) => {
+		to: (id: string | null) => {
 			if (!loading.value) {
 				active.value = id === null ? null : servers.value.find(a => a.id === id) ?? null
 			}
@@ -70,7 +70,7 @@ export default function useServerConfigList() {
 				}
 			}
 		},
-		remove: async (id: number) => {
+		remove: async (id: string) => {
 			if (!loading.value) {
 				loading.value = true
 				try {

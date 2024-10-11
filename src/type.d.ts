@@ -12,21 +12,21 @@ export type OCSResponse<T> = {
 };
 
 export type ServerConfigForm = {
-    id: number;
+    id: string;
     endpoint: string;
     username: string;
     password: string;
 };
 
 export type ServerConfig = {
-    id: int;
+    id: string;
     endpoint: string;
     username: string;
     health: 'bad_network' | 'bad_server' | 'invalid' | 'success' | 'unauthorized';
 };
 
 export type ServerUser = {
-    uid: string;
+    id: string;
     displayName: string;
     email: string | null;
 };

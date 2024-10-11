@@ -14,7 +14,7 @@ Users, groups and authentication information will be directly integrated into Ne
 	<category>tools</category>
 	<bugs>https://github.com/docjyJ/nextcloud-stalwart/issues</bugs>
 	<dependencies>
-		<php min-version="8.1" max-version="8.3"/>
+		<php min-version="8.2"/>
 		<database>mysql</database>
 		<nextcloud min-version="30" max-version="30"/>
 	</dependencies>

@@ -5,7 +5,7 @@ namespace OCA\Stalwart\Models;
 use ValueError;
 
 readonly class EmailEntity {
-	public const string TABLE = 'stalwart_emails';
+	public const TABLE = 'stalwart_emails';
 
 	public function __construct(
 		public AccountEntity $account,

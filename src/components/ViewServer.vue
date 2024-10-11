@@ -18,7 +18,7 @@ defineProps<{
 
 defineEmits<{
   (e: 'edit', config: ServerConfigForm): void,
-  (e: 'delete', id: number): void
+  (e: 'delete', id: string): void
   (e: 'create'): void
 }>()
 

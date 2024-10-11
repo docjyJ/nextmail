@@ -8,8 +8,8 @@ use ValueError;
 
 /** @psalm-import-type StalwartServerConfig from ResponseDefinitions */
 readonly class ConfigEntity implements JsonSerializable {
-	public const string TABLE = 'stalwart_configs';
-	private const string URL_PATTERN = '/^https?:\\/\\/([a-z0-9-]+\\.)*[a-z0-9-]+(:\\d{1,5})?\\/api$/';
+	public const TABLE = 'stalwart_configs';
+	private const URL_PATTERN = '/^https?:\\/\\/([a-z0-9-]+\\.)*[a-z0-9-]+(:\\d{1,5})?\\/api$/';
 
 
 	public function __construct(
@@ -22,7 +22,7 @@ readonly class ConfigEntity implements JsonSerializable {
 	}
 
 	public static function newEmpty(): self {
-		return new self(uniqid('nc_', true), '', '', '', ServerStatus::Invalid);
+		return new self(str_replace('.', '_', uniqid('nc_', true)), '', '', '', ServerStatus::Invalid);
 	}
 
 	public static function parse(mixed $value): ConfigEntity {
