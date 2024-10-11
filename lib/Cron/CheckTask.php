@@ -7,7 +7,6 @@ use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use OCP\DB\Exception;
 
-/** @psalm-suppress UnusedClass */
 class CheckTask extends TimedJob {
 	public function __construct(
 		ITimeFactory                   $time,
@@ -20,9 +19,7 @@ class CheckTask extends TimedJob {
 	/** @throws Exception */
 	protected function run(mixed $argument): void {
 		foreach ($this->configService->list() as $config) {
-			if ($config->hasExpired()) {
-				$this->configService->update($config);
-			}
+			$this->configService->save($config);
 		}
 	}
 }

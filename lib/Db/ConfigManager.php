@@ -2,32 +2,21 @@
 
 namespace OCA\Stalwart\Db;
 
-use DateTimeImmutable;
 use OCA\Stalwart\Models\ConfigEntity;
-use OCA\Stalwart\Models\ServerStatus;
 use OCA\Stalwart\Services\StalwartAPIService;
 use OCP\DB\Exception;
-use OCP\DB\QueryBuilder\IQueryBuilder;
-use OCP\IDBConnection;
 
-class ConfigManager {
-	/** @psalm-suppress PossiblyUnusedMethod */
+readonly class ConfigManager {
 	public function __construct(
-		private readonly IDBConnection      $db,
-		private readonly StalwartAPIService $apiService,
+		private Transaction        $tr,
+		private StalwartAPIService $apiService,
 	) {
 	}
 
 	/** @throws Exception */
-	public function find(int $cid): ?ConfigEntity {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(ConfigEntity::TABLE)
-			->where($qb->expr()->eq('cid', $qb->createNamedParameter($cid, IQueryBuilder::PARAM_INT)));
-		$result = $qb->executeQuery();
-		$config = ConfigEntity::fromMixed($result->fetch());
-		$result->closeCursor();
-		return $config;
+	public function getById(string $cid): ?ConfigEntity {
+		$configs = $this->tr->selectConfig($cid);
+		return count($configs) === 0 ? null : ConfigEntity::parse($configs[0]);
 	}
 
 	/**
@@ -35,78 +24,40 @@ class ConfigManager {
 	 * @throws Exception
 	 */
 	public function list(): array {
-		$q = $this->db->getQueryBuilder();
-		$q->select('*')
-			->from(ConfigEntity::TABLE);
-		$result = $q->executeQuery();
-		$entities = [];
-		while ($id = ConfigEntity::fromMixed($result->fetch())) {
-			$entities[] = $id;
-		}
-		$result->closeCursor();
-		return $entities;
+		return array_map(fn (mixed $row) => ConfigEntity::parse($row), $this->tr->selectConfig());
 	}
 
 	/** @throws Exception */
-	public function update(ConfigEntity $config): ConfigEntity {
-		$config = $config->updateHealth($this->apiService->challenge($config));
-		$this->db->beginTransaction();
-		try {
-			$q = $this->db->getQueryBuilder();
-			$q->update(ConfigEntity::TABLE)
-				->set('endpoint', $q->createNamedParameter(strtolower($config->endpoint)))
-				->set('username', $q->createNamedParameter($config->username))
-				->set('password', $q->createNamedParameter($config->password))
-				->set('health', $q->createNamedParameter($config->health->value))
-				->set('expires', $q->createNamedParameter($config->expires, IQueryBuilder::PARAM_DATE))
-				->where($q->expr()->eq('cid', $q->createNamedParameter($config->cid, IQueryBuilder::PARAM_INT)))
-				->executeStatement();
-			$this->db->commit();
-			return $config;
-		} catch (Exception $e) {
-			$this->db->rollBack();
-			throw $e;
-		}
+	public function save(ConfigEntity $config): ConfigEntity {
+		$config = $this->apiService->challenge($config);
+		$this->tr->updateConfig(
+			$config->cid,
+			$config->endpoint,
+			$config->username,
+			$config->password,
+			$config->health
+		);
+		$this->tr->commit();
+		return $config;
 	}
 
 	/** @throws Exception */
 	public function create(): ConfigEntity {
-		$date = new DateTimeImmutable();
-		$state = ServerStatus::Invalid;
-		$this->db->beginTransaction();
-		try {
-			$q = $this->db->getQueryBuilder();
-			$q->insert(ConfigEntity::TABLE)
-				->values([
-					'endpoint' => $q->createNamedParameter(''),
-					'username' => $q->createNamedParameter(''),
-					'password' => $q->createNamedParameter(''),
-					'health' => $q->createNamedParameter($state->value),
-					'expires' => $q->createNamedParameter($date, IQueryBuilder::PARAM_DATE),
-				])
-				->executeStatement();
-
-			$config = new ConfigEntity($q->getLastInsertId(), '', '', '', $state, $date);
-			$this->db->commit();
-		} catch (Exception $e) {
-			$this->db->rollBack();
-			throw $e;
-		}
+		$config = ConfigEntity::newEmpty();
+		$this->tr->insertConfig(
+			$config->cid,
+			$config->endpoint,
+			$config->username,
+			$config->password,
+			$config->health
+		);
+		$this->tr->commit();
 		return $config;
 	}
 
 	/** @throws Exception */
 	public function delete(ConfigEntity $config): void {
-		$this->db->beginTransaction();
-		try {
-			$q = $this->db->getQueryBuilder();
-			$q->delete(ConfigEntity::TABLE)
-				->where($q->expr()->eq('cid', $q->createNamedParameter($config->cid, IQueryBuilder::PARAM_INT)))
-				->executeStatement();
-			$this->db->commit();
-		} catch (Exception $e) {
-			$this->db->rollBack();
-			throw $e;
-		}
+		$this->tr->deleteConfig($config->cid);
+		$this->tr->commit();
 	}
 }

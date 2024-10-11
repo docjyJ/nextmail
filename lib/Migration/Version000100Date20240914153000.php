@@ -14,9 +14,9 @@ use OCP\Migration\SimpleMigrationStep;
 
 /** @psalm-suppress UnusedClass */
 class Version000100Date20240914153000 extends SimpleMigrationStep {
-	private const TABLE_CONFIGS = 'stalwart_configs';
-	private const STALWART_ACCOUNTS = 'stalwart_accounts';
-	private const TABLE_EMAILS = 'stalwart_emails';
+	private const string TABLE_CONFIGS = 'stalwart_configs';
+	private const string STALWART_ACCOUNTS = 'stalwart_accounts';
+	private const string TABLE_EMAILS = 'stalwart_emails';
 
 	public function preSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
 	}
@@ -29,7 +29,7 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 		if (!$schema->hasTable(self::TABLE_CONFIGS)) {
 			$tableConfigs = $schema->createTable(self::TABLE_CONFIGS);
 			$tableConfigs->addColumn('cid', Types::INTEGER, [
-				'autoincrement' => true,
+				'length' => 32,
 				'notnull' => true,
 			]);
 			$tableConfigs->addColumn('endpoint', Types::STRING, [
@@ -48,9 +48,6 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 				'notnull' => true,
 				'length' => 32,
 			]);
-			$tableConfigs->addColumn('expires', Types::DATETIME, [
-				'notnull' => true,
-			]);
 			$tableConfigs->setPrimaryKey(['cid']);
 		} else {
 			$tableConfigs = $schema->getTable(self::TABLE_CONFIGS);
@@ -58,12 +55,12 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 
 		if (!$schema->hasTable(self::STALWART_ACCOUNTS)) {
 			$tableAccounts = $schema->createTable(self::STALWART_ACCOUNTS);
-			$tableAccounts->addColumn('cid', Types::INTEGER, [
-				'notnull' => true,
-			]);
 			$tableAccounts->addColumn('uid', Types::STRING, [
 				'notnull' => true,
 				'length' => 64,
+			]);
+			$tableAccounts->addColumn('cid', Types::INTEGER, [
+				'notnull' => true,
 			]);
 			$tableAccounts->addColumn('type', Types::STRING, [
 				'notnull' => true,
@@ -80,7 +77,7 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 			$tableAccounts->addColumn('quota', Types::INTEGER, [
 				'notnull' => true,
 			]);
-			$tableAccounts->setPrimaryKey(['cid', 'uid']);
+			$tableAccounts->setPrimaryKey(['uid']);
 			$tableAccounts->addForeignKeyConstraint(
 				$tableConfigs->getName(),
 				['cid'],
@@ -93,9 +90,6 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 
 		if (!$schema->hasTable(self::TABLE_EMAILS)) {
 			$table = $schema->createTable(self::TABLE_EMAILS);
-			$table->addColumn('cid', Types::INTEGER, [
-				'notnull' => true,
-			]);
 			$table->addColumn('uid', Types::STRING, [
 				'notnull' => true,
 				'length' => 64,
@@ -108,11 +102,11 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 				'notnull' => true,
 				'length' => 32,
 			]);
-			$table->setPrimaryKey(['cid', 'uid', 'email']);
+			$table->setPrimaryKey(['uid', 'email']);
 			$table->addForeignKeyConstraint(
 				$tableAccounts->getName(),
-				['cid', 'uid'],
-				['cid', 'uid'],
+				['uid'],
+				['uid'],
 				['onDelete' => 'CASCADE']);
 		}
 

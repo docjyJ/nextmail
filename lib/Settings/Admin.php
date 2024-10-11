@@ -7,10 +7,9 @@ use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IL10N;
 use OCP\Settings\IDelegatedSettings;
 
-class Admin implements IDelegatedSettings {
-	/** @psalm-suppress PossiblyUnusedMethod */
+readonly class Admin implements IDelegatedSettings {
 	public function __construct(
-		private readonly IL10N $l,
+		private IL10N $l,
 	) {
 	}
 

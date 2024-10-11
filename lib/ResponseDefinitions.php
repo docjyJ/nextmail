@@ -5,7 +5,7 @@ namespace OCA\Stalwart;
 /**
  * @psalm-api
  * @psalm-type StalwartServerConfig = array{
- *      id: int,
+ *      id: string,
  *      endpoint: string,
  *      username: string,
  *      health: 'bad_network'|'bad_server'|'invalid'|'success'|'unauthorized',

@@ -17,4 +17,13 @@
     <extraFiles>
         <directory name="vendor"/>
     </extraFiles>
+    <issueHandlers>
+        <PossiblyUnusedMethod errorLevel="suppress"/>
+        <UnusedClass>
+            <errorLevel type="suppress">
+                <referencedClass name="OCA\Stalwart\Cron\CheckTask"/>
+                <referencedClass name="OCA\Stalwart\Controller\ApiController"/>
+            </errorLevel>
+        </UnusedClass>
+    </issueHandlers>
 </psalm>

@@ -16,9 +16,8 @@ use OCP\User\Events\UserChangedEvent;
 use OCP\User\Events\UserDeletedEvent;
 
 class Application extends App implements IBootstrap {
-	public const APP_ID = 'stalwart';
+	public const string APP_ID = 'stalwart';
 
-	/** @psalm-suppress PossiblyUnusedMethod */
 	public function __construct() {
 		parent::__construct(self::APP_ID);
 	}

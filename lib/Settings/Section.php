@@ -7,13 +7,12 @@ use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\Settings\IIconSection;
 
-class Section implements IIconSection {
-	public const SETTING_ID = 'stalwart';
+readonly class Section implements IIconSection {
+	public const string SETTING_ID = 'stalwart';
 
-	/** @psalm-suppress PossiblyUnusedMethod */
 	public function __construct(
-		private readonly IL10N         $l,
-		private readonly IURLGenerator $urlGenerator,
+		private IL10N         $l,
+		private IURLGenerator $urlGenerator,
 	) {
 	}
 

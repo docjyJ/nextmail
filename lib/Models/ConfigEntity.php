@@ -2,43 +2,59 @@
 
 namespace OCA\Stalwart\Models;
 
-use DateInterval;
-use DateTime;
-use DateTimeImmutable;
-use OCA\Stalwart\FromMixed;
+use JsonSerializable;
 use OCA\Stalwart\ResponseDefinitions;
+use ValueError;
 
 /** @psalm-import-type StalwartServerConfig from ResponseDefinitions */
-class ConfigEntity {
-	public const TABLE = 'stalwart_configs';
-	private const URL_PATTERN = '/^https?:\\/\\/([a-z0-9-]+\\.)*[a-z0-9-]+(:\\d{1,5})?\\/api$/';
+readonly class ConfigEntity implements JsonSerializable {
+	public const string TABLE = 'stalwart_configs';
+	private const string URL_PATTERN = '/^https?:\\/\\/([a-z0-9-]+\\.)*[a-z0-9-]+(:\\d{1,5})?\\/api$/';
 
 
 	public function __construct(
-		public readonly int $cid,
-		public readonly string $endpoint = '',
-		public readonly string $username = '',
-		public readonly string $password = '',
-		public readonly ServerStatus $health = ServerStatus::Invalid,
-		public readonly DateTimeImmutable $expires = new DateTimeImmutable(),
+		public string $cid,
+		public string $endpoint,
+		public string $username,
+		public string $password,
+		public ServerStatus $health,
 	) {
 	}
 
-	public static function fromMixed(mixed $value): ?self {
-		return is_array($value)
-			&& ($cid = FromMixed::int($value['cid'])) !== null
-			? new self(
-				$cid,
-				FromMixed::string($value['endpoint']) ?? '',
-				FromMixed::string($value['username']) ?? '',
-				FromMixed::string($value['password']) ?? '',
-				ServerStatus::fromMixed($value['health']) ?? ServerStatus::Invalid,
-				FromMixed::dateTime($value['expires']) ?? new DateTimeImmutable(),
-			) : null;
+	public static function newEmpty(): self {
+		return new self(uniqid('nc_', true), '', '', '', ServerStatus::Invalid);
+	}
+
+	public static function parse(mixed $value): ConfigEntity {
+		if (!is_array($value)) {
+			throw new ValueError('value must be an array');
+		}
+		if (!is_string($value['cid'])) {
+			throw new ValueError('cid must be a string');
+		}
+		if (!is_string($value['endpoint'])) {
+			throw new ValueError('endpoint must be a string');
+		}
+		if (!is_string($value['username'])) {
+			throw new ValueError('username must be a string');
+		}
+		if (!is_string($value['password'])) {
+			throw new ValueError('password must be a string');
+		}
+		if (!is_string($value['health'])) {
+			throw new ValueError('health must be a string');
+		}
+		return new self(
+			$value['cid'],
+			$value['endpoint'],
+			$value['username'],
+			$value['password'],
+			ServerStatus::from($value['health'])
+		);
 	}
 
 	/** @return StalwartServerConfig */
-	public function toArrayData(): array {
+	public function jsonSerialize(): array {
 		return [
 			'id' => $this->cid,
 			'endpoint' => $this->endpoint,
@@ -59,10 +75,6 @@ class ConfigEntity {
 			: null;
 	}
 
-	public function hasExpired(): bool {
-		return $this->expires < new DateTime();
-	}
-
 	public function updateCredential(string $endpoint, string $username, string $password): self {
 		return new self(
 			$this->cid,
@@ -70,22 +82,16 @@ class ConfigEntity {
 			$username,
 			$password !== '' ? $password : $this->password,
 			$this->health,
-			$this->expires
 		);
 	}
 
 	public function updateHealth(ServerStatus $health): self {
-		$date = new DateTimeImmutable();
-		$interval = $health === ServerStatus::Success
-			? new DateInterval('P1D')
-			: new DateInterval('PT1H');
 		return new self(
 			$this->cid,
 			$this->endpoint,
 			$this->username,
 			$this->password,
 			$health,
-			$date->add($interval)
 		);
 	}
 }

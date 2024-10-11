@@ -2,32 +2,50 @@
 
 namespace OCA\Stalwart\Models;
 
-use OCA\Stalwart\FromMixed;
+use ValueError;
 
-class AccountEntity {
-	public const TABLE = 'stalwart_accounts';
+readonly class AccountEntity {
+	public const string TABLE = 'stalwart_accounts';
 
 	public function __construct(
-		public readonly ConfigEntity $config,
-		public readonly string       $uid,
-		public readonly string       $displayName = '',
-		public readonly string       $password = '',
-		public readonly AccountType  $type = AccountType::Individual,
-		public readonly int          $quota = 0,
+		public string       $uid,
+		public ConfigEntity $config,
+		public string       $displayName,
+		public string       $password,
+		public AccountType  $type,
+		public int          $quota,
 	) {
 	}
 
-	public static function fromMixed(ConfigEntity $conf, mixed $value): ?self {
-		return is_array($value)
-			&& $value['cid'] === $conf->cid
-			&& ($uid = FromMixed::string($value['uid'])) !== null
-			? new self(
-				$conf,
-				$uid,
-				FromMixed::string($value['display_name']) ?? '',
-				FromMixed::string($value['password']) ?? '',
-				AccountType::fromMixed($value['type']) ?? AccountType::Individual,
-				FromMixed::int($value['quota']) ?? 0,
-			) : null;
+	public static function parse(ConfigEntity $conf, mixed $value): self {
+		if (!is_array($value)) {
+			throw new ValueError('value must be an array');
+		}
+		if (!is_string($value['uid'])) {
+			throw new ValueError('uid must be a string');
+		}
+		if ($value['cid'] !== $conf->cid) {
+			throw new ValueError('cid must be an integer');
+		}
+		if (!is_string($value['display_name'])) {
+			throw new ValueError('display_name must be a string');
+		}
+		if (!is_string($value['password'])) {
+			throw new ValueError('password must be a string');
+		}
+		if (!is_string($value['type'])) {
+			throw new ValueError('type must be a string');
+		}
+		if (!is_int($value['quota'])) {
+			throw new ValueError('quota must be an integer');
+		}
+		return new self(
+			$value['uid'],
+			$conf,
+			$value['display_name'],
+			$value['password'],
+			AccountType::from($value['type']),
+			$value['quota']
+		);
 	}
 }

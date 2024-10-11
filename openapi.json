@@ -54,8 +54,7 @@
                 ],
                 "properties": {
                     "id": {
-                        "type": "integer",
-                        "format": "int64"
+                        "type": "string"
                     },
                     "endpoint": {
                         "type": "string"
@@ -100,7 +99,7 @@
     "paths": {
         "/ocs/v2.php/apps/stalwart/config": {
             "get": {
-                "operationId": "api-list",
+                "operationId": "api-get-config",
                 "summary": "List all available servers",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -163,7 +162,7 @@
                 }
             },
             "post": {
-                "operationId": "api-post",
+                "operationId": "api-set-config",
                 "summary": "Add a new server",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -225,7 +224,7 @@
         },
         "/ocs/v2.php/apps/stalwart/config/{cid}": {
             "get": {
-                "operationId": "api-get",
+                "operationId": "api-get-config-id",
                 "summary": "Get the configuration of a server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -246,8 +245,7 @@
                         "description": "The server number",
                         "required": true,
                         "schema": {
-                            "type": "integer",
-                            "format": "int64"
+                            "type": "string"
                         }
                     },
                     {
@@ -323,7 +321,7 @@
                 }
             },
             "put": {
-                "operationId": "api-put",
+                "operationId": "api-se-config-id",
                 "summary": "Set the configuration of a server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -373,8 +371,7 @@
                         "description": "The server number",
                         "required": true,
                         "schema": {
-                            "type": "integer",
-                            "format": "int64"
+                            "type": "string"
                         }
                     },
                     {
@@ -450,7 +447,7 @@
                 }
             },
             "delete": {
-                "operationId": "api-delete",
+                "operationId": "api-delete-config-id",
                 "summary": "Delete the configuration of a server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -471,8 +468,7 @@
                         "description": "The server number",
                         "required": true,
                         "schema": {
-                            "type": "integer",
-                            "format": "int64"
+                            "type": "string"
                         }
                     },
                     {
@@ -550,7 +546,7 @@
         },
         "/ocs/v2.php/apps/stalwart/config/{cid}/users": {
             "get": {
-                "operationId": "api-get-users",
+                "operationId": "api-get-config-id-users",
                 "summary": "Get the users of the server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -571,8 +567,7 @@
                         "description": "The server number",
                         "required": true,
                         "schema": {
-                            "type": "integer",
-                            "format": "int64"
+                            "type": "string"
                         }
                     },
                     {
@@ -625,7 +620,7 @@
         },
         "/ocs/v2.php/apps/stalwart/config/{cid}/users/{uid}": {
             "get": {
-                "operationId": "api-get-user",
+                "operationId": "api-get-config-id-users-id",
                 "summary": "Get the user of the server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -646,8 +641,7 @@
                         "description": "The server number",
                         "required": true,
                         "schema": {
-                            "type": "integer",
-                            "format": "int64"
+                            "type": "string"
                         }
                     },
                     {
@@ -732,7 +726,7 @@
                 }
             },
             "post": {
-                "operationId": "api-post-users",
+                "operationId": "api-set-config-id-users-id",
                 "summary": "Add a user to the server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -753,8 +747,7 @@
                         "description": "The server number",
                         "required": true,
                         "schema": {
-                            "type": "integer",
-                            "format": "int64"
+                            "type": "string"
                         }
                     },
                     {
@@ -839,7 +832,7 @@
                 }
             },
             "delete": {
-                "operationId": "api-delete-users",
+                "operationId": "api-delete-config-id-users-id",
                 "summary": "Remove a user from the server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -860,8 +853,7 @@
                         "description": "The server number",
                         "required": true,
                         "schema": {
-                            "type": "integer",
-                            "format": "int64"
+                            "type": "string"
                         }
                     },
                     {

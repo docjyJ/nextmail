@@ -10,27 +10,22 @@ use OCP\IConfig;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
-class StalwartAPIService {
-	private readonly ISqlService $sqlService;
+readonly class StalwartAPIService {
+	private ISqlService $sqlService;
 
 
 	/**
-	 * @psalm-suppress PossiblyUnusedMethod
 	 * @throws Exception
 	 */
 	public function __construct(
-		private readonly IClientService  $clientService,
-		private readonly LoggerInterface $logger,
-		IConfig                          $config,
+		private IClientService  $clientService,
+		private LoggerInterface $logger,
+		IConfig                 $config,
 	) {
-		/** @psalm-suppress MixedAssignment */
-		$type = $config->getSystemValue('dbtype');
-		if ($type === 'mysql') {
-			$sqlService = new MysqlService($config);
-		} else {
-			throw new Exception('This app only supports MySQL');
-		}
-		$this->sqlService = $sqlService;
+		$this->sqlService = match ($config->getSystemValue('dbtype')) {
+			'mysql' => new MysqlService($config),
+			default => throw new Exception('This app only supports MySQL'),
+		};
 	}
 
 	private function settings(string $url, string $auth, string $settings): ?int {
@@ -66,39 +61,39 @@ class StalwartAPIService {
 		}
 	}
 
-	public function challenge(ConfigEntity $config): ServerStatus {
+	public function challenge(ConfigEntity $config): ConfigEntity {
 		$auth = $config->getBasicAuth();
 		if ($auth === null) {
 			$this->logger->warning('Configurations ' . $config->cid . ' has no credentials');
-			return ServerStatus::Invalid;
+			return $config->updateHealth(ServerStatus::Invalid);
 		}
 
 		$url = $config->getUrl();
 		if ($url === null) {
 			$this->logger->warning('Configurations ' . $config->cid . ' has an invalid endpoint');
-			return ServerStatus::Invalid;
+			return $config->updateHealth(ServerStatus::Invalid);
 		}
 		try {
 			$settings = $this->sqlService->getStalwartConfig($config->cid);
 		} catch (Exception $e) {
 			$this->logger->warning($e->getMessage(), ['exception' => $e]);
-			return ServerStatus::Invalid;
+			return $config->updateHealth(ServerStatus::Invalid);
 		}
 
 		$code = $this->settings($url, $auth, $settings);
 		if ($code === 200) {
 			$code = $this->reload($url, $auth);
 			if ($code === 200) {
-				return ServerStatus::Success;
+				return $config->updateHealth(ServerStatus::Success);
 			}
 		}
 		if ($code === 401) {
-			return ServerStatus::Unauthorized;
+			return $config->updateHealth(ServerStatus::Unauthorized);
 		}
 
 		if ($code === null) {
-			return ServerStatus::BadNetwork;
+			return $config->updateHealth(ServerStatus::BadNetwork);
 		}
-		return ServerStatus::BadServer;
+		return $config->updateHealth(ServerStatus::BadServer);
 	}
 }
