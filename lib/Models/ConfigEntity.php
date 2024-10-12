@@ -9,6 +9,11 @@ use ValueError;
 /** @psalm-import-type StalwartServerConfig from ResponseDefinitions */
 readonly class ConfigEntity implements JsonSerializable {
 	public const TABLE = 'stalwart_configs';
+	public const COL_ID = 'cid';
+	public const COL_ENDPOINT = 'endpoint';
+	public const COL_USERNAME = 'username';
+	public const COL_PASSWORD = 'password';
+	public const COL_HEALTH = 'health';
 	private const URL_PATTERN = '/^https?:\\/\\/([a-z0-9-]+\\.)*[a-z0-9-]+(:\\d{1,5})?\\/api$/';
 
 
@@ -29,27 +34,27 @@ readonly class ConfigEntity implements JsonSerializable {
 		if (!is_array($value)) {
 			throw new ValueError('value must be an array');
 		}
-		if (!is_string($value['cid'])) {
+		if (!is_string($value[self::COL_ID])) {
 			throw new ValueError('cid must be a string');
 		}
-		if (!is_string($value['endpoint'])) {
+		if (!is_string($value[self::COL_ENDPOINT])) {
 			throw new ValueError('endpoint must be a string');
 		}
-		if (!is_string($value['username'])) {
+		if (!is_string($value[self::COL_USERNAME])) {
 			throw new ValueError('username must be a string');
 		}
-		if (!is_string($value['password'])) {
+		if (!is_string($value[self::COL_PASSWORD])) {
 			throw new ValueError('password must be a string');
 		}
-		if (!is_string($value['health'])) {
+		if (!is_string($value[self::COL_HEALTH])) {
 			throw new ValueError('health must be a string');
 		}
 		return new self(
-			$value['cid'],
-			$value['endpoint'],
-			$value['username'],
-			$value['password'],
-			ServerStatus::from($value['health'])
+			$value[self::COL_ID],
+			$value[self::COL_ENDPOINT],
+			$value[self::COL_USERNAME],
+			$value[self::COL_PASSWORD],
+			ServerStatus::from($value[self::COL_HEALTH]),
 		);
 	}
 

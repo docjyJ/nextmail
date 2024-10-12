@@ -6,6 +6,8 @@ use ValueError;
 
 readonly class EmailEntity {
 	public const TABLE = 'stalwart_emails';
+	public const COL_EMAIL = 'email';
+	public const COL_TYPE = 'type';
 
 	public function __construct(
 		public AccountEntity $account,
