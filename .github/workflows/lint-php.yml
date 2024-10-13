@@ -7,7 +7,7 @@ name: Lint php
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
 
 permissions:
@@ -28,15 +28,13 @@ jobs:
       - name: Get version matrix
         id: versions
         uses: icewind1991/nextcloud-version-matrix@58becf3b4bb6dc6cef677b15e2fd8e7d48c0908f # v1.0.0
-        with:
-          with-php: ['8.2', '8.3']
 
   php-lint:
     runs-on: ubuntu-latest
     needs: matrix
     strategy:
       matrix:
-        php-versions: ${{fromJson(needs.matrix.outputs.php-versions)}}
+        php-versions: [ 8.2, 8.3 ] # ${{fromJson(needs.matrix.outputs.php-versions)}}
 
     name: php-lint
 
