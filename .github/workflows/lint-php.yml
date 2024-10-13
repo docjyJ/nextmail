@@ -29,7 +29,7 @@ jobs:
         id: versions
         uses: icewind1991/nextcloud-version-matrix@58becf3b4bb6dc6cef677b15e2fd8e7d48c0908f # v1.0.0
         with:
-          filename: ./appinfo/info.xml
+          with-php: ['8.2', '8.3']
 
   php-lint:
     runs-on: ubuntu-latest
