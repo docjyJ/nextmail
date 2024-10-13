@@ -4,7 +4,7 @@ namespace OCA\Nextmail\Event;
 
 use OCA\Nextmail\Db\AccountManager;
 use OCA\Nextmail\Db\Transaction;
-use OCA\Nextmail\Models\AccountType;
+use OCA\Nextmail\Models\AccountRole;
 use OCA\Nextmail\Models\EmailType;
 use OCP\DB\Exception;
 use OCP\EventDispatcher\Event;
@@ -28,7 +28,7 @@ readonly class EmailChangedListener implements IEventListener {
 		$user = $event->getUser();
 		$uid = $user->getUID();
 		$this->tr->updateAccount($uid, $user->getDisplayName(),
-			AccountManager::getHashFromUser($user), AccountType::Individual, 0);
+			AccountManager::getHashFromUser($user), AccountRole::User, 0);
 		$this->tr->deleteEmail($uid, EmailType::Primary);
 		$email = $user->getPrimaryEMailAddress();
 		if ($email !== null && str_contains($email, '@')) {

@@ -2,13 +2,10 @@
 
 namespace OCA\Nextmail\Models;
 
+use OCA\Nextmail\Schema\Columns;
 use ValueError;
 
 readonly class EmailEntity {
-	public const TABLE = 'nextmail_emails';
-	public const COL_EMAIL = 'email';
-	public const COL_TYPE = 'type';
-
 	public function __construct(
 		public AccountEntity $account,
 		public string $email,
@@ -20,19 +17,19 @@ readonly class EmailEntity {
 		if (!is_array($value)) {
 			throw new ValueError('value must be an array');
 		}
-		if ($value['uid'] !== $account->uid) {
+		if ($account->uid !== $value[Columns::ACCOUNT_ID]) {
 			throw new ValueError('uid mismatch');
 		}
-		if (!is_string($value['email'])) {
+		if (!is_string($value[Columns::EMAIL_ID])) {
 			throw new ValueError('email must be a string');
 		}
-		if (!is_string($value['type'])) {
+		if (!is_string($value[Columns::EMAIL_TYPE])) {
 			throw new ValueError('type must be a string');
 		}
 		return new self(
 			$account,
-			$value['email'],
-			EmailType::from($value['type'])
+			$value[Columns::EMAIL_ID],
+			EmailType::from($value[Columns::EMAIL_TYPE]),
 		);
 	}
 }

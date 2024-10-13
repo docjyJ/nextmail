@@ -3,13 +3,13 @@
 namespace OCA\Nextmail\Db;
 
 use OCA\Nextmail\Models\ConfigEntity;
-use OCA\Nextmail\Services\StalwartAPIService;
+use OCA\Nextmail\Services\StalwartApiService;
 use OCP\DB\Exception;
 
 readonly class ConfigManager {
 	public function __construct(
 		private Transaction        $tr,
-		private StalwartAPIService $apiService,
+		private StalwartApiService $apiService,
 	) {
 	}
 
@@ -31,7 +31,7 @@ readonly class ConfigManager {
 	public function save(ConfigEntity $config): ConfigEntity {
 		$config = $this->apiService->challenge($config);
 		$this->tr->updateConfig(
-			$config->cid,
+			$config->id,
 			$config->endpoint,
 			$config->username,
 			$config->password,
@@ -45,7 +45,7 @@ readonly class ConfigManager {
 	public function create(): ConfigEntity {
 		$config = ConfigEntity::newEmpty();
 		$this->tr->insertConfig(
-			$config->cid,
+			$config->id,
 			$config->endpoint,
 			$config->username,
 			$config->password,
@@ -57,7 +57,7 @@ readonly class ConfigManager {
 
 	/** @throws Exception */
 	public function delete(ConfigEntity $config): void {
-		$this->tr->deleteConfig($config->cid);
+		$this->tr->deleteConfig($config->id);
 		$this->tr->commit();
 	}
 }

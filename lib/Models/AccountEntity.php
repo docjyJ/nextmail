@@ -2,23 +2,17 @@
 
 namespace OCA\Nextmail\Models;
 
+use OCA\Nextmail\Schema\Columns;
 use ValueError;
 
 readonly class AccountEntity {
-	public const TABLE = 'nextmail_accounts';
-	public const COL_ID = 'uid';
-	public const COL_TYPE = 'type';
-	public const COL_DISPLAY = 'display_name';
-	public const COL_PASSWORD = 'password';
-	public const COL_QUOTA = 'quota';
-
 	public function __construct(
 		public string       $uid,
 		public ConfigEntity $config,
 		public string       $displayName,
-		public string       $password,
-		public AccountType  $type,
-		public int          $quota,
+		public ?string       $password,
+		public AccountRole  $type,
+		public ?int          $quota,
 	) {
 	}
 
@@ -26,31 +20,25 @@ readonly class AccountEntity {
 		if (!is_array($value)) {
 			throw new ValueError('value must be an array');
 		}
-		if (!is_string($value[self::COL_ID])) {
+		if (!is_string($value[Columns::ACCOUNT_ID])) {
 			throw new ValueError('uid must be a string');
 		}
-		if ($conf->cid !== $value[ConfigEntity::COL_ID]) {
+		if ($conf->id !== $value[Columns::SERVER_ID]) {
 			throw new ValueError('cid must be an integer');
 		}
-		if (!is_string($value[self::COL_DISPLAY])) {
+		if (!is_string($value[Columns::ACCOUNT_NAME])) {
 			throw new ValueError('display_name must be a string');
 		}
-		if (!is_string($value[self::COL_PASSWORD])) {
-			throw new ValueError('password must be a string');
-		}
-		if (!is_string($value[self::COL_TYPE])) {
+		if (!is_string($value[Columns::ACCOUNT_ROLE])) {
 			throw new ValueError('type must be a string');
 		}
-		if (!is_int($value[self::COL_QUOTA])) {
-			throw new ValueError('quota must be an integer');
-		}
 		return new self(
-			$value[self::COL_ID],
+			$value[Columns::ACCOUNT_ID],
 			$conf,
-			$value[self::COL_DISPLAY],
-			$value[self::COL_PASSWORD],
-			AccountType::from($value[self::COL_TYPE]),
-			$value[self::COL_QUOTA],
+			$value[Columns::ACCOUNT_NAME],
+			is_string($value[Columns::ACCOUNT_HASH]) ? $value[Columns::ACCOUNT_HASH] : null,
+			AccountRole::from($value[Columns::ACCOUNT_ROLE]),
+			is_int($value[Columns::ACCOUNT_QUOTA]) ? $value[Columns::ACCOUNT_QUOTA] : null,
 		);
 	}
 }

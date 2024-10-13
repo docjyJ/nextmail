@@ -1,19 +1,17 @@
 services:
-  mysql:
-    image: mariadb:10.6
+  pgsql:
+    image: postgres:13
     hostname: database
-    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
     ports:
-      - "127.0.0.1:3306:3306"
+        - "127.0.0.1:5432:5432"
     volumes:
-      - mysql:/var/lib/mysql:z
+      - pgsql:/var/lib/postgresql/data:Z
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=nextcloud
-      - MARIADB_AUTO_UPGRADE=1
-      - MARIADB_DISABLE_UPGRADE_BACKUP=1
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=nextcloud
     healthcheck:
-      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      test: [ "CMD", "pg_isready", "-U", "root", "-d", "nextcloud" ]
       start_period: 10s
       interval: 10s
       timeout: 5s
@@ -25,14 +23,14 @@ services:
     volumes:
       - nextcloud:/var/www/html:z
     environment:
-      - MYSQL_HOST=database
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=root
+      - POSTGRES_HOST=database
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=nextcloud
       - NEXTCLOUD_ADMIN_USER=admin
       - NEXTCLOUD_ADMIN_PASSWORD=admin
     depends_on:
-      mysql:
+      pgsql:
         condition: service_healthy
 
   nextcloud:
@@ -50,7 +48,7 @@ services:
       - NEXTCLOUD_ADMIN_USER=admin
       - NEXTCLOUD_ADMIN_PASSWORD=admin
     depends_on:
-      mysql:
+      pgsql:
         condition: service_healthy
       nextcloud_init:
         condition: service_completed_successfully
@@ -63,13 +61,13 @@ services:
     volumes:
       - stalwart:/opt/stalwart:z
     depends_on:
-      mysql:
+      pgsql:
         condition: service_healthy
 
 networks:
-    default:
+  default:
 
 volumes:
   nextcloud:
-  mysql:
+  pgsql:
   stalwart:

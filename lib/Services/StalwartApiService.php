@@ -6,26 +6,15 @@ use Exception;
 use OCA\Nextmail\Models\ConfigEntity;
 use OCA\Nextmail\Models\ServerStatus;
 use OCP\Http\Client\IClientService;
-use OCP\IConfig;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
-readonly class StalwartAPIService {
-	private ISqlService $sqlService;
-
-
-	/**
-	 * @throws Exception
-	 */
+readonly class StalwartApiService {
 	public function __construct(
-		private IClientService  $clientService,
-		private LoggerInterface $logger,
-		IConfig                 $config,
+		private IClientService     $clientService,
+		private LoggerInterface    $logger,
+		private StalwartSqlService $sqlService,
 	) {
-		$this->sqlService = match ($config->getSystemValue('dbtype')) {
-			'mysql' => new MysqlService($config),
-			default => throw new Exception('This app only supports MySQL'),
-		};
 	}
 
 	private function settings(string $url, string $auth, string $settings): ?int {
@@ -64,17 +53,17 @@ readonly class StalwartAPIService {
 	public function challenge(ConfigEntity $config): ConfigEntity {
 		$auth = $config->getBasicAuth();
 		if ($auth === null) {
-			$this->logger->warning('Configurations ' . $config->cid . ' has no credentials');
+			$this->logger->warning('Configurations ' . $config->id . ' has no credentials');
 			return $config->updateHealth(ServerStatus::Invalid);
 		}
 
 		$url = $config->getUrl();
 		if ($url === null) {
-			$this->logger->warning('Configurations ' . $config->cid . ' has an invalid endpoint');
+			$this->logger->warning('Configurations ' . $config->id . ' has an invalid endpoint');
 			return $config->updateHealth(ServerStatus::Invalid);
 		}
 		try {
-			$settings = $this->sqlService->getStalwartConfig($config->cid);
+			$settings = $this->sqlService->getStalwartConfig($config->id);
 		} catch (Exception $e) {
 			$this->logger->warning($e->getMessage(), ['exception' => $e]);
 			return $config->updateHealth(ServerStatus::Invalid);

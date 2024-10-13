@@ -3,7 +3,7 @@
 namespace OCA\Nextmail\Db;
 
 use OCA\Nextmail\Models\AccountEntity;
-use OCA\Nextmail\Models\AccountType;
+use OCA\Nextmail\Models\AccountRole;
 use OCA\Nextmail\Models\ConfigEntity;
 use OCP\DB\Exception;
 use OCP\IUser;
@@ -23,12 +23,12 @@ readonly class AccountManager {
 	 * @throws Exception
 	 */
 	public function listUser(ConfigEntity $config): array {
-		return array_map(fn ($row) => AccountEntity::parse($config, $row), $this->tr->selectAccount($config->cid));
+		return array_map(fn ($row) => AccountEntity::parse($config, $row), $this->tr->selectAccount($config->id));
 	}
 
 	/** @throws Exception */
 	public function findUser(ConfigEntity $config, string $uid): ?AccountEntity {
-		$accounts = $this->tr->selectAccount($config->cid, $uid, AccountType::Individual);
+		$accounts = $this->tr->selectAccount($config->id, $uid, AccountRole::User);
 		return count($accounts) === 0 ? null : AccountEntity::parse($config, $accounts[0]);
 	}
 
@@ -39,9 +39,9 @@ readonly class AccountManager {
 			$config,
 			$user->getDisplayName(),
 			self::getHashFromUser($user),
-			AccountType::Individual,
+			AccountRole::User,
 			0);
-		$this->tr->insertAccount($account->uid, $account->config->cid, $account->displayName, $account->password, $account->type, $account->quota);
+		$this->tr->insertAccount($account->uid, $account->config->id, $account->displayName, $account->password, $account->type, $account->quota);
 		$this->tr->commit();
 		return $account;
 	}
