@@ -5,7 +5,7 @@ import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
 import NcButton, { ButtonType } from '@nextcloud/vue/dist/Components/NcButton.js'
 import NcIconSvgWrapper from '@nextcloud/vue/dist/Components/NcIconSvgWrapper.js'
 import mdiServerOutline from '@mdi/svg/svg/server-outline.svg?raw'
-import { useStalwartTranslate } from '~/composable'
+import { useNextmailTranslate } from '~/composable'
 import SectionDanger from '~/components/SectionDanger.vue'
 import SectionConfig from '~/components/SectionConfig.vue'
 import SectionStatus from '~/components/SectionStatus.vue'
@@ -22,7 +22,7 @@ defineEmits<{
   (e: 'create'): void
 }>()
 
-const { t } = useStalwartTranslate()
+const { t } = useNextmailTranslate()
 
 </script>
 

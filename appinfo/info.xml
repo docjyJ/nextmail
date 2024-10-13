@@ -1,28 +1,30 @@
 <?xml version="1.0"?>
-<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
-	<id>stalwart</id>
-	<name>Stalwart</name>
-	<summary>Configure Stalwart from Nextcloud.</summary>
-	<description>This application allows you to manage your Stalwart backend directly in Nextcloud.
-
-Users, groups and authentication information will be directly integrated into Nextcloud</description>
+<info
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+	<id>nextmail</id>
+	<name>Nextmail</name>
+	<summary>Configure Mail server backed by Nextcloud.</summary>
+	<description>This application allows you to manage your Stalwart backend directly within Nextcloud.
+		Users, groups and authentication information will be directly integrated into Nextcloud.
+	</description>
 	<version>0.1.0</version>
 	<licence>agpl</licence>
-	<author mail="7360784+docjyJ@users.noreply.github.com" homepage="https://github.com/docjyJ">Jean-Yves</author>
-	<namespace>Stalwart</namespace>
+	<author mail="7360784+docjyJ@users.noreply.github.com" homepage="https://github.com/docjyJ">docjyJ</author>
+	<namespace>Nextmail</namespace>
 	<category>tools</category>
 	<bugs>https://github.com/docjyJ/nextcloud-stalwart/issues</bugs>
 	<dependencies>
 		<php min-version="8.2"/>
 		<database>mysql</database>
+		<database>pgsql</database>
 		<nextcloud min-version="30" max-version="30"/>
 	</dependencies>
 	<background-jobs>
-		<job>OCA\Stalwart\Cron\CheckTask</job>
+		<job>OCA\Nextmail\Cron\CheckTask</job>
 	</background-jobs>
 	<settings>
-		<admin>OCA\Stalwart\Settings\Admin</admin>
-		<admin-section>OCA\Stalwart\Settings\Section</admin-section>
+		<admin>OCA\Nextmail\Settings\Admin</admin>
+		<admin-section>OCA\Nextmail\Settings\Section</admin-section>
 	</settings>
 </info>

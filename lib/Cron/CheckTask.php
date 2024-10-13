@@ -1,8 +1,8 @@
 <?php
 
-namespace OCA\Stalwart\Cron;
+namespace OCA\Nextmail\Cron;
 
-use OCA\Stalwart\Db\ConfigManager;
+use OCA\Nextmail\Db\ConfigManager;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use OCP\DB\Exception;

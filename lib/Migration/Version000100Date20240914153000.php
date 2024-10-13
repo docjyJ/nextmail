@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Stalwart\Migration;
+namespace OCA\Nextmail\Migration;
 
 use Closure;
 use Doctrine\DBAL\Schema\SchemaException;
@@ -14,9 +14,9 @@ use OCP\Migration\SimpleMigrationStep;
 
 /** @psalm-suppress UnusedClass */
 class Version000100Date20240914153000 extends SimpleMigrationStep {
-	private const TABLE_CONFIGS = 'stalwart_configs';
-	private const STALWART_ACCOUNTS = 'stalwart_accounts';
-	private const TABLE_EMAILS = 'stalwart_emails';
+	private const TABLE_CONFIGS = 'nextmail_configs';
+	private const NEXTMAIL_ACCOUNTS = 'nextmail_accounts';
+	private const TABLE_EMAILS = 'nextmail_emails';
 
 	public function preSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
 	}
@@ -53,8 +53,8 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 			$tableConfigs = $schema->getTable(self::TABLE_CONFIGS);
 		}
 
-		if (!$schema->hasTable(self::STALWART_ACCOUNTS)) {
-			$tableAccounts = $schema->createTable(self::STALWART_ACCOUNTS);
+		if (!$schema->hasTable(self::NEXTMAIL_ACCOUNTS)) {
+			$tableAccounts = $schema->createTable(self::NEXTMAIL_ACCOUNTS);
 			$tableAccounts->addColumn('uid', Types::STRING, [
 				'notnull' => true,
 				'length' => 64,
@@ -86,7 +86,7 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 				['onDelete' => 'CASCADE']
 			);
 		} else {
-			$tableAccounts = $schema->getTable(self::STALWART_ACCOUNTS);
+			$tableAccounts = $schema->getTable(self::NEXTMAIL_ACCOUNTS);
 		}
 
 		if (!$schema->hasTable(self::TABLE_EMAILS)) {

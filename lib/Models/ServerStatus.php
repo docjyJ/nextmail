@@ -1,6 +1,6 @@
 <?php
 
-namespace OCA\Stalwart\Models;
+namespace OCA\Nextmail\Models;
 
 enum ServerStatus: string {
 	case Success = 'success';

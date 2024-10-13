@@ -1,8 +1,8 @@
 <?php
 
-namespace OCA\Stalwart\Event;
+namespace OCA\Nextmail\Event;
 
-use OCA\Stalwart\Db\Transaction;
+use OCA\Nextmail\Db\Transaction;
 use OCP\DB\Exception;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;

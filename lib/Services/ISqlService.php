@@ -1,12 +1,12 @@
 <?php
 
-namespace OCA\Stalwart\Services;
+namespace OCA\Nextmail\Services;
 
 use Exception;
-use OCA\Stalwart\Models\AccountEntity;
-use OCA\Stalwart\Models\ConfigEntity;
-use OCA\Stalwart\Models\EmailEntity;
-use OCA\Stalwart\Models\EmailType;
+use OCA\Nextmail\Models\AccountEntity;
+use OCA\Nextmail\Models\ConfigEntity;
+use OCA\Nextmail\Models\EmailEntity;
+use OCA\Nextmail\Models\EmailType;
 use OCP\IConfig;
 
 abstract readonly class ISqlService {

@@ -1,9 +1,9 @@
 <?php
 
-namespace OCA\Stalwart\Db;
+namespace OCA\Nextmail\Db;
 
-use OCA\Stalwart\Models\ConfigEntity;
-use OCA\Stalwart\Services\StalwartAPIService;
+use OCA\Nextmail\Models\ConfigEntity;
+use OCA\Nextmail\Services\StalwartAPIService;
 use OCP\DB\Exception;
 
 readonly class ConfigManager {

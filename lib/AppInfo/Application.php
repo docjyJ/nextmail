@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\Stalwart\AppInfo;
+namespace OCA\Nextmail\AppInfo;
 
-use OCA\Stalwart\Event\EmailChangedListener;
-use OCA\Stalwart\Event\PasswordChangedListener;
-use OCA\Stalwart\Event\UserDeletedListener;
+use OCA\Nextmail\Event\EmailChangedListener;
+use OCA\Nextmail\Event\PasswordChangedListener;
+use OCA\Nextmail\Event\UserDeletedListener;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -16,7 +16,7 @@ use OCP\User\Events\UserChangedEvent;
 use OCP\User\Events\UserDeletedEvent;
 
 class Application extends App implements IBootstrap {
-	public const APP_ID = 'stalwart';
+	public const APP_ID = 'nextmail';
 
 	public function __construct() {
 		parent::__construct(self::APP_ID);

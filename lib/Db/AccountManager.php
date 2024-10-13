@@ -1,10 +1,10 @@
 <?php
 
-namespace OCA\Stalwart\Db;
+namespace OCA\Nextmail\Db;
 
-use OCA\Stalwart\Models\AccountEntity;
-use OCA\Stalwart\Models\AccountType;
-use OCA\Stalwart\Models\ConfigEntity;
+use OCA\Nextmail\Models\AccountEntity;
+use OCA\Nextmail\Models\AccountType;
+use OCA\Nextmail\Models\ConfigEntity;
 use OCP\DB\Exception;
 use OCP\IUser;
 

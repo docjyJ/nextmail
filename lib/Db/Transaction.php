@@ -1,13 +1,13 @@
 <?php
 
-namespace OCA\Stalwart\Db;
+namespace OCA\Nextmail\Db;
 
-use OCA\Stalwart\Models\AccountEntity;
-use OCA\Stalwart\Models\AccountType;
-use OCA\Stalwart\Models\ConfigEntity;
-use OCA\Stalwart\Models\EmailEntity;
-use OCA\Stalwart\Models\EmailType;
-use OCA\Stalwart\Models\ServerStatus;
+use OCA\Nextmail\Models\AccountEntity;
+use OCA\Nextmail\Models\AccountType;
+use OCA\Nextmail\Models\ConfigEntity;
+use OCA\Nextmail\Models\EmailEntity;
+use OCA\Nextmail\Models\EmailType;
+use OCA\Nextmail\Models\ServerStatus;
 use OCP\DB\Exception;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;

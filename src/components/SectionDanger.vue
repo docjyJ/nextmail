@@ -4,7 +4,7 @@ import NcButton, { ButtonType } from '@nextcloud/vue/dist/Components/NcButton.js
 import NcSettingsSection from '@nextcloud/vue/dist/Components/NcSettingsSection.js'
 import NcIconSvgWrapper from '@nextcloud/vue/dist/Components/NcIconSvgWrapper.js'
 import mdiDelete from '@mdi/svg/svg/delete.svg?raw'
-import { useStalwartTranslate } from '~/composable'
+import { useNextmailTranslate } from '~/composable'
 import type { ServerConfig } from '~/type'
 
 defineProps<{
@@ -16,7 +16,7 @@ defineEmits<{
   (e: 'delete', id: string): void
 }>()
 
-const { t } = useStalwartTranslate()
+const { t } = useNextmailTranslate()
 
 </script>
 

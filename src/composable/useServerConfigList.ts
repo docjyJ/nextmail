@@ -6,8 +6,8 @@ import type { OCSResponse, ServerConfig, ServerConfigForm } from '~/type'
 export default function useServerConfigList() {
 	const loading = ref(false)
 	const servers = ref<ServerConfig[]>([])
-	const configUrl = generateOcsUrl('/apps/stalwart/config')
-	const configIdUrl = (id: string) => generateOcsUrl(`/apps/stalwart/config/${id}`)
+	const configUrl = generateOcsUrl('/apps/nextmail/config')
+	const configIdUrl = (id: string) => generateOcsUrl(`/apps/nextmail/config/${id}`)
 	const active = ref<ServerConfig | null>(null)
 
 	return {

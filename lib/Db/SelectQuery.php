@@ -1,6 +1,6 @@
 <?php
 
-namespace OCA\Stalwart\Db;
+namespace OCA\Nextmail\Db;
 
 use OCP\DB\Exception;
 use OCP\DB\QueryBuilder\IQueryBuilder;
@@ -8,7 +8,7 @@ use OCP\IDBConnection;
 
 class SelectQuery {
 	private array $cond = [];
-	private IQueryBuilder $q;
+	private readonly IQueryBuilder $q;
 
 	public function __construct(
 		IDBConnection $db,

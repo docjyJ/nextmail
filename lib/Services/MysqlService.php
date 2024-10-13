@@ -1,9 +1,9 @@
 <?php
 
-namespace OCA\Stalwart\Services;
+namespace OCA\Nextmail\Services;
 
 use Exception;
-use OCA\Stalwart\Models\AccountEntity;
+use OCA\Nextmail\Models\AccountEntity;
 
 readonly class MysqlService extends ISqlService {
 

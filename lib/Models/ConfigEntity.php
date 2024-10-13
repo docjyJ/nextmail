@@ -1,14 +1,14 @@
 <?php
 
-namespace OCA\Stalwart\Models;
+namespace OCA\Nextmail\Models;
 
 use JsonSerializable;
-use OCA\Stalwart\ResponseDefinitions;
+use OCA\Nextmail\ResponseDefinitions;
 use ValueError;
 
-/** @psalm-import-type StalwartServerConfig from ResponseDefinitions */
+/** @psalm-import-type NextmailServerConfig from ResponseDefinitions */
 readonly class ConfigEntity implements JsonSerializable {
-	public const TABLE = 'stalwart_configs';
+	public const TABLE = 'nextmail_configs';
 	public const COL_ID = 'cid';
 	public const COL_ENDPOINT = 'endpoint';
 	public const COL_USERNAME = 'username';
@@ -58,7 +58,7 @@ readonly class ConfigEntity implements JsonSerializable {
 		);
 	}
 
-	/** @return StalwartServerConfig */
+	/** @return NextmailServerConfig */
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->cid,

@@ -1,9 +1,9 @@
 {
     "openapi": "3.0.3",
     "info": {
-        "title": "stalwart",
+        "title": "nextmail",
         "version": "0.0.1",
-        "description": "Configure Stalwart from Nextcloud.",
+        "description": "Configure Mail server backed by Nextcloud.",
         "license": {
             "name": "agpl"
         }
@@ -97,7 +97,7 @@
         }
     },
     "paths": {
-        "/ocs/v2.php/apps/stalwart/config": {
+        "/ocs/v2.php/apps/nextmail/config": {
             "get": {
                 "operationId": "api-get-config",
                 "summary": "List all available servers",
@@ -222,7 +222,7 @@
                 }
             }
         },
-        "/ocs/v2.php/apps/stalwart/config/{cid}": {
+        "/ocs/v2.php/apps/nextmail/config/{cid}": {
             "get": {
                 "operationId": "api-get-config-id",
                 "summary": "Get the configuration of a server number `id`",
@@ -544,7 +544,7 @@
                 }
             }
         },
-        "/ocs/v2.php/apps/stalwart/config/{cid}/users": {
+        "/ocs/v2.php/apps/nextmail/config/{cid}/users": {
             "get": {
                 "operationId": "api-get-config-id-users",
                 "summary": "Get the users of the server number `id`",
@@ -618,7 +618,7 @@
                 }
             }
         },
-        "/ocs/v2.php/apps/stalwart/config/{cid}/users/{uid}": {
+        "/ocs/v2.php/apps/nextmail/config/{cid}/users/{uid}": {
             "get": {
                 "operationId": "api-get-config-id-users-id",
                 "summary": "Get the user of the server number `id`",

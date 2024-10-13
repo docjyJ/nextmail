@@ -1,10 +1,10 @@
 <?php
 
-namespace OCA\Stalwart\Services;
+namespace OCA\Nextmail\Services;
 
 use Exception;
-use OCA\Stalwart\Models\ConfigEntity;
-use OCA\Stalwart\Models\ServerStatus;
+use OCA\Nextmail\Models\ConfigEntity;
+use OCA\Nextmail\Models\ServerStatus;
 use OCP\Http\Client\IClientService;
 use OCP\IConfig;
 use Psr\Log\LoggerInterface;

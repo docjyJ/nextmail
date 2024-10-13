@@ -1,41 +1,41 @@
 {
-  "name": "stalwart",
-  "version": "0.1.0",
-  "license": "AGPL-3.0-or-later",
-  "engines": {
-    "node": "^20.0.0",
-    "npm": "^10.0.0"
-  },
-  "type": "module",
-  "main": "src/main.ts",
-  "scripts": {
-    "build": "vite build --mode production",
-    "dev": "vite build --mode development",
-    "watch": "vite build --mode development --watch",
-    "lint": "eslint src",
-    "lint:fix": "eslint src --fix",
-    "stylelint": "stylelint src/**/*.vue src/**/*.css",
-    "stylelint:fix": "stylelint src/**/*.vue src/**/*.css --fix"
-  },
-  "browserslist": [
-    "extends @nextcloud/browserslist-config"
-  ],
-  "dependencies": {
-    "@mdi/svg": "^7.4.47",
-    "@nextcloud/axios": "^2.5.1",
-    "@nextcloud/babel-config": "^1.2.0",
-    "@nextcloud/l10n": "^3.1.0",
-    "@nextcloud/router": "^3.0.1",
-    "@nextcloud/vue": "9.0.0-alpha.5",
-    "vue": "^3.5.11"
-  },
-  "devDependencies": {
-    "@nextcloud/browserslist-config": "^3.0.1",
-    "@nextcloud/eslint-config": "^8.4.1",
-    "@nextcloud/stylelint-config": "^3.0.1",
-    "@nextcloud/vite-config": "^2.2.2",
-    "@types/eslint": "^8.56.12",
-    "@vue/tsconfig": "^0.5.1",
-    "eslint-import-resolver-typescript": "^3.6.3"
-  }
+	"name": "nextmail",
+	"version": "0.1.0",
+	"license": "AGPL-3.0-or-later",
+	"engines": {
+		"node": "^20.0.0",
+		"npm": "^10.0.0"
+	},
+	"type": "module",
+	"main": "src/main.ts",
+	"scripts": {
+		"build": "vite build --mode production",
+		"dev": "vite build --mode development",
+		"watch": "vite build --mode development --watch",
+		"lint": "eslint src",
+		"lint:fix": "eslint src --fix",
+		"stylelint": "stylelint src/**/*.vue src/**/*.css",
+		"stylelint:fix": "stylelint src/**/*.vue src/**/*.css --fix"
+	},
+	"browserslist": [
+		"extends @nextcloud/browserslist-config"
+	],
+	"dependencies": {
+		"@mdi/svg": "^7.4.47",
+		"@nextcloud/axios": "^2.5.1",
+		"@nextcloud/babel-config": "^1.2.0",
+		"@nextcloud/l10n": "^3.1.0",
+		"@nextcloud/router": "^3.0.1",
+		"@nextcloud/vue": "9.0.0-alpha.5",
+		"vue": "^3.5.11"
+	},
+	"devDependencies": {
+		"@nextcloud/browserslist-config": "^3.0.1",
+		"@nextcloud/eslint-config": "^8.4.1",
+		"@nextcloud/stylelint-config": "^3.0.1",
+		"@nextcloud/vite-config": "^2.2.2",
+		"@types/eslint": "^8.56.12",
+		"@vue/tsconfig": "^0.5.1",
+		"eslint-import-resolver-typescript": "^3.6.3"
+	}
 }

@@ -7,10 +7,10 @@ import NcPasswordField from '@nextcloud/vue/dist/Components/NcPasswordField.js'
 import NcSettingsSection from '@nextcloud/vue/dist/Components/NcSettingsSection.js'
 import NcIconSvgWrapper from '@nextcloud/vue/dist/Components/NcIconSvgWrapper.js'
 import mdiContentSave from '@mdi/svg/svg/content-save.svg?raw'
-import { useStalwartTranslate } from '~/composable'
+import { useNextmailTranslate } from '~/composable'
 import type { ServerConfig, ServerConfigForm } from '~/type'
 
-const { t } = useStalwartTranslate()
+const { t } = useNextmailTranslate()
 
 const props = defineProps<{
   config: ServerConfig,

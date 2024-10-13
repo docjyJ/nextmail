@@ -40,7 +40,7 @@ services:
     ports:
       - "127.0.0.1:8080:80"
     volumes:
-      - .:/var/www/html/custom_apps/stalwart:z
+      - .:/var/www/html/custom_apps/nextmail:z
       - nextcloud:/var/www/html:z
     environment:
       - MYSQL_HOST=database

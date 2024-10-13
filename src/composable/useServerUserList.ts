@@ -8,8 +8,8 @@ export default function useServerUserList(cid: string) {
 	const usersAll = ref<ServerUser[]>([])
 	const usersRegistered = ref<ServerUser[]>([])
 	const usersAvailable = computed<ServerUser[]>(() => usersAll.value.filter(user => usersRegistered.value.every(u => u.id !== user.id)))
-	const usersUrl = generateOcsUrl(`/apps/stalwart/config/${cid}/users`)
-	const userUrl = (uid: string) => generateOcsUrl(`/apps/stalwart/config/${cid}/users/${uid}`)
+	const usersUrl = generateOcsUrl(`/apps/nextmail/config/${cid}/users`)
+	const userUrl = (uid: string) => generateOcsUrl(`/apps/nextmail/config/${cid}/users/${uid}`)
 
 	const reload = async () => {
 		if (!loading.value) {

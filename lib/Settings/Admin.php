@@ -1,8 +1,8 @@
 <?php
 
-namespace OCA\Stalwart\Settings;
+namespace OCA\Nextmail\Settings;
 
-use OCA\Stalwart\AppInfo\Application;
+use OCA\Nextmail\AppInfo\Application;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IL10N;
 use OCP\Settings\IDelegatedSettings;
@@ -21,7 +21,7 @@ readonly class Admin implements IDelegatedSettings {
 	}
 
 	/**
-	 * @psalm-return 'stalwart'
+	 * @psalm-return 'nextmail'
 	 */
 	public function getSection(): string {
 		return Section::SETTING_ID;
@@ -35,7 +35,7 @@ readonly class Admin implements IDelegatedSettings {
 	}
 
 	public function getName(): string {
-		return $this->l->t('Stalwart');
+		return $this->l->t('Nextmail');
 	}
 
 	/**

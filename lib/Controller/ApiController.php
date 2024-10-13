@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace OCA\Stalwart\Controller;
+namespace OCA\Nextmail\Controller;
 
-use OCA\Stalwart\Db\AccountManager;
-use OCA\Stalwart\Db\ConfigManager;
-use OCA\Stalwart\Db\EmailManager;
-use OCA\Stalwart\Models\AccountEntity;
-use OCA\Stalwart\Models\EmailEntity;
-use OCA\Stalwart\ResponseDefinitions;
-use OCA\Stalwart\Settings\Admin;
+use OCA\Nextmail\Db\AccountManager;
+use OCA\Nextmail\Db\ConfigManager;
+use OCA\Nextmail\Db\EmailManager;
+use OCA\Nextmail\Models\AccountEntity;
+use OCA\Nextmail\Models\EmailEntity;
+use OCA\Nextmail\ResponseDefinitions;
+use OCA\Nextmail\Settings\Admin;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -25,8 +25,8 @@ use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
 
 /**
- * @psalm-import-type StalwartServerConfig from ResponseDefinitions
- * @psalm-import-type StalwartServerUser from ResponseDefinitions
+ * @psalm-import-type NextmailServerConfig from ResponseDefinitions
+ * @psalm-import-type NextmailServerUser from ResponseDefinitions
  */
 class ApiController extends OCSController {
 	public function __construct(
@@ -41,7 +41,7 @@ class ApiController extends OCSController {
 		parent::__construct($appName, $request);
 	}
 
-	/** @return StalwartServerUser */
+	/** @return NextmailServerUser */
 	private static function getUserDataWithoutMail(AccountEntity $account): array {
 		return [
 			'id' => $account->uid,
@@ -50,7 +50,7 @@ class ApiController extends OCSController {
 		];
 	}
 
-	/** @return StalwartServerUser */
+	/** @return NextmailServerUser */
 	private static function getUserData(EmailEntity $email): array {
 		return [
 			'id' => $email->account->uid,
@@ -62,7 +62,7 @@ class ApiController extends OCSController {
 
 	/**
 	 * List all available servers
-	 * @return DataResponse<Http::STATUS_OK, StalwartServerConfig[], array{}>
+	 * @return DataResponse<Http::STATUS_OK, NextmailServerConfig[], array{}>
 	 * @throws OCSException If an error occurs
 	 *
 	 * 200: Returns the list of available servers
@@ -81,7 +81,7 @@ class ApiController extends OCSController {
 
 	/**
 	 * Add a new server
-	 * @return DataResponse<Http::STATUS_OK, StalwartServerConfig, array{}>
+	 * @return DataResponse<Http::STATUS_OK, NextmailServerConfig, array{}>
 	 *
 	 * 200: Returns the new server configuration
 	 * @throws OCSException
@@ -101,7 +101,7 @@ class ApiController extends OCSController {
 	/**
 	 * Get the configuration of a server number `id`
 	 * @param string $cid The server number
-	 * @return DataResponse<Http::STATUS_OK, StalwartServerConfig, array{}>
+	 * @return DataResponse<Http::STATUS_OK, NextmailServerConfig, array{}>
 	 * @throws OCSNotFoundException If the server number `id` does not exist
 	 * @throws OCSException if an error occurs
 	 *
@@ -129,7 +129,7 @@ class ApiController extends OCSController {
 	 * @param string $endpoint The server endpoint (e.g. `https://mail.example.com:443/api`)
 	 * @param string $username The username to authenticate with
 	 * @param string $password The password to authenticate with
-	 * @return DataResponse<Http::STATUS_OK, StalwartServerConfig, array{}>
+	 * @return DataResponse<Http::STATUS_OK, NextmailServerConfig, array{}>
 	 * @throws OCSNotFoundException If the server number `id` does not exist
 	 * @throws OCSException if an error occurs
 	 *
@@ -156,7 +156,7 @@ class ApiController extends OCSController {
 	/**
 	 * Delete the configuration of a server number `id`
 	 * @param string $cid The server number
-	 * @return DataResponse<Http::STATUS_OK, StalwartServerConfig, array{}>
+	 * @return DataResponse<Http::STATUS_OK, NextmailServerConfig, array{}>
 	 * @throws OCSException if an error occurs
 	 * @throws OCSNotFoundException If the server number `id` does not exist
 	 *
@@ -182,7 +182,7 @@ class ApiController extends OCSController {
 	/**
 	 * Get the users of the server number `id`
 	 * @param string $cid The server number
-	 * @return DataResponse<Http::STATUS_OK, StalwartServerUser[], array{}>
+	 * @return DataResponse<Http::STATUS_OK, NextmailServerUser[], array{}>
 	 * @throws OCSException if an error occurs
 	 *
 	 * 200: Returns the list of users
@@ -209,7 +209,7 @@ class ApiController extends OCSController {
 	 * Get the user of the server number `id`
 	 * @param string $cid The server number
 	 * @param string $uid The user ID
-	 * @return DataResponse<Http::STATUS_OK, StalwartServerUser, array{}>
+	 * @return DataResponse<Http::STATUS_OK, NextmailServerUser, array{}>
 	 * @throws OCSNotFoundException If the user does not exist
 	 * @throws OCSException if an error occurs
 	 *
@@ -237,7 +237,7 @@ class ApiController extends OCSController {
 	 * Add a user to the server number `id`
 	 * @param string $cid The server number
 	 * @param string $uid The user ID
-	 * @return DataResponse<Http::STATUS_OK, StalwartServerUser, array{}>
+	 * @return DataResponse<Http::STATUS_OK, NextmailServerUser, array{}>
 	 * @throws OCSNotFoundException If the user does not exist
 	 * @throws OCSException if an error occurs
 	 *

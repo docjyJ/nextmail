@@ -1,29 +1,30 @@
 <?xml version="1.0"?>
-<psalm errorLevel="1"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns="https://getpsalm.org/schema/config"
-       xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
-       findUnusedBaselineEntry="true"
-       findUnusedCode="true"
-       findUnusedPsalmSuppress="true"
-       threads="1"
+<psalm
+		errorLevel="1"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns="https://getpsalm.org/schema/config"
+		xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+		findUnusedBaselineEntry="true"
+		findUnusedCode="true"
+		findUnusedPsalmSuppress="true"
+		threads="1"
 >
-    <projectFiles>
-        <directory name="lib"/>
-        <ignoreFiles>
-            <directory name="vendor"/>
-        </ignoreFiles>
-    </projectFiles>
-    <extraFiles>
-        <directory name="vendor"/>
-    </extraFiles>
-    <issueHandlers>
-        <PossiblyUnusedMethod errorLevel="suppress"/>
-        <UnusedClass>
-            <errorLevel type="suppress">
-                <referencedClass name="OCA\Stalwart\Cron\CheckTask"/>
-                <referencedClass name="OCA\Stalwart\Controller\ApiController"/>
-            </errorLevel>
-        </UnusedClass>
-    </issueHandlers>
+	<projectFiles>
+		<directory name="lib"/>
+		<ignoreFiles>
+			<directory name="vendor"/>
+		</ignoreFiles>
+	</projectFiles>
+	<extraFiles>
+		<directory name="vendor"/>
+	</extraFiles>
+	<issueHandlers>
+		<PossiblyUnusedMethod errorLevel="suppress"/>
+		<UnusedClass>
+			<errorLevel type="suppress">
+				<referencedClass name="OCA\Nextmail\Cron\CheckTask"/>
+				<referencedClass name="OCA\Nextmail\Controller\ApiController"/>
+			</errorLevel>
+		</UnusedClass>
+	</issueHandlers>
 </psalm>

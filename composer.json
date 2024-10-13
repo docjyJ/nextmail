@@ -1,6 +1,6 @@
 {
-	"name": "nextcloud/stalwart",
-	"description": "This application allows you to manage your Stalwart backend directly in Nextcloud.\n\nUsers, groups and authentication information will be directly integrated into Nextcloud",
+	"name": "nextcloud/nextmail",
+	"description": "This application allows you to manage your Stalwart backend directly within Nextcloud.\nUsers, groups and authentication information will be directly integrated into Nextcloud.",
 	"license": "AGPL-3.0-or-later",
 	"authors": [
 		{
@@ -11,7 +11,7 @@
 	],
 	"autoload": {
 		"psr-4": {
-			"OCA\\Stalwart\\": "lib/"
+			"OCA\\Nextmail\\": "lib/"
 		}
 	},
 	"scripts": {

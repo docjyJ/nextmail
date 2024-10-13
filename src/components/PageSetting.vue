@@ -12,7 +12,7 @@ onMounted(reload)
 </script>
 
 <template>
-	<div id="stalwart">
+	<div id="nextmail">
 		<ServerSelection :config-list="servers" :config="active" @update:config="e => to(e? e.id : null)" />
 		<ServerView
 			:config="active"

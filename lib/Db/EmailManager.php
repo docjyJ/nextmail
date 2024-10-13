@@ -1,10 +1,10 @@
 <?php
 
-namespace OCA\Stalwart\Db;
+namespace OCA\Nextmail\Db;
 
-use OCA\Stalwart\Models\AccountEntity;
-use OCA\Stalwart\Models\EmailEntity;
-use OCA\Stalwart\Models\EmailType;
+use OCA\Nextmail\Models\AccountEntity;
+use OCA\Nextmail\Models\EmailEntity;
+use OCA\Nextmail\Models\EmailType;
 use OCP\DB\Exception;
 
 readonly class EmailManager {

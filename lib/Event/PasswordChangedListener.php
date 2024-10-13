@@ -1,11 +1,11 @@
 <?php
 
-namespace OCA\Stalwart\Event;
+namespace OCA\Nextmail\Event;
 
-use OCA\Stalwart\Db\AccountManager;
-use OCA\Stalwart\Db\Transaction;
-use OCA\Stalwart\Models\AccountType;
-use OCA\Stalwart\Models\EmailType;
+use OCA\Nextmail\Db\AccountManager;
+use OCA\Nextmail\Db\Transaction;
+use OCA\Nextmail\Models\AccountType;
+use OCA\Nextmail\Models\EmailType;
 use OCP\DB\Exception;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;

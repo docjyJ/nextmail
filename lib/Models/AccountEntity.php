@@ -1,11 +1,11 @@
 <?php
 
-namespace OCA\Stalwart\Models;
+namespace OCA\Nextmail\Models;
 
 use ValueError;
 
 readonly class AccountEntity {
-	public const TABLE = 'stalwart_accounts';
+	public const TABLE = 'nextmail_accounts';
 	public const COL_ID = 'uid';
 	public const COL_TYPE = 'type';
 	public const COL_DISPLAY = 'display_name';
