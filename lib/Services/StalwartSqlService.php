@@ -4,8 +4,8 @@ namespace OCA\Nextmail\Services;
 
 use JsonException;
 use OCA\Nextmail\Models\EmailType;
-use OCA\Nextmail\Schema\Columns;
-use OCA\Nextmail\Schema\Tables;
+use OCA\Nextmail\SchemaV1\Columns;
+use OCA\Nextmail\SchemaV1\Tables;
 use ValueError;
 
 readonly class StalwartSqlService {

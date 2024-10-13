@@ -2,7 +2,7 @@
 
 namespace OCA\Nextmail\Models;
 
-use OCA\Nextmail\Schema\Columns;
+use OCA\Nextmail\SchemaV1\Columns;
 use ValueError;
 
 readonly class AccountEntity {

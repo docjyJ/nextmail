@@ -1,6 +1,6 @@
 <?php
 
-namespace OCA\Nextmail\Schema;
+namespace OCA\Nextmail\SchemaV1;
 
 class Columns {
 	public const SERVER_ID = 'server_id';

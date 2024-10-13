@@ -1,6 +1,6 @@
 <?php
 
-namespace OCA\Nextmail\Schema;
+namespace OCA\Nextmail\SchemaV1;
 
 class Tables {
 	public const SERVERS = 'nextmail_servers';

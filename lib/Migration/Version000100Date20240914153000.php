@@ -6,8 +6,8 @@ namespace OCA\Nextmail\Migration;
 
 use Closure;
 use Doctrine\DBAL\Schema\SchemaException;
-use OCA\Nextmail\Schema\Columns;
-use OCA\Nextmail\Schema\Tables;
+use OCA\Nextmail\SchemaV1\Columns;
+use OCA\Nextmail\SchemaV1\Tables;
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
 use OCP\Migration\IOutput;

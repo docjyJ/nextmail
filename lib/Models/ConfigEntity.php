@@ -4,7 +4,7 @@ namespace OCA\Nextmail\Models;
 
 use JsonSerializable;
 use OCA\Nextmail\ResponseDefinitions;
-use OCA\Nextmail\Schema\Columns;
+use OCA\Nextmail\SchemaV1\Columns;
 use ValueError;
 
 /** @psalm-import-type NextmailServerConfig from ResponseDefinitions */
