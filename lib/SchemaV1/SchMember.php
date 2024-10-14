@@ -5,8 +5,8 @@ namespace OCA\Nextmail\SchemaV1;
 use OCP\DB\Types;
 
 class SchMember {
-	public const USER_ID = 'user';
-	public const GROUP_ID = 'group';
+	public const USER_ID = 'uid';
+	public const GROUP_ID = 'gid';
 
 
 	public const TABLE = 'nextmail_members';

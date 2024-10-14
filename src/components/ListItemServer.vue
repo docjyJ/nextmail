@@ -10,7 +10,7 @@ import mdiTextBoxOutline from '@mdi/svg/svg/text-box-outline.svg?raw'
 import type { MailServer } from '~/type'
 
 defineProps<{
-  config: MailServer
+  server: MailServer
 }>()
 
 </script>
@@ -18,7 +18,7 @@ defineProps<{
 <template>
 	<div style="display: inline-flex; align-items: center; gap: 8px">
 		<NcAvatar
-			v-if="config.health === 'success'"
+			v-if="server.health === 'success'"
 			style="background-color: rgba(var(--color-success-rgb), 0.1)">
 			<template #icon>
 				<NcIconSvgWrapper
@@ -28,7 +28,7 @@ defineProps<{
 			</template>
 		</NcAvatar>
 		<NcAvatar
-			v-else-if="config.health === 'unauthorized'"
+			v-else-if="server.health === 'unauthorized'"
 			style="background-color: rgba(var(--color-error-rgb), 0.1)">
 			<template #icon>
 				<NcIconSvgWrapper
@@ -38,7 +38,7 @@ defineProps<{
 			</template>
 		</NcAvatar>
 		<NcAvatar
-			v-else-if="config.health === 'bad_network'"
+			v-else-if="server.health === 'bad_network'"
 			style="background-color: rgba(var(--color-error-rgb), 0.1)">
 			<template #icon>
 				<NcIconSvgWrapper
@@ -48,7 +48,7 @@ defineProps<{
 			</template>
 		</NcAvatar>
 		<NcAvatar
-			v-else-if="config.health === 'bad_server'"
+			v-else-if="server.health === 'bad_server'"
 			style="background-color: rgba(var(--color-error-rgb), 0.1)">
 			<template #icon>
 				<NcIconSvgWrapper
@@ -67,6 +67,6 @@ defineProps<{
 					style="color: var(--color-warning); min-width: var(--size); min-height: var(--size)" />
 			</template>
 		</NcAvatar>
-		<p>{{ /^[a-z0-9-]+:\/*([a-z0-9-.:]+).*$/.exec(config.endpoint)?.at(1) || config.endpoint || '?????' }}</p>
+		<p>{{ /^[a-z0-9-]+:\/*([a-z0-9-.:]+).*$/.exec(server.endpoint)?.at(1) || server.endpoint || '?????' }}</p>
 	</div>
 </template>

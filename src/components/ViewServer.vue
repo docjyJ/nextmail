@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue'
-import type { MailServer, ServerConfigForm } from '~/type'
+import type { MailServer, MailServerForm } from '~/type'
 import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
 import NcButton, { ButtonType } from '@nextcloud/vue/dist/Components/NcButton.js'
 import NcIconSvgWrapper from '@nextcloud/vue/dist/Components/NcIconSvgWrapper.js'
 import mdiServerOutline from '@mdi/svg/svg/server-outline.svg?raw'
 import { useNextmailTranslate } from '~/composable'
 import SectionDanger from '~/components/SectionDanger.vue'
-import SectionConfig from '~/components/SectionConfig.vue'
+import SectionConfig from '~/components/SectionServer.vue'
 import SectionStatus from '~/components/SectionStatus.vue'
 import SectionUser from '~/components/SectionUser.vue'
 
 defineProps<{
-  config: MailServer | null,
+  server: MailServer | null,
   loading: boolean
 }>()
 
 defineEmits<{
-  (e: 'edit', config: ServerConfigForm): void,
+  (e: 'edit', server: MailServerForm): void,
   (e: 'delete', id: string): void
   (e: 'create'): void
 }>()
@@ -27,11 +27,11 @@ const { t } = useNextmailTranslate()
 </script>
 
 <template>
-	<div v-if="config !== null">
-		<SectionStatus :config="config" />
-		<SectionConfig :config="config" :loading="loading" @submit="e => $emit('edit', e)" />
-		<SectionUser :server-id="config.id" />
-		<SectionDanger :config="config" :loading="loading" @delete="e => $emit('delete', e)" />
+	<div v-if="server !== null">
+		<SectionStatus :server="server" />
+		<SectionConfig :server="server" :loading="loading" @submit="e => $emit('edit', e)" />
+		<SectionUser :server="server" />
+		<SectionDanger :server="server" :loading="loading" @delete="e => $emit('delete', e)" />
 	</div>
 	<NcEmptyContent
 		v-else

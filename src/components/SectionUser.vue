@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps, onMounted } from 'vue'
+import { defineProps, onMounted, ref } from 'vue'
 import NcSettingsSection from '@nextcloud/vue/dist/Components/NcSettingsSection.js'
 import NcButton, { ButtonType } from '@nextcloud/vue/dist/Components/NcButton.js'
 import NcSelect from '@nextcloud/vue/dist/Components/NcSelect.js'
@@ -11,12 +11,13 @@ import NcActionButton from '@nextcloud/vue/dist/Components/NcActionButton.js'
 import mdiDelete from '@mdi/svg/svg/delete.svg?raw'
 import mdiContentSave from '@mdi/svg/svg/content-save.svg?raw'
 import useServerUserList from '~/composable/useServerUserList'
+import type { MailServer } from '~/type'
 
 const props = defineProps<{
-  serverId: string
+  server: MailServer
 }>()
 
-const { usersRegistered, usersAvailable, loading, reload, addUser, removeUser } = useServerUserList(props.serverId)
+const { usersRegistered, usersAvailable, loading, reload, addUser, removeUser } = useServerUserList(props.server.id)
 const newUser = ref<{ id: string } | null>()
 
 onMounted(() => {

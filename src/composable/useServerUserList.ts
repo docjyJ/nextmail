@@ -3,13 +3,13 @@ import axios from '@nextcloud/axios'
 import { generateOcsUrl } from '@nextcloud/router'
 import type { OCSResponse, MailUser, UserResponse } from '~/type'
 
-export default function useServerUserList(cid: string) {
+export default function useServerUserList(srv: string) {
 	const loading = ref(false)
 	const usersAll = ref<MailUser[]>([])
 	const usersRegistered = ref<MailUser[]>([])
 	const usersAvailable = computed<MailUser[]>(() => usersAll.value.filter(user => usersRegistered.value.every(u => u.id !== user.id)))
-	const usersUrl = generateOcsUrl(`/apps/nextmail/config/${cid}/users`)
-	const userUrl = (uid: string) => generateOcsUrl(`/apps/nextmail/config/${cid}/users/${uid}`)
+	const usersUrl = generateOcsUrl(`/apps/nextmail/servers/${srv}/users`)
+	const userUrl = (id: string) => generateOcsUrl(`/apps/nextmail/servers/${srv}/users/${id}`)
 
 	const reload = async () => {
 		if (!loading.value) {
@@ -30,11 +30,11 @@ export default function useServerUserList(cid: string) {
 		}
 	}
 
-	const addUser = async (uid: string) => {
+	const addUser = async (id: string) => {
 		if (!loading.value) {
 			loading.value = true
 			try {
-				const user = await axios.post<OCSResponse<MailUser>>(userUrl(uid)).then(r => r.data.ocs.data)
+				const user = await axios.post<OCSResponse<MailUser>>(userUrl(id)).then(r => r.data.ocs.data)
 				usersRegistered.value.push(user)
 				// showSuccess(t('User added to server'))
 			} catch (error) {
@@ -45,12 +45,12 @@ export default function useServerUserList(cid: string) {
 		}
 	}
 
-	const removeUser = async (uid: string) => {
+	const removeUser = async (id: string) => {
 		if (!loading.value) {
 			loading.value = true
 			try {
-				await axios.delete(userUrl(uid))
-				usersRegistered.value = usersRegistered.value.filter(user => user.id !== uid)
+				await axios.delete(userUrl(id))
+				usersRegistered.value = usersRegistered.value.filter(user => user.id !== id)
 				// showSuccess(t('User removed from server'))
 			} catch (error) {
 				// showError(error)

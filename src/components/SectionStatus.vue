@@ -11,7 +11,7 @@ import { useNextmailTranslate } from '~/composable'
 import type { MailServer } from '~/type'
 
 defineProps<{
-  config: MailServer
+  server: MailServer
 }>()
 
 const { t } = useNextmailTranslate()
@@ -20,7 +20,7 @@ const { t } = useNextmailTranslate()
 
 <template>
 	<NcNoteCard
-		v-if="config.health === 'success'"
+		v-if="server.health === 'success'"
 		type="success"
 		style="margin: calc(var(--default-grid-baseline) * 7)">
 		<template #icon>
@@ -33,7 +33,7 @@ const { t } = useNextmailTranslate()
 		</p>
 	</NcNoteCard>
 	<NcNoteCard
-		v-else-if="config.health === 'unauthorized'"
+		v-else-if="server.health === 'unauthorized'"
 		type="error"
 		style="margin: calc(var(--default-grid-baseline) * 7)">
 		<template #icon>
@@ -48,7 +48,7 @@ const { t } = useNextmailTranslate()
 		<p>{{ t('The credentials you provided are invalid. Please check them and try again.') }}</p>
 	</NcNoteCard>
 	<NcNoteCard
-		v-else-if="config.health === 'bad_network'"
+		v-else-if="server.health === 'bad_network'"
 		type="error"
 		style="margin: calc(var(--default-grid-baseline) * 7)">
 		<template #icon>
@@ -63,7 +63,7 @@ const { t } = useNextmailTranslate()
 		<p>{{ t('The server respond with an error, check the server status and the endpoint you provided.') }}</p>
 	</NcNoteCard>
 	<NcNoteCard
-		v-else-if="config.health === 'bad_server'"
+		v-else-if="server.health === 'bad_server'"
 		type="error"
 		style="margin: calc(var(--default-grid-baseline) * 7)">
 		<template #icon>

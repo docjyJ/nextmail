@@ -2,26 +2,26 @@
 import { defineProps, defineModel } from 'vue'
 import type { MailServer } from '~/type'
 import NcSelect from '@nextcloud/vue/dist/Components/NcSelect.js'
-import ListItemConfig from '~/components/ListItemConfig.vue'
+import ListItemConfig from '~/components/ListItemServer.vue'
 
 defineProps<{
-  configList: MailServer[],
+  servers: MailServer[],
 }>()
-const config = defineModel<MailServer | null>('config')
+const server = defineModel<MailServer | null>('server')
 
 </script>
 
 <template>
 	<NcSelect
-		v-model="config"
+		v-model="server"
 		:no-wrap="false"
-		:options="configList"
+		:options="servers"
 		label="endpoint">
-		<template #option="configSelected">
-			<ListItemConfig :config="configSelected" />
+		<template #option="selected">
+			<ListItemConfig :server="selected" />
 		</template>
-		<template #selected-option="configSelected">
-			<ListItemConfig :config="configSelected" />
+		<template #selected-option="selected">
+			<ListItemConfig :server="selected" />
 		</template>
 	</NcSelect>
 </template>

@@ -8,27 +8,27 @@ import NcSettingsSection from '@nextcloud/vue/dist/Components/NcSettingsSection.
 import NcIconSvgWrapper from '@nextcloud/vue/dist/Components/NcIconSvgWrapper.js'
 import mdiContentSave from '@mdi/svg/svg/content-save.svg?raw'
 import { useNextmailTranslate } from '~/composable'
-import type { MailServer, ServerConfigForm } from '~/type'
+import type { MailServer, MailServerForm } from '~/type'
 
 const { t } = useNextmailTranslate()
 
 const props = defineProps<{
-  config: MailServer,
+  server: MailServer,
   loading: boolean
 }>()
 
 defineEmits<{
-  (e: 'submit', value: ServerConfigForm): void
+  (e: 'submit', value: MailServerForm): void
 }>()
 
-const form = ref<ServerConfigForm>({
-	id: props.config.id,
-	endpoint: props.config.endpoint,
-	username: props.config.username,
+const form = ref<MailServerForm>({
+	id: props.server.id,
+	endpoint: props.server.endpoint,
+	username: props.server.username,
 	password: '',
 })
 
-watch(() => props.config, (config) => {
+watch(() => props.server, (config) => {
 	form.value = {
 		id: config.id,
 		endpoint: config.endpoint,

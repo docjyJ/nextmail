@@ -1,17 +1,17 @@
 import { ref } from 'vue'
 import axios from '@nextcloud/axios'
 import { generateOcsUrl } from '@nextcloud/router'
-import type { OCSResponse, MailServer, ServerConfigForm } from '~/type'
+import type { OCSResponse, MailServer, MailServerForm } from '~/type'
 
 export default function useServerList() {
 	const loading = ref(false)
 	const servers = ref<MailServer[]>([])
-	const configUrl = generateOcsUrl('/apps/nextmail/config')
-	const configIdUrl = (id: string) => generateOcsUrl(`/apps/nextmail/config/${id}`)
+	const configUrl = generateOcsUrl('/apps/nextmail/servers')
+	const configIdUrl = (id: string) => generateOcsUrl(`/apps/nextmail/servers/${id}`)
 	const active = ref<MailServer | null>(null)
 
 	return {
-		servers,
+		entries: servers,
 		loading,
 		active,
 		to: (id: string | null) => {
@@ -53,7 +53,7 @@ export default function useServerList() {
 				}
 			}
 		},
-		edit: async ({ id, ...data }: ServerConfigForm) => {
+		edit: async ({ id, ...data }: MailServerForm) => {
 			if (!loading.value) {
 				loading.value = true
 				try {

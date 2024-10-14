@@ -8,7 +8,7 @@ import { useNextmailTranslate } from '~/composable'
 import type { MailServer } from '~/type'
 
 defineProps<{
-  config: MailServer,
+  server: MailServer,
   loading: boolean
 }>()
 
@@ -24,7 +24,7 @@ const { t } = useNextmailTranslate()
 	<NcSettingsSection
 		:name="t('Danger Zone')"
 		:description="t('This is the danger zone. Be careful with the actions you take here.')">
-		<NcButton :disabled="loading" :type="ButtonType.Error" @click="() => $emit('delete', config.id)">
+		<NcButton :disabled="loading" :type="ButtonType.Error" @click="() => $emit('delete', server.id)">
 			<template #icon>
 				<NcIconSvgWrapper :svg="mdiDelete" name="Delete" />
 			</template>

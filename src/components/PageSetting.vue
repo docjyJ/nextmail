@@ -5,7 +5,7 @@ import ServerView from '~/components/ViewServer.vue'
 
 import { useServerList } from '~/composable'
 
-const { servers, loading, active, to, edit, reload, remove, create } = useServerList()
+const { entries, loading, active, to, edit, reload, remove, create } = useServerList()
 
 onMounted(reload)
 
@@ -13,9 +13,9 @@ onMounted(reload)
 
 <template>
 	<div id="nextmail">
-		<ServerSelection :config-list="servers" :config="active" @update:config="e => to(e? e.id : null)" />
+		<ServerSelection :servers="entries" :server="active" @update:server="e => to(e? e.id : null)" />
 		<ServerView
-			:config="active"
+			:server="active"
 			:loading="loading"
 			@edit="edit"
 			@delete="remove"

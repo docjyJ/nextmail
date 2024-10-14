@@ -29,7 +29,7 @@ readonly class StalwartSqlService {
 	}
 
 	private function queryMembers(): string {
-		$table = $this->db->table(SchEmail::TABLE);
+		$table = $this->db->table(SchMember::TABLE);
 		$colId = SchMember::USER_ID;
 		$colMember = SchMember::GROUP_ID;
 		$param = $this->db->param();

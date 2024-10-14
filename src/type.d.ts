@@ -11,7 +11,7 @@ export type OCSResponse<T> = {
     };
 };
 
-export type ServerConfigForm = {
+export type MailServerForm = {
     id: string;
     endpoint: string;
     username: string;
