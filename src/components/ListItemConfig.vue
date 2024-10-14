@@ -7,10 +7,10 @@ import mdiFingerprintOff from '@mdi/svg/svg/fingerprint-off.svg?raw'
 import mdiServerNetworkOff from '@mdi/svg/svg/server-network-off.svg?raw'
 import mdiNetworkStrengthOffOutline from '@mdi/svg/svg/network-strength-off-outline.svg?raw'
 import mdiTextBoxOutline from '@mdi/svg/svg/text-box-outline.svg?raw'
-import type { ServerConfig } from '~/type'
+import type { MailServer } from '~/type'
 
 defineProps<{
-  config: ServerConfig
+  config: MailServer
 }>()
 
 </script>

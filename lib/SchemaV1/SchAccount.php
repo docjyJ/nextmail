@@ -5,8 +5,8 @@ namespace OCA\Nextmail\SchemaV1;
 use OCP\DB\Types;
 
 class SchAccount {
-	public const ID = 'account_id';
-	public const NAME = 'display_name';
+	public const ID = 'account';
+	public const NAME = 'name';
 	public const HASH = 'hash';
 	public const QUOTA = 'quota';
 	public const ROLE = 'role';

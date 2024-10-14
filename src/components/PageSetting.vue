@@ -3,9 +3,9 @@ import { onMounted } from 'vue'
 import ServerSelection from '~/components/ViewSelection.vue'
 import ServerView from '~/components/ViewServer.vue'
 
-import { useServerConfigList } from '~/composable'
+import { useServerList } from '~/composable'
 
-const { servers, loading, active, to, edit, reload, remove, create } = useServerConfigList()
+const { servers, loading, active, to, edit, reload, remove, create } = useServerList()
 
 onMounted(reload)
 

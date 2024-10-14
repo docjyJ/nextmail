@@ -18,14 +18,14 @@ export type ServerConfigForm = {
     password: string;
 };
 
-export type ServerConfig = {
+export type MailServer = {
     id: string;
     endpoint: string;
     username: string;
     health: 'bad_network' | 'bad_server' | 'invalid' | 'success' | 'unauthorized';
 };
 
-export type ServerUser = {
+export type MailUser = {
     id: string;
     displayName: string;
     email: string | null;

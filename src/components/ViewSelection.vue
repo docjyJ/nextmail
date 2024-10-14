@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { defineProps, defineModel } from 'vue'
-import type { ServerConfig } from '~/type'
+import type { MailServer } from '~/type'
 import NcSelect from '@nextcloud/vue/dist/Components/NcSelect.js'
 import ListItemConfig from '~/components/ListItemConfig.vue'
 
 defineProps<{
-  configList: ServerConfig[],
+  configList: MailServer[],
 }>()
-const config = defineModel<ServerConfig | null>('config')
+const config = defineModel<MailServer | null>('config')
 
 </script>
 

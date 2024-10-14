@@ -8,10 +8,10 @@ import mdiServerNetworkOff from '@mdi/svg/svg/server-network-off.svg?raw'
 import mdiNetworkStrengthOffOutline from '@mdi/svg/svg/network-strength-off-outline.svg?raw'
 import mdiTextBoxOutline from '@mdi/svg/svg/text-box-outline.svg?raw'
 import { useNextmailTranslate } from '~/composable'
-import type { ServerConfig } from '~/type'
+import type { MailServer } from '~/type'
 
 defineProps<{
-  config: ServerConfig
+  config: MailServer
 }>()
 
 const { t } = useNextmailTranslate()

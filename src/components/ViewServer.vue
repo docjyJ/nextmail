@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue'
-import type { ServerConfig, ServerConfigForm } from '~/type'
+import type { MailServer, ServerConfigForm } from '~/type'
 import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
 import NcButton, { ButtonType } from '@nextcloud/vue/dist/Components/NcButton.js'
 import NcIconSvgWrapper from '@nextcloud/vue/dist/Components/NcIconSvgWrapper.js'
@@ -12,7 +12,7 @@ import SectionStatus from '~/components/SectionStatus.vue'
 import SectionUser from '~/components/SectionUser.vue'
 
 defineProps<{
-  config: ServerConfig | null,
+  config: MailServer | null,
   loading: boolean
 }>()
 

@@ -5,10 +5,10 @@ import NcSettingsSection from '@nextcloud/vue/dist/Components/NcSettingsSection.
 import NcIconSvgWrapper from '@nextcloud/vue/dist/Components/NcIconSvgWrapper.js'
 import mdiDelete from '@mdi/svg/svg/delete.svg?raw'
 import { useNextmailTranslate } from '~/composable'
-import type { ServerConfig } from '~/type'
+import type { MailServer } from '~/type'
 
 defineProps<{
-  config: ServerConfig,
+  config: MailServer,
   loading: boolean
 }>()
 

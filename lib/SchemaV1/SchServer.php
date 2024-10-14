@@ -5,7 +5,7 @@ namespace OCA\Nextmail\SchemaV1;
 use OCP\DB\Types;
 
 class SchServer {
-	public const ID = 'server_id';
+	public const ID = 'server';
 	public const ENDPOINT = 'endpoint';
 	public const USERNAME = 'username';
 	public const PASSWORD = 'password';

@@ -1,14 +1,14 @@
 import { ref } from 'vue'
 import axios from '@nextcloud/axios'
 import { generateOcsUrl } from '@nextcloud/router'
-import type { OCSResponse, ServerConfig, ServerConfigForm } from '~/type'
+import type { OCSResponse, MailServer, ServerConfigForm } from '~/type'
 
-export default function useServerConfigList() {
+export default function useServerList() {
 	const loading = ref(false)
-	const servers = ref<ServerConfig[]>([])
+	const servers = ref<MailServer[]>([])
 	const configUrl = generateOcsUrl('/apps/nextmail/config')
 	const configIdUrl = (id: string) => generateOcsUrl(`/apps/nextmail/config/${id}`)
-	const active = ref<ServerConfig | null>(null)
+	const active = ref<MailServer | null>(null)
 
 	return {
 		servers,
@@ -23,7 +23,7 @@ export default function useServerConfigList() {
 			if (!loading.value) {
 				loading.value = true
 				try {
-					servers.value = await axios.get<OCSResponse<ServerConfig[]>>(configUrl).then(r => r.data.ocs.data)
+					servers.value = await axios.get<OCSResponse<MailServer[]>>(configUrl).then(r => r.data.ocs.data)
 					const id = active.value?.id
 					if (id !== undefined) {
 						active.value = servers.value.find(a => a.id === id) ?? null
@@ -40,7 +40,7 @@ export default function useServerConfigList() {
 			if (!loading.value) {
 				loading.value = true
 				try {
-					const a = await axios.post<OCSResponse<ServerConfig>>(configUrl).then(r => r.data.ocs.data)
+					const a = await axios.post<OCSResponse<MailServer>>(configUrl).then(r => r.data.ocs.data)
 					servers.value.push(a)
 					if (active.value === null || active.value.id === a.id) {
 						active.value = a
@@ -57,7 +57,7 @@ export default function useServerConfigList() {
 			if (!loading.value) {
 				loading.value = true
 				try {
-					const a = await axios.put<OCSResponse<ServerConfig>>(configIdUrl(id), data).then(r => r.data.ocs.data)
+					const a = await axios.put<OCSResponse<MailServer>>(configIdUrl(id), data).then(r => r.data.ocs.data)
 					servers.value = servers.value.map(b => b.id === a.id ? a : b)
 					if (active.value?.id === a.id) {
 						active.value = a

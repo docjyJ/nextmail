@@ -8,12 +8,12 @@ import NcSettingsSection from '@nextcloud/vue/dist/Components/NcSettingsSection.
 import NcIconSvgWrapper from '@nextcloud/vue/dist/Components/NcIconSvgWrapper.js'
 import mdiContentSave from '@mdi/svg/svg/content-save.svg?raw'
 import { useNextmailTranslate } from '~/composable'
-import type { ServerConfig, ServerConfigForm } from '~/type'
+import type { MailServer, ServerConfigForm } from '~/type'
 
 const { t } = useNextmailTranslate()
 
 const props = defineProps<{
-  config: ServerConfig,
+  config: MailServer,
   loading: boolean
 }>()
 

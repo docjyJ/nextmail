@@ -1,13 +1,13 @@
 import { computed, ref } from 'vue'
 import axios from '@nextcloud/axios'
 import { generateOcsUrl } from '@nextcloud/router'
-import type { OCSResponse, ServerUser, UserResponse } from '~/type'
+import type { OCSResponse, MailUser, UserResponse } from '~/type'
 
 export default function useServerUserList(cid: string) {
 	const loading = ref(false)
-	const usersAll = ref<ServerUser[]>([])
-	const usersRegistered = ref<ServerUser[]>([])
-	const usersAvailable = computed<ServerUser[]>(() => usersAll.value.filter(user => usersRegistered.value.every(u => u.id !== user.id)))
+	const usersAll = ref<MailUser[]>([])
+	const usersRegistered = ref<MailUser[]>([])
+	const usersAvailable = computed<MailUser[]>(() => usersAll.value.filter(user => usersRegistered.value.every(u => u.id !== user.id)))
 	const usersUrl = generateOcsUrl(`/apps/nextmail/config/${cid}/users`)
 	const userUrl = (uid: string) => generateOcsUrl(`/apps/nextmail/config/${cid}/users/${uid}`)
 
@@ -21,7 +21,7 @@ export default function useServerUserList(cid: string) {
 						displayName: user.displayname,
 						email: user.email,
 					})))
-				usersRegistered.value = await axios.get<OCSResponse<ServerUser[]>>(usersUrl).then(r => r.data.ocs.data)
+				usersRegistered.value = await axios.get<OCSResponse<MailUser[]>>(usersUrl).then(r => r.data.ocs.data)
 			} catch (error) {
 				// showError(error)
 			} finally {
@@ -34,7 +34,7 @@ export default function useServerUserList(cid: string) {
 		if (!loading.value) {
 			loading.value = true
 			try {
-				const user = await axios.post<OCSResponse<ServerUser>>(userUrl(uid)).then(r => r.data.ocs.data)
+				const user = await axios.post<OCSResponse<MailUser>>(userUrl(uid)).then(r => r.data.ocs.data)
 				usersRegistered.value.push(user)
 				// showSuccess(t('User added to server'))
 			} catch (error) {
