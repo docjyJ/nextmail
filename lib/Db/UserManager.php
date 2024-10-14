@@ -4,11 +4,11 @@ namespace OCA\Nextmail\Db;
 
 use OCA\Nextmail\Models\AccountEntity;
 use OCA\Nextmail\Models\AccountRole;
-use OCA\Nextmail\Models\ConfigEntity;
+use OCA\Nextmail\Models\ServerEntity;
 use OCP\DB\Exception;
 use OCP\IUser;
 
-readonly class AccountManager {
+readonly class UserManager {
 	public function __construct(
 		private Transaction $tr,
 	) {
@@ -22,33 +22,33 @@ readonly class AccountManager {
 	 * @return AccountEntity[]
 	 * @throws Exception
 	 */
-	public function listUser(ConfigEntity $config): array {
-		return array_map(fn ($row) => AccountEntity::parse($config, $row), $this->tr->selectAccount($config->id));
+	public function listUser(ServerEntity $server): array {
+		return array_map(fn ($row) => AccountEntity::parse($server, $row), $this->tr->selectAccount($server->id));
 	}
 
 	/** @throws Exception */
-	public function findUser(ConfigEntity $config, string $uid): ?AccountEntity {
-		$accounts = $this->tr->selectAccount($config->id, $uid, AccountRole::User);
-		return count($accounts) === 0 ? null : AccountEntity::parse($config, $accounts[0]);
+	public function findUser(ServerEntity $server, string $id): ?AccountEntity {
+		$users = $this->tr->selectAccount($server->id, $id, AccountRole::User);
+		return count($users) === 0 ? null : AccountEntity::parse($server, $users[0]);
 	}
 
 	/** @throws Exception */
-	public function createUser(ConfigEntity $config, IUser $user): AccountEntity {
+	public function createUser(ServerEntity $server, IUser $user): AccountEntity {
 		$account = new AccountEntity(
 			$user->getUID(),
-			$config,
+			$server,
 			$user->getDisplayName(),
 			self::getHashFromUser($user),
 			AccountRole::User,
 			0);
-		$this->tr->insertAccount($account->uid, $account->config->id, $account->displayName, $account->password, $account->type, $account->quota);
+		$this->tr->insertAccount($account->id, $account->server->id, $account->name, $account->hash, $account->role, $account->quota);
 		$this->tr->commit();
 		return $account;
 	}
 
 	/** @throws Exception */
 	public function delete(AccountEntity $account): void {
-		$this->tr->deleteAccount($account->uid);
+		$this->tr->deleteAccount($account->id);
 		$this->tr->commit();
 	}
 

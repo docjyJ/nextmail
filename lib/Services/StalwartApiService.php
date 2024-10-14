@@ -3,8 +3,8 @@
 namespace OCA\Nextmail\Services;
 
 use Exception;
-use OCA\Nextmail\Models\ConfigEntity;
-use OCA\Nextmail\Models\ServerStatus;
+use OCA\Nextmail\Models\ServerEntity;
+use OCA\Nextmail\Models\ServerHealth;
 use OCP\Http\Client\IClientService;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -50,39 +50,39 @@ readonly class StalwartApiService {
 		}
 	}
 
-	public function challenge(ConfigEntity $config): ConfigEntity {
-		$auth = $config->getBasicAuth();
+	public function challenge(ServerEntity $srv): ServerEntity {
+		$auth = $srv->getBasicAuth();
 		if ($auth === null) {
-			$this->logger->warning('Configurations ' . $config->id . ' has no credentials');
-			return $config->updateHealth(ServerStatus::Invalid);
+			$this->logger->warning('Configurations ' . $srv->id . ' has no credentials');
+			return $srv->updateHealth(ServerHealth::Invalid);
 		}
 
-		$url = $config->getUrl();
+		$url = $srv->getUrl();
 		if ($url === null) {
-			$this->logger->warning('Configurations ' . $config->id . ' has an invalid endpoint');
-			return $config->updateHealth(ServerStatus::Invalid);
+			$this->logger->warning('Configurations ' . $srv->id . ' has an invalid endpoint');
+			return $srv->updateHealth(ServerHealth::Invalid);
 		}
 		try {
-			$settings = $this->sqlService->getStalwartConfig($config->id);
+			$settings = $this->sqlService->getStalwartConfig($srv->id);
 		} catch (Exception $e) {
 			$this->logger->warning($e->getMessage(), ['exception' => $e]);
-			return $config->updateHealth(ServerStatus::Invalid);
+			return $srv->updateHealth(ServerHealth::Invalid);
 		}
 
 		$code = $this->settings($url, $auth, $settings);
 		if ($code === 200) {
 			$code = $this->reload($url, $auth);
 			if ($code === 200) {
-				return $config->updateHealth(ServerStatus::Success);
+				return $srv->updateHealth(ServerHealth::Success);
 			}
 		}
 		if ($code === 401) {
-			return $config->updateHealth(ServerStatus::Unauthorized);
+			return $srv->updateHealth(ServerHealth::Unauthorized);
 		}
 
 		if ($code === null) {
-			return $config->updateHealth(ServerStatus::BadNetwork);
+			return $srv->updateHealth(ServerHealth::BadNetwork);
 		}
-		return $config->updateHealth(ServerStatus::BadServer);
+		return $srv->updateHealth(ServerHealth::BadServer);
 	}
 }

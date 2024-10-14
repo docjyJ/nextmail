@@ -2,7 +2,7 @@
 
 namespace OCA\Nextmail\Cron;
 
-use OCA\Nextmail\Db\ConfigManager;
+use OCA\Nextmail\Db\ServerManager;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use OCP\DB\Exception;
@@ -10,7 +10,7 @@ use OCP\DB\Exception;
 class CheckTask extends TimedJob {
 	public function __construct(
 		ITimeFactory                   $time,
-		private readonly ConfigManager $configService,
+		private readonly ServerManager $serverManager,
 	) {
 		parent::__construct($time);
 		$this->setInterval(3600);
@@ -18,8 +18,8 @@ class CheckTask extends TimedJob {
 
 	/** @throws Exception */
 	protected function run(mixed $argument): void {
-		foreach ($this->configService->list() as $config) {
-			$this->configService->save($config);
+		foreach ($this->serverManager->list() as $config) {
+			$this->serverManager->save($config);
 		}
 	}
 }

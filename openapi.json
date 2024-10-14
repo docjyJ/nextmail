@@ -44,7 +44,7 @@
                     }
                 }
             },
-            "ServerConfig": {
+            "Server": {
                 "type": "object",
                 "required": [
                     "id",
@@ -74,7 +74,7 @@
                     }
                 }
             },
-            "ServerUser": {
+            "User": {
                 "type": "object",
                 "required": [
                     "id",
@@ -97,9 +97,9 @@
         }
     },
     "paths": {
-        "/ocs/v2.php/apps/nextmail/config": {
+        "/ocs/v2.php/apps/nextmail/servers": {
             "get": {
-                "operationId": "api-get-config",
+                "operationId": "api-get-servers",
                 "summary": "List all available servers",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -149,7 +149,7 @@
                                                 "data": {
                                                     "type": "array",
                                                     "items": {
-                                                        "$ref": "#/components/schemas/ServerConfig"
+                                                        "$ref": "#/components/schemas/Server"
                                                     }
                                                 }
                                             }
@@ -162,7 +162,7 @@
                 }
             },
             "post": {
-                "operationId": "api-set-config",
+                "operationId": "api-set-servers",
                 "summary": "Add a new server",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -210,7 +210,7 @@
                                                     "$ref": "#/components/schemas/OCSMeta"
                                                 },
                                                 "data": {
-                                                    "$ref": "#/components/schemas/ServerConfig"
+                                                    "$ref": "#/components/schemas/Server"
                                                 }
                                             }
                                         }
@@ -222,9 +222,9 @@
                 }
             }
         },
-        "/ocs/v2.php/apps/nextmail/config/{cid}": {
+        "/ocs/v2.php/apps/nextmail/servers/{srv}": {
             "get": {
-                "operationId": "api-get-config-id",
+                "operationId": "api-get-server",
                 "summary": "Get the configuration of a server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -240,7 +240,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "cid",
+                        "name": "srv",
                         "in": "path",
                         "description": "The server number",
                         "required": true,
@@ -281,7 +281,7 @@
                                                     "$ref": "#/components/schemas/OCSMeta"
                                                 },
                                                 "data": {
-                                                    "$ref": "#/components/schemas/ServerConfig"
+                                                    "$ref": "#/components/schemas/Server"
                                                 }
                                             }
                                         }
@@ -321,7 +321,7 @@
                 }
             },
             "put": {
-                "operationId": "api-se-config-id",
+                "operationId": "api-set-server",
                 "summary": "Set the configuration of a server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -366,7 +366,7 @@
                 },
                 "parameters": [
                     {
-                        "name": "cid",
+                        "name": "srv",
                         "in": "path",
                         "description": "The server number",
                         "required": true,
@@ -407,7 +407,7 @@
                                                     "$ref": "#/components/schemas/OCSMeta"
                                                 },
                                                 "data": {
-                                                    "$ref": "#/components/schemas/ServerConfig"
+                                                    "$ref": "#/components/schemas/Server"
                                                 }
                                             }
                                         }
@@ -447,7 +447,7 @@
                 }
             },
             "delete": {
-                "operationId": "api-delete-config-id",
+                "operationId": "api-del-server",
                 "summary": "Delete the configuration of a server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -463,7 +463,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "cid",
+                        "name": "srv",
                         "in": "path",
                         "description": "The server number",
                         "required": true,
@@ -504,7 +504,7 @@
                                                     "$ref": "#/components/schemas/OCSMeta"
                                                 },
                                                 "data": {
-                                                    "$ref": "#/components/schemas/ServerConfig"
+                                                    "$ref": "#/components/schemas/Server"
                                                 }
                                             }
                                         }
@@ -544,9 +544,9 @@
                 }
             }
         },
-        "/ocs/v2.php/apps/nextmail/config/{cid}/users": {
+        "/ocs/v2.php/apps/nextmail/servers/{srv}/users": {
             "get": {
-                "operationId": "api-get-config-id-users",
+                "operationId": "api-get-server-users",
                 "summary": "Get the users of the server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -562,7 +562,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "cid",
+                        "name": "srv",
                         "in": "path",
                         "description": "The server number",
                         "required": true,
@@ -605,7 +605,7 @@
                                                 "data": {
                                                     "type": "array",
                                                     "items": {
-                                                        "$ref": "#/components/schemas/ServerUser"
+                                                        "$ref": "#/components/schemas/User"
                                                     }
                                                 }
                                             }
@@ -618,9 +618,9 @@
                 }
             }
         },
-        "/ocs/v2.php/apps/nextmail/config/{cid}/users/{uid}": {
+        "/ocs/v2.php/apps/nextmail/servers/{srv}/users/{usr}": {
             "get": {
-                "operationId": "api-get-config-id-users-id",
+                "operationId": "api-get-server-user",
                 "summary": "Get the user of the server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -636,7 +636,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "cid",
+                        "name": "srv",
                         "in": "path",
                         "description": "The server number",
                         "required": true,
@@ -645,7 +645,7 @@
                         }
                     },
                     {
-                        "name": "uid",
+                        "name": "usr",
                         "in": "path",
                         "description": "The user ID",
                         "required": true,
@@ -686,7 +686,7 @@
                                                     "$ref": "#/components/schemas/OCSMeta"
                                                 },
                                                 "data": {
-                                                    "$ref": "#/components/schemas/ServerUser"
+                                                    "$ref": "#/components/schemas/User"
                                                 }
                                             }
                                         }
@@ -726,7 +726,7 @@
                 }
             },
             "post": {
-                "operationId": "api-set-config-id-users-id",
+                "operationId": "api-set-server-user",
                 "summary": "Add a user to the server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -742,7 +742,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "cid",
+                        "name": "srv",
                         "in": "path",
                         "description": "The server number",
                         "required": true,
@@ -751,7 +751,7 @@
                         }
                     },
                     {
-                        "name": "uid",
+                        "name": "usr",
                         "in": "path",
                         "description": "The user ID",
                         "required": true,
@@ -792,7 +792,7 @@
                                                     "$ref": "#/components/schemas/OCSMeta"
                                                 },
                                                 "data": {
-                                                    "$ref": "#/components/schemas/ServerUser"
+                                                    "$ref": "#/components/schemas/User"
                                                 }
                                             }
                                         }
@@ -832,7 +832,7 @@
                 }
             },
             "delete": {
-                "operationId": "api-delete-config-id-users-id",
+                "operationId": "api-delete-server-user",
                 "summary": "Remove a user from the server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
@@ -848,7 +848,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "cid",
+                        "name": "srv",
                         "in": "path",
                         "description": "The server number",
                         "required": true,
@@ -857,7 +857,7 @@
                         }
                     },
                     {
-                        "name": "uid",
+                        "name": "usr",
                         "in": "path",
                         "description": "The user ID",
                         "required": true,

@@ -2,8 +2,8 @@
 
 namespace OCA\Nextmail\Event;
 
-use OCA\Nextmail\Db\AccountManager;
 use OCA\Nextmail\Db\Transaction;
+use OCA\Nextmail\Db\UserManager;
 use OCA\Nextmail\Models\AccountRole;
 use OCA\Nextmail\Models\EmailType;
 use OCP\DB\Exception;
@@ -28,7 +28,7 @@ readonly class PasswordChangedListener implements IEventListener {
 		$user = $event->getUser();
 		$uid = $user->getUID();
 		$this->tr->updateAccount($uid, $user->getDisplayName(),
-			AccountManager::getHashFromUser($user), AccountRole::User, 0);
+			UserManager::getHashFromUser($user), AccountRole::User, 0);
 		$this->tr->deleteEmail($uid, EmailType::Primary);
 		$email = $user->getPrimaryEMailAddress();
 		if ($email !== null && str_contains($email, '@')) {

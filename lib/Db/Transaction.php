@@ -4,9 +4,10 @@ namespace OCA\Nextmail\Db;
 
 use OCA\Nextmail\Models\AccountRole;
 use OCA\Nextmail\Models\EmailType;
-use OCA\Nextmail\Models\ServerStatus;
-use OCA\Nextmail\SchemaV1\Columns;
-use OCA\Nextmail\SchemaV1\Tables;
+use OCA\Nextmail\Models\ServerHealth;
+use OCA\Nextmail\SchemaV1\SchAccount;
+use OCA\Nextmail\SchemaV1\SchEmail;
+use OCA\Nextmail\SchemaV1\SchServer;
 use OCP\DB\Exception;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
@@ -52,117 +53,117 @@ readonly class Transaction {
 	}
 
 	/** @throws Exception */
-	public function selectConfig(?string $cid = null): array {
-		$q = new SelectQuery($this->db, Tables::SERVERS);
-		$q->where(Columns::SERVER_ID, $cid);
+	public function selectServer(?string $id = null): array {
+		$q = new SelectQuery($this->db, SchServer::TABLE);
+		$q->where(SchServer::ID, $id);
 		return $q->fetchAll();
 	}
 
 	/** @throws Exception */
-	public function insertConfig(string $cid, string $endpoint, string $username, string $password, ServerStatus $health): void {
+	public function insertServer(string $id, string $endpoint, string $username, string $password, ServerHealth $health): void {
 		$q = $this->getTransactionBuilder();
-		$q->insert(Tables::SERVERS)
+		$q->insert(SchServer::TABLE)
 			->values([
-				Columns::SERVER_ID => $q->createNamedParameter($cid),
-				Columns::SERVER_ENDPOINT => $q->createNamedParameter($endpoint),
-				Columns::SERVER_USERNAME => $q->createNamedParameter($username),
-				Columns::SERVER_PASSWORD => $q->createNamedParameter(self::password($password)),
-				Columns::SERVER_HEALTH => $q->createNamedParameter($health->value),
+				SchServer::ID => $q->createNamedParameter($id),
+				SchServer::ENDPOINT => $q->createNamedParameter($endpoint),
+				SchServer::USERNAME => $q->createNamedParameter($username),
+				SchServer::PASSWORD => $q->createNamedParameter(self::password($password)),
+				SchServer::HEALTH => $q->createNamedParameter($health->value),
 			]);
 		$this->execute($q);
 	}
 
 	/** @throws Exception */
-	public function updateConfig(string $cid, string $endpoint, string $username, string $password, ServerStatus $health): void {
+	public function updateServer(string $id, string $endpoint, string $username, string $password, ServerHealth $health): void {
 		$q = $this->getTransactionBuilder();
-		$q->update(Tables::SERVERS)
-			->set(Columns::SERVER_ENDPOINT, $q->createNamedParameter($endpoint))
-			->set(Columns::SERVER_USERNAME, $q->createNamedParameter($username))
-			->set(Columns::SERVER_PASSWORD, $q->createNamedParameter(self::password($password)))
-			->set(Columns::SERVER_HEALTH, $q->createNamedParameter($health->value))
-			->where($q->expr()->eq(Columns::SERVER_ID, $q->createNamedParameter($cid)));
+		$q->update(SchServer::TABLE)
+			->set(SchServer::ENDPOINT, $q->createNamedParameter($endpoint))
+			->set(SchServer::USERNAME, $q->createNamedParameter($username))
+			->set(SchServer::PASSWORD, $q->createNamedParameter(self::password($password)))
+			->set(SchServer::HEALTH, $q->createNamedParameter($health->value))
+			->where($q->expr()->eq(SchServer::ID, $q->createNamedParameter($id)));
 		$this->execute($q);
 	}
 
 	/** @throws Exception */
-	public function deleteConfig(string $cid): void {
+	public function deleteServer(string $id): void {
 		$q = $this->getTransactionBuilder();
-		$q->delete(Tables::SERVERS)
-			->where($q->expr()->eq(Columns::SERVER_ID, $q->createNamedParameter($cid)));
+		$q->delete(SchServer::TABLE)
+			->where($q->expr()->eq(SchServer::ID, $q->createNamedParameter($id)));
 		$this->execute($q);
 	}
 
 	/** @throws Exception */
-	public function selectAccount(?string $cid = null, ?string $uid = null, ?AccountRole $type = null): array {
-		$q = new SelectQuery($this->db, Tables::ACCOUNTS);
-		$q->where(Columns::SERVER_ID, $cid);
-		$q->where(Columns::ACCOUNT_ID, $uid);
-		$q->where(Columns::ACCOUNT_ROLE, $type?->value);
+	public function selectAccount(?string $server_id = null, ?string $id = null, ?AccountRole $role = null): array {
+		$q = new SelectQuery($this->db, SchAccount::TABLE);
+		$q->where(SchServer::ID, $server_id);
+		$q->where(SchAccount::ID, $id);
+		$q->where(SchAccount::ROLE, $role?->value);
 		return $q->fetchAll();
 	}
 
 	/** @throws Exception */
-	public function insertAccount(string $uid, string $cid, string $displayName, ?string $password, AccountRole $type, ?int $quota): void {
+	public function insertAccount(string $id, string $server_id, string $name, ?string $hash, AccountRole $role, ?int $quota): void {
 		$q = $this->getTransactionBuilder();
-		$q->insert(Tables::ACCOUNTS)
+		$q->insert(SchAccount::TABLE)
 			->values([
-				Columns::ACCOUNT_ID => $q->createNamedParameter($uid),
-				Columns::SERVER_ID => $q->createNamedParameter($cid),
-				Columns::ACCOUNT_NAME => $q->createNamedParameter($displayName),
-				Columns::ACCOUNT_HASH => $password !== null ? $q->createNamedParameter(self::password($password)) : $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL),
-				Columns::ACCOUNT_ROLE => $q->createNamedParameter($type->value),
-				Columns::ACCOUNT_QUOTA => $quota !== null ? $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL) : $q->createNamedParameter($quota, IQueryBuilder::PARAM_INT),
+				SchAccount::ID => $q->createNamedParameter($id),
+				SchServer::ID => $q->createNamedParameter($server_id),
+				SchAccount::NAME => $q->createNamedParameter($name),
+				SchAccount::HASH => $hash !== null ? $q->createNamedParameter(self::password($hash)) : $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL),
+				SchAccount::ROLE => $q->createNamedParameter($role->value),
+				SchAccount::QUOTA => $quota !== null ? $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL) : $q->createNamedParameter($quota, IQueryBuilder::PARAM_INT),
 			]);
 		$this->execute($q);
 	}
 
 	/** @throws Exception */
-	public function updateAccount(string $uid, string $displayName, ?string $password, AccountRole $type, ?int $quota): void {
+	public function updateAccount(string $id, string $name, ?string $hash, AccountRole $role, ?int $quota): void {
 		$q = $this->getTransactionBuilder();
-		$q->update(Tables::ACCOUNTS)
-			->set(Columns::ACCOUNT_NAME, $q->createNamedParameter($displayName))
-			->set(Columns::ACCOUNT_HASH, $password !== null ? $q->createNamedParameter(self::password($password)) : $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL))
-			->set(Columns::ACCOUNT_ROLE, $q->createNamedParameter($type->value))
-			->set(Columns::ACCOUNT_QUOTA, $quota !== null ? $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL) : $q->createNamedParameter($quota, IQueryBuilder::PARAM_INT))
-			->where($q->expr()->eq(Columns::ACCOUNT_ID, $q->createNamedParameter($uid)));
+		$q->update(SchAccount::TABLE)
+			->set(SchAccount::NAME, $q->createNamedParameter($name))
+			->set(SchAccount::HASH, $hash !== null ? $q->createNamedParameter(self::password($hash)) : $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL))
+			->set(SchAccount::ROLE, $q->createNamedParameter($role->value))
+			->set(SchAccount::QUOTA, $quota !== null ? $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL) : $q->createNamedParameter($quota, IQueryBuilder::PARAM_INT))
+			->where($q->expr()->eq(SchAccount::ID, $q->createNamedParameter($id)));
 		$this->execute($q);
 	}
 
 	/** @throws Exception */
-	public function deleteAccount(string $uid): void {
+	public function deleteAccount(string $id): void {
 		$q = $this->getTransactionBuilder();
-		$q->delete(Tables::ACCOUNTS)
-			->where($q->expr()->eq(Columns::ACCOUNT_ID, $q->createNamedParameter($uid)));
+		$q->delete(SchAccount::TABLE)
+			->where($q->expr()->eq(SchAccount::ID, $q->createNamedParameter($id)));
 		$this->execute($q);
 	}
 
 	/** @throws Exception */
-	public function selectEmail(?string $uid = null, ?EmailType $type = null): array {
-		$q = new SelectQuery($this->db, Tables::EMAILS);
-		$q->where(Columns::ACCOUNT_ID, $uid);
-		$q->where(Columns::EMAIL_TYPE, $type?->value);
+	public function selectEmail(?string $id = null, ?EmailType $type = null): array {
+		$q = new SelectQuery($this->db, SchEmail::TABLE);
+		$q->where(SchAccount::ID, $id);
+		$q->where(SchEmail::TYPE, $type?->value);
 		return $q->fetchAll();
 	}
 
 	/** @throws Exception */
-	public function insertEmail(string $uid, string $email, EmailType $type): void {
+	public function insertEmail(string $id, string $email, EmailType $type): void {
 		$q = $this->getTransactionBuilder();
-		$q->insert(Tables::EMAILS)
+		$q->insert(SchEmail::TABLE)
 			->values([
-				Columns::ACCOUNT_ID => $q->createNamedParameter($uid),
-				Columns::EMAIL_ID => $q->createNamedParameter($email),
-				Columns::EMAIL_TYPE => $q->createNamedParameter($type->value),
+				SchAccount::ID => $q->createNamedParameter($id),
+				SchEmail::EMAIL => $q->createNamedParameter($email),
+				SchEmail::TYPE => $q->createNamedParameter($type->value),
 			]);
 		$this->execute($q);
 	}
 
 
 	/** @throws Exception */
-	public function deleteEmail(string $uid, ?EmailType $type): void {
+	public function deleteEmail(string $id, ?EmailType $type): void {
 		$q = $this->getTransactionBuilder();
-		$q->delete(Tables::EMAILS)->where($q->expr()->eq(Columns::ACCOUNT_ID, $q->createNamedParameter($uid)));
+		$q->delete(SchEmail::TABLE)->where($q->expr()->eq(SchAccount::ID, $q->createNamedParameter($id)));
 		if ($type !== null) {
-			$q->andWhere($q->expr()->eq(Columns::EMAIL_TYPE, $q->createNamedParameter($type->value)));
+			$q->andWhere($q->expr()->eq(SchEmail::TYPE, $q->createNamedParameter($type->value)));
 		}
 		$this->execute($q);
 	}

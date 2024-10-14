@@ -2,7 +2,8 @@
 
 namespace OCA\Nextmail\Models;
 
-use OCA\Nextmail\SchemaV1\Columns;
+use OCA\Nextmail\SchemaV1\SchAccount;
+use OCA\Nextmail\SchemaV1\SchEmail;
 use ValueError;
 
 readonly class EmailEntity {
@@ -17,19 +18,19 @@ readonly class EmailEntity {
 		if (!is_array($value)) {
 			throw new ValueError('value must be an array');
 		}
-		if ($account->uid !== $value[Columns::ACCOUNT_ID]) {
+		if ($account->id !== $value[SchAccount::ID]) {
 			throw new ValueError('uid mismatch');
 		}
-		if (!is_string($value[Columns::EMAIL_ID])) {
+		if (!is_string($value[SchEmail::EMAIL])) {
 			throw new ValueError('email must be a string');
 		}
-		if (!is_string($value[Columns::EMAIL_TYPE])) {
+		if (!is_string($value[SchEmail::TYPE])) {
 			throw new ValueError('type must be a string');
 		}
 		return new self(
 			$account,
-			$value[Columns::EMAIL_ID],
-			EmailType::from($value[Columns::EMAIL_TYPE]),
+			$value[SchEmail::EMAIL],
+			EmailType::from($value[SchEmail::TYPE]),
 		);
 	}
 }

@@ -4,32 +4,34 @@ namespace OCA\Nextmail\Services;
 
 use JsonException;
 use OCA\Nextmail\Models\EmailType;
-use OCA\Nextmail\SchemaV1\Columns;
-use OCA\Nextmail\SchemaV1\Tables;
+use OCA\Nextmail\SchemaV1\SchAccount;
+use OCA\Nextmail\SchemaV1\SchEmail;
+use OCA\Nextmail\SchemaV1\SchMember;
+use OCA\Nextmail\SchemaV1\SchServer;
 use ValueError;
 
 readonly class StalwartSqlService {
-	private function queryName(string $cid): string {
-		if (preg_match('/\W/', $cid)) {
+	private function queryName(string $server_id): string {
+		if (preg_match('/\W/', $server_id)) {
 			throw new ValueError('The configuration ID is invalid, only word characters allowed to prevent SQL injection');
 		}
-		$table = $this->db->table(Tables::ACCOUNTS);
-		$accountId = Columns::ACCOUNT_ID;
-		$role = Columns::ACCOUNT_ROLE;
-		$hash = Columns::ACCOUNT_HASH;
-		$quota = Columns::ACCOUNT_QUOTA;
-		$displayName = Columns::ACCOUNT_NAME;
-		$serverId = Columns::SERVER_ID;
+		$table = $this->db->table(SchAccount::TABLE);
+		$accountId = SchAccount::ID;
+		$role = SchAccount::ROLE;
+		$hash = SchAccount::HASH;
+		$quota = SchAccount::QUOTA;
+		$displayName = SchAccount::NAME;
+		$serverId = SchServer::ID;
 		$param = $this->db->param();
 		// SELECT name, type, secret, description, quota FROM accounts WHERE name = ? AND active = true
 		// SELECT name, type, secret, description, quota FROM accounts WHERE name = $1 AND active = true
-		return "SELECT $accountId, $role, $hash, $displayName, $quota FROM $table WHERE $serverId = '$cid' AND $accountId = $param";
+		return "SELECT $accountId, $role, $hash, $displayName, $quota FROM $table WHERE $serverId = '$server_id' AND $accountId = $param";
 	}
 
 	private function queryMembers(): string {
-		$table = $this->db->table(Tables::EMAILS);
-		$colId = Columns::USER_ID;
-		$colMember = Columns::GROUP_ID;
+		$table = $this->db->table(SchEmail::TABLE);
+		$colId = SchMember::USER_ID;
+		$colMember = SchMember::GROUP_ID;
 		$param = $this->db->param();
 		// SELECT member_of FROM group_members WHERE name = ?
 		// SELECT member_of FROM group_members WHERE name = $1
@@ -37,9 +39,9 @@ readonly class StalwartSqlService {
 	}
 
 	private function queryRecipients(): string {
-		$table = $this->db->table(Tables::EMAILS);
-		$colId = Columns::ACCOUNT_ID;
-		$colEmail = Columns::EMAIL_ID;
+		$table = $this->db->table(SchEmail::TABLE);
+		$colId = SchAccount::ID;
+		$colEmail = SchEmail::EMAIL;
 		$param = $this->db->param();
 		// SELECT name FROM emails WHERE address = ? ORDER BY name ASC
 		// SELECT name FROM emails WHERE address = $1 ORDER BY name ASC
@@ -47,10 +49,10 @@ readonly class StalwartSqlService {
 	}
 
 	private function queryEmails(): string {
-		$table = $this->db->table(Tables::EMAILS);
-		$colId = Columns::ACCOUNT_ID;
-		$colEmail = Columns::EMAIL_ID;
-		$colType = Columns::EMAIL_TYPE;
+		$table = $this->db->table(SchEmail::TABLE);
+		$colId = SchAccount::ID;
+		$colEmail = SchEmail::EMAIL;
+		$colType = SchEmail::TYPE;
 		$typeList = EmailType::List->value;
 		$param = $this->db->param();
 		// SELECT address FROM emails WHERE name = ? AND type != 'list' ORDER BY type DESC, address ASC
@@ -59,9 +61,9 @@ readonly class StalwartSqlService {
 	}
 
 	private function queryVerify(): string {
-		$table = $this->db->table(Tables::EMAILS);
-		$colEmail = Columns::EMAIL_ID;
-		$colType = Columns::EMAIL_TYPE;
+		$table = $this->db->table(SchEmail::TABLE);
+		$colEmail = SchEmail::EMAIL;
+		$colType = SchEmail::TYPE;
 		$typePrimary = EmailType::Primary->value;
 		$concat = $this->db->concatVerify();
 		// SELECT address FROM emails WHERE address LIKE CONCAT('%', ?, '%') AND type = 'primary' ORDER BY address LIMIT 5
@@ -70,10 +72,10 @@ readonly class StalwartSqlService {
 	}
 
 	private function queryExpand(): string {
-		$table = $this->db->table(Tables::EMAILS);
-		$colId = Columns::ACCOUNT_ID;
-		$colEmail = Columns::EMAIL_ID;
-		$colType = Columns::EMAIL_TYPE;
+		$table = $this->db->table(SchEmail::TABLE);
+		$colId = SchAccount::ID;
+		$colEmail = SchEmail::EMAIL;
+		$colType = SchEmail::TYPE;
 		$typePrimary = EmailType::Primary->value;
 		$typeList = EmailType::List->value;
 		$param = $this->db->param();
@@ -83,8 +85,8 @@ readonly class StalwartSqlService {
 	}
 
 	private function queryDomains(): string {
-		$table = $this->db->table(Tables::EMAILS);
-		$colEmail = Columns::EMAIL_ID;
+		$table = $this->db->table(SchEmail::TABLE);
+		$colEmail = SchEmail::EMAIL;
 		$concat = $this->db->concatDomains();
 		// SELECT 1 FROM emails WHERE address LIKE CONCAT('%@', ?) LIMIT 1
 		// SELECT 1 FROM emails WHERE address LIKE '%@' || $1 LIMIT 1
@@ -100,19 +102,19 @@ readonly class StalwartSqlService {
 	/**
 	 * @throws JsonException
 	 */
-	public function getStalwartConfig(string $cid): string {
+	public function getStalwartConfig(string $server_id): string {
 		return json_encode([
 			[
-				'prefix' => "directory.$cid",
+				'prefix' => "directory.$server_id",
 				'type' => 'Clear',
 			],
 			[
-				'prefix' => "store.$cid",
+				'prefix' => "store.$server_id",
 				'type' => 'Clear',
 			],
 			[
 				'assert_empty' => false,
-				'prefix' => "store.$cid",
+				'prefix' => "store.$server_id",
 				'type' => 'Insert',
 				'values' => [
 					['type', $this->db->type()],
@@ -128,7 +130,7 @@ readonly class StalwartSqlService {
 					['compression', 'lz4'],
 					['purge.frequency', '0 3 *'],
 					['read-from-replicas', 'true'],
-					['query.name', $this->queryName($cid)],
+					['query.name', $this->queryName($server_id)],
 					['query.members', $this->queryMembers()],
 					['query.recipients', $this->queryRecipients()],
 					['query.emails', $this->queryEmails()],
@@ -139,15 +141,15 @@ readonly class StalwartSqlService {
 			],
 			[
 				'assert_empty' => false,
-				'prefix' => 'directory.' . $cid,
+				'prefix' => 'directory.' . $server_id,
 				'type' => 'Insert',
 				'values' => [
 					['type', 'sql'],
-					['store', $cid],
-					['columns.class', Columns::ACCOUNT_ROLE],
-					['columns.description', Columns::ACCOUNT_NAME],
-					['columns.secret', Columns::ACCOUNT_HASH],
-					['columns.quota', Columns::ACCOUNT_QUOTA],
+					['store', $server_id],
+					['columns.class', SchAccount::ROLE],
+					['columns.description', SchAccount::NAME],
+					['columns.secret', SchAccount::HASH],
+					['columns.quota', SchAccount::QUOTA],
 					['cache.entries', '500'],
 					['cache.ttl.positive', '1h'],
 					['cache.ttl.negative', '10m'],
@@ -158,7 +160,7 @@ readonly class StalwartSqlService {
 				'prefix' => null,
 				'type' => 'Insert',
 				'values' => [
-					['storage.directory', $cid],
+					['storage.directory', $server_id],
 				],
 			],
 		], JSON_THROW_ON_ERROR);

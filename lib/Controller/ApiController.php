@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace OCA\Nextmail\Controller;
 
-use OCA\Nextmail\Db\AccountManager;
-use OCA\Nextmail\Db\ConfigManager;
 use OCA\Nextmail\Db\EmailManager;
+use OCA\Nextmail\Db\ServerManager;
+use OCA\Nextmail\Db\UserManager;
 use OCA\Nextmail\Models\AccountEntity;
 use OCA\Nextmail\Models\EmailEntity;
 use OCA\Nextmail\ResponseDefinitions;
@@ -25,15 +25,15 @@ use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
 
 /**
- * @psalm-import-type NextmailServerConfig from ResponseDefinitions
- * @psalm-import-type NextmailServerUser from ResponseDefinitions
+ * @psalm-import-type NextmailServer from ResponseDefinitions
+ * @psalm-import-type NextmailUser from ResponseDefinitions
  */
 class ApiController extends OCSController {
 	public function __construct(
 		string                           $appName,
 		IRequest                         $request,
-		private readonly ConfigManager   $configManager,
-		private readonly AccountManager  $accountManager,
+		private readonly ServerManager   $serverManager,
+		private readonly UserManager     $accountManager,
 		private readonly EmailManager    $emailManager,
 		private readonly IUserManager    $userManager,
 		private readonly LoggerInterface $logger,
@@ -41,20 +41,20 @@ class ApiController extends OCSController {
 		parent::__construct($appName, $request);
 	}
 
-	/** @return NextmailServerUser */
+	/** @return NextmailUser */
 	private static function getUserDataWithoutMail(AccountEntity $account): array {
 		return [
-			'id' => $account->uid,
-			'displayName' => $account->displayName,
+			'id' => $account->id,
+			'displayName' => $account->name,
 			'email' => null
 		];
 	}
 
-	/** @return NextmailServerUser */
+	/** @return NextmailUser */
 	private static function getUserData(EmailEntity $email): array {
 		return [
-			'id' => $email->account->uid,
-			'displayName' => $email->account->displayName,
+			'id' => $email->account->id,
+			'displayName' => $email->account->name,
 			'email' => $email->email
 		];
 	}
@@ -62,17 +62,17 @@ class ApiController extends OCSController {
 
 	/**
 	 * List all available servers
-	 * @return DataResponse<Http::STATUS_OK, NextmailServerConfig[], array{}>
+	 * @return DataResponse<Http::STATUS_OK, NextmailServer[], array{}>
 	 * @throws OCSException If an error occurs
 	 *
 	 * 200: Returns the list of available servers
 	 */
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
-	#[ApiRoute(verb: 'GET', url: '/config')]
-	public function getConfig(): DataResponse {
+	#[ApiRoute(verb: 'GET', url: '/servers')]
+	public function getServers(): DataResponse {
 		try {
-			return new DataResponse(array_map(fn ($c) => $c->jsonSerialize(), $this->configManager->list()));
+			return new DataResponse(array_map(fn ($c) => $c->jsonSerialize(), $this->serverManager->list()));
 		} catch (Exception $config) {
 			$this->logger->error($config->getMessage(), ['exception' => $config]);
 			throw new OCSException($config->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -81,17 +81,17 @@ class ApiController extends OCSController {
 
 	/**
 	 * Add a new server
-	 * @return DataResponse<Http::STATUS_OK, NextmailServerConfig, array{}>
+	 * @return DataResponse<Http::STATUS_OK, NextmailServer, array{}>
 	 *
 	 * 200: Returns the new server configuration
 	 * @throws OCSException
 	 */
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
-	#[ApiRoute(verb: 'POST', url: '/config')]
-	public function setConfig(): DataResponse {
+	#[ApiRoute(verb: 'POST', url: '/servers')]
+	public function setServers(): DataResponse {
 		try {
-			return new DataResponse($this->configManager->create()->jsonSerialize());
+			return new DataResponse($this->serverManager->create()->jsonSerialize());
 		} catch (Exception $e) {
 			$this->logger->error($e->getMessage(), ['exception' => $e]);
 			throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -100,8 +100,8 @@ class ApiController extends OCSController {
 
 	/**
 	 * Get the configuration of a server number `id`
-	 * @param string $cid The server number
-	 * @return DataResponse<Http::STATUS_OK, NextmailServerConfig, array{}>
+	 * @param string $srv The server number
+	 * @return DataResponse<Http::STATUS_OK, NextmailServer, array{}>
 	 * @throws OCSNotFoundException If the server number `id` does not exist
 	 * @throws OCSException if an error occurs
 	 *
@@ -109,10 +109,10 @@ class ApiController extends OCSController {
 	 */
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
-	#[ApiRoute(verb: 'GET', url: '/config/{cid}')]
-	public function getConfigId(string $cid): DataResponse {
+	#[ApiRoute(verb: 'GET', url: '/servers/{srv}')]
+	public function getServer(string $srv): DataResponse {
 		try {
-			if ($config = $this->configManager->getById($cid)) {
+			if ($config = $this->serverManager->get($srv)) {
 				return new DataResponse($config->jsonSerialize());
 			} else {
 				throw new OCSNotFoundException();
@@ -125,11 +125,11 @@ class ApiController extends OCSController {
 
 	/**
 	 * Set the configuration of a server number `id`
-	 * @param string $cid The server number
+	 * @param string $srv The server number
 	 * @param string $endpoint The server endpoint (e.g. `https://mail.example.com:443/api`)
 	 * @param string $username The username to authenticate with
 	 * @param string $password The password to authenticate with
-	 * @return DataResponse<Http::STATUS_OK, NextmailServerConfig, array{}>
+	 * @return DataResponse<Http::STATUS_OK, NextmailServer, array{}>
 	 * @throws OCSNotFoundException If the server number `id` does not exist
 	 * @throws OCSException if an error occurs
 	 *
@@ -137,12 +137,12 @@ class ApiController extends OCSController {
 	 */
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
-	#[ApiRoute(verb: 'PUT', url: '/config/{cid}')]
-	public function seConfigId(string $cid, string $endpoint, string $username, string $password): DataResponse {
+	#[ApiRoute(verb: 'PUT', url: '/servers/{srv}')]
+	public function setServer(string $srv, string $endpoint, string $username, string $password): DataResponse {
 		try {
-			if ($config = $this->configManager->getById($cid)) {
+			if ($config = $this->serverManager->get($srv)) {
 				$config = $config->updateCredential($endpoint, $username, $password);
-				$config = $this->configManager->save($config);
+				$config = $this->serverManager->save($config);
 				return new DataResponse($config->jsonSerialize());
 			} else {
 				throw new OCSNotFoundException();
@@ -155,8 +155,8 @@ class ApiController extends OCSController {
 
 	/**
 	 * Delete the configuration of a server number `id`
-	 * @param string $cid The server number
-	 * @return DataResponse<Http::STATUS_OK, NextmailServerConfig, array{}>
+	 * @param string $srv The server number
+	 * @return DataResponse<Http::STATUS_OK, NextmailServer, array{}>
 	 * @throws OCSException if an error occurs
 	 * @throws OCSNotFoundException If the server number `id` does not exist
 	 *
@@ -164,11 +164,11 @@ class ApiController extends OCSController {
 	 */
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
-	#[ApiRoute(verb: 'DELETE', url: '/config/{cid}')]
-	public function deleteConfigId(string $cid): DataResponse {
+	#[ApiRoute(verb: 'DELETE', url: '/servers/{srv}')]
+	public function delServer(string $srv): DataResponse {
 		try {
-			if ($config = $this->configManager->getById($cid)) {
-				$this->configManager->delete($config);
+			if ($config = $this->serverManager->get($srv)) {
+				$this->serverManager->delete($config);
 				return new DataResponse($config->jsonSerialize());
 			} else {
 				throw new OCSNotFoundException();
@@ -181,18 +181,18 @@ class ApiController extends OCSController {
 
 	/**
 	 * Get the users of the server number `id`
-	 * @param string $cid The server number
-	 * @return DataResponse<Http::STATUS_OK, NextmailServerUser[], array{}>
+	 * @param string $srv The server number
+	 * @return DataResponse<Http::STATUS_OK, NextmailUser[], array{}>
 	 * @throws OCSException if an error occurs
 	 *
 	 * 200: Returns the list of users
 	 */
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
-	#[ApiRoute(verb: 'GET', url: '/config/{cid}/users')]
-	public function getConfigIdUsers(string $cid): DataResponse {
+	#[ApiRoute(verb: 'GET', url: '/servers/{srv}/users')]
+	public function getServerUsers(string $srv): DataResponse {
 		try {
-			if ($config = $this->configManager->getById($cid)) {
+			if ($config = $this->serverManager->get($srv)) {
 				return new DataResponse(array_map(fn ($a) => ($e = $this->emailManager->findPrimary($a))
 					? self::getUserData($e)
 					: self::getUserDataWithoutMail($a), $this->accountManager->listUser($config)));
@@ -207,9 +207,9 @@ class ApiController extends OCSController {
 
 	/**
 	 * Get the user of the server number `id`
-	 * @param string $cid The server number
-	 * @param string $uid The user ID
-	 * @return DataResponse<Http::STATUS_OK, NextmailServerUser, array{}>
+	 * @param string $srv The server number
+	 * @param string $usr The user ID
+	 * @return DataResponse<Http::STATUS_OK, NextmailUser, array{}>
 	 * @throws OCSNotFoundException If the user does not exist
 	 * @throws OCSException if an error occurs
 	 *
@@ -217,10 +217,10 @@ class ApiController extends OCSController {
 	 */
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
-	#[ApiRoute(verb: 'GET', url: '/config/{cid}/users/{uid}')]
-	public function getConfigIdUsersId(string $cid, string $uid): DataResponse {
+	#[ApiRoute(verb: 'GET', url: '/servers/{srv}/users/{usr}')]
+	public function getServerUser(string $srv, string $usr): DataResponse {
 		try {
-			if (($config = $this->configManager->getById($cid)) && $account = $this->accountManager->findUser($config, $uid)) {
+			if (($config = $this->serverManager->get($srv)) && $account = $this->accountManager->findUser($config, $usr)) {
 				return new DataResponse(($userEmail = $this->emailManager->findPrimary($account))
 					? self::getUserData($userEmail)
 					: self::getUserDataWithoutMail($account));
@@ -235,9 +235,9 @@ class ApiController extends OCSController {
 
 	/**
 	 * Add a user to the server number `id`
-	 * @param string $cid The server number
-	 * @param string $uid The user ID
-	 * @return DataResponse<Http::STATUS_OK, NextmailServerUser, array{}>
+	 * @param string $srv The server number
+	 * @param string $usr The user ID
+	 * @return DataResponse<Http::STATUS_OK, NextmailUser, array{}>
 	 * @throws OCSNotFoundException If the user does not exist
 	 * @throws OCSException if an error occurs
 	 *
@@ -245,13 +245,13 @@ class ApiController extends OCSController {
 	 */
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
-	#[ApiRoute(verb: 'POST', url: '/config/{cid}/users/{uid}')]
-	public function setConfigIdUsersId(string $cid, string $uid): DataResponse {
+	#[ApiRoute(verb: 'POST', url: '/servers/{srv}/users/{usr}')]
+	public function setServerUser(string $srv, string $usr): DataResponse {
 		try {
-			if (($config = $this->configManager->getById($cid)) && $user = $this->userManager->get($uid)) {
-				$account = $this->accountManager->createUser($config, $user);
-				if (null !== $userEmail = $user->getEMailAddress()) {
-					return new DataResponse(self::getUserData($this->emailManager->setPrimary($account, $userEmail)));
+			if (($server = $this->serverManager->get($srv)) && $user = $this->userManager->get($usr)) {
+				$account = $this->accountManager->createUser($server, $user);
+				if (null !== $email = $user->getEMailAddress()) {
+					return new DataResponse(self::getUserData($this->emailManager->setPrimary($account, $email)));
 				} else {
 					return new DataResponse(self::getUserDataWithoutMail($account));
 				}
@@ -266,8 +266,8 @@ class ApiController extends OCSController {
 
 	/**
 	 * Remove a user from the server number `id`
-	 * @param string $cid The server number
-	 * @param string $uid The user ID
+	 * @param string $srv The server number
+	 * @param string $usr The user ID
 	 * @return DataResponse<Http::STATUS_OK, null, array{}>
 	 * @throws OCSNotFoundException If the user does not exist
 	 * @throws OCSException if an error occurs
@@ -276,11 +276,11 @@ class ApiController extends OCSController {
 	 */
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
-	#[ApiRoute(verb: 'DELETE', url: '/config/{cid}/users/{uid}')]
-	public function deleteConfigIdUsersId(string $cid, string $uid): DataResponse {
+	#[ApiRoute(verb: 'DELETE', url: '/servers/{srv}/users/{usr}')]
+	public function deleteServerUser(string $srv, string $usr): DataResponse {
 		try {
-			$config = $this->configManager->getById($cid);
-			$account = $config ? $this->accountManager->findUser($config, $uid) : null;
+			$server = $this->serverManager->get($srv);
+			$account = $server ? $this->accountManager->findUser($server, $usr) : null;
 			if ($account) {
 				$this->accountManager->delete($account);
 				return new DataResponse(null);

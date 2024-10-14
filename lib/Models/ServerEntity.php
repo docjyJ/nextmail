@@ -4,11 +4,11 @@ namespace OCA\Nextmail\Models;
 
 use JsonSerializable;
 use OCA\Nextmail\ResponseDefinitions;
-use OCA\Nextmail\SchemaV1\Columns;
+use OCA\Nextmail\SchemaV1\SchServer;
 use ValueError;
 
-/** @psalm-import-type NextmailServerConfig from ResponseDefinitions */
-readonly class ConfigEntity implements JsonSerializable {
+/** @psalm-import-type NextmailServer from ResponseDefinitions */
+readonly class ServerEntity implements JsonSerializable {
 	private const URL_PATTERN = '/^https?:\\/\\/([a-z0-9-]+\\.)*[a-z0-9-]+(:\\d{1,5})?\\/api$/';
 
 
@@ -17,43 +17,43 @@ readonly class ConfigEntity implements JsonSerializable {
 		public string       $endpoint,
 		public string       $username,
 		public string       $password,
-		public ServerStatus $health,
+		public ServerHealth $health,
 	) {
 	}
 
 	public static function newEmpty(): self {
-		return new self(str_replace('.', '_', uniqid('nc_', true)), '', '', '', ServerStatus::Invalid);
+		return new self(str_replace('.', '_', uniqid('nc_', true)), '', '', '', ServerHealth::Invalid);
 	}
 
-	public static function parse(mixed $value): ConfigEntity {
+	public static function parse(mixed $value): ServerEntity {
 		if (!is_array($value)) {
 			throw new ValueError('value must be an array');
 		}
-		if (!is_string($value[Columns::SERVER_ID])) {
-			throw new ValueError('cid must be a string');
+		if (!is_string($value[SchServer::ID])) {
+			throw new ValueError('id must be a string');
 		}
-		if (!is_string($value[Columns::SERVER_ENDPOINT])) {
+		if (!is_string($value[SchServer::ENDPOINT])) {
 			throw new ValueError('endpoint must be a string');
 		}
-		if (!is_string($value[Columns::SERVER_USERNAME])) {
+		if (!is_string($value[SchServer::USERNAME])) {
 			throw new ValueError('username must be a string');
 		}
-		if (!is_string($value[Columns::SERVER_PASSWORD])) {
+		if (!is_string($value[SchServer::PASSWORD])) {
 			throw new ValueError('password must be a string');
 		}
-		if (!is_string($value[Columns::SERVER_HEALTH])) {
+		if (!is_string($value[SchServer::HEALTH])) {
 			throw new ValueError('health must be a string');
 		}
 		return new self(
-			$value[Columns::SERVER_ID],
-			$value[Columns::SERVER_ENDPOINT],
-			$value[Columns::SERVER_USERNAME],
-			$value[Columns::SERVER_PASSWORD],
-			ServerStatus::from($value[Columns::SERVER_HEALTH]),
+			$value[SchServer::ID],
+			$value[SchServer::ENDPOINT],
+			$value[SchServer::USERNAME],
+			$value[SchServer::PASSWORD],
+			ServerHealth::from($value[SchServer::HEALTH]),
 		);
 	}
 
-	/** @return NextmailServerConfig */
+	/** @return NextmailServer */
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->id,
@@ -85,7 +85,7 @@ readonly class ConfigEntity implements JsonSerializable {
 		);
 	}
 
-	public function updateHealth(ServerStatus $health): self {
+	public function updateHealth(ServerHealth $health): self {
 		return new self(
 			$this->id,
 			$this->endpoint,

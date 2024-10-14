@@ -2,7 +2,7 @@
 
 namespace OCA\Nextmail\Models;
 
-enum ServerStatus: string {
+enum ServerHealth: string {
 	case Success = 'success';
 	case Unauthorized = 'unauthorized';
 	case BadServer = 'bad_server';
