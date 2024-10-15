@@ -93,12 +93,15 @@ readonly class Transaction {
 		$this->execute($q);
 	}
 
-	/** @throws Exception */
-	public function selectAccount(?string $server_id = null, ?string $id = null, ?AccountRole $role = null): array {
+	/**
+	 * @throws Exception
+	 * @param AccountRole[] $role
+	 */
+	public function selectAccount(?string $server_id = null, ?string $id = null, array $role = []): array {
 		$q = new SelectQuery($this->db, SchAccount::TABLE);
 		$q->where(SchServer::ID, $server_id);
 		$q->where(SchAccount::ID, $id);
-		$q->where(SchAccount::ROLE, $role?->value);
+		$q->whereSome(SchAccount::ROLE, array_map(fn ($r) => $r->value, $role));
 		return $q->fetchAll();
 	}
 
@@ -118,13 +121,21 @@ readonly class Transaction {
 	}
 
 	/** @throws Exception */
-	public function updateAccount(string $id, string $name, ?string $hash, AccountRole $role, ?int $quota): void {
+	public function updateAccountInfo(string $id, string $name, ?string $hash, ?int $quota): void {
 		$q = $this->getTransactionBuilder();
 		$q->update(SchAccount::TABLE)
 			->set(SchAccount::NAME, $q->createNamedParameter($name))
 			->set(SchAccount::HASH, $hash !== null ? $q->createNamedParameter(self::password($hash)) : $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL))
-			->set(SchAccount::ROLE, $q->createNamedParameter($role->value))
 			->set(SchAccount::QUOTA, $quota !== null ? $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL) : $q->createNamedParameter($quota, IQueryBuilder::PARAM_INT))
+			->where($q->expr()->eq(SchAccount::ID, $q->createNamedParameter($id)));
+		$this->execute($q);
+	}
+
+	/** @throws Exception */
+	public function updateAccountRole(string $id, AccountRole $role): void {
+		$q = $this->getTransactionBuilder();
+		$q->update(SchAccount::TABLE)
+			->set(SchAccount::ROLE, $q->createNamedParameter($role->value))
 			->where($q->expr()->eq(SchAccount::ID, $q->createNamedParameter($id)));
 		$this->execute($q);
 	}

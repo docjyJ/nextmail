@@ -12,8 +12,10 @@ namespace OCA\Nextmail;
  *  }
  * @psalm-type NextmailUser = array{
  *     id: string,
- *     displayName: string,
+ *     name: string,
  *     email: ?string,
+ *     admin: bool,
+ *     quota: ?int,
  *   }
  */
 class ResponseDefinitions {

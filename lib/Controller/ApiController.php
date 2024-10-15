@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace OCA\Nextmail\Controller;
 
-use OCA\Nextmail\Db\EmailManager;
 use OCA\Nextmail\Db\ServerManager;
 use OCA\Nextmail\Db\UserManager;
-use OCA\Nextmail\Models\AccountEntity;
-use OCA\Nextmail\Models\EmailEntity;
 use OCA\Nextmail\ResponseDefinitions;
 use OCA\Nextmail\Settings\Admin;
 use OCP\AppFramework\Http;
@@ -33,32 +30,12 @@ class ApiController extends OCSController {
 		string                           $appName,
 		IRequest                         $request,
 		private readonly ServerManager   $serverManager,
-		private readonly UserManager     $accountManager,
-		private readonly EmailManager    $emailManager,
-		private readonly IUserManager    $userManager,
+		private readonly UserManager     $userManager,
+		private readonly IUserManager    $ncUserManager,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);
 	}
-
-	/** @return NextmailUser */
-	private static function getUserDataWithoutMail(AccountEntity $account): array {
-		return [
-			'id' => $account->id,
-			'displayName' => $account->name,
-			'email' => null
-		];
-	}
-
-	/** @return NextmailUser */
-	private static function getUserData(EmailEntity $email): array {
-		return [
-			'id' => $email->account->id,
-			'displayName' => $email->account->name,
-			'email' => $email->email
-		];
-	}
-
 
 	/**
 	 * List all available servers
@@ -73,9 +50,9 @@ class ApiController extends OCSController {
 	public function getServers(): DataResponse {
 		try {
 			return new DataResponse(array_map(fn ($c) => $c->jsonSerialize(), $this->serverManager->list()));
-		} catch (Exception $config) {
-			$this->logger->error($config->getMessage(), ['exception' => $config]);
-			throw new OCSException($config->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
+		} catch (Exception $e) {
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -112,8 +89,8 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/servers/{srv}')]
 	public function getServer(string $srv): DataResponse {
 		try {
-			if ($config = $this->serverManager->get($srv)) {
-				return new DataResponse($config->jsonSerialize());
+			if ($server = $this->serverManager->get($srv)) {
+				return new DataResponse($server->jsonSerialize());
 			} else {
 				throw new OCSNotFoundException();
 			}
@@ -140,10 +117,10 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'PUT', url: '/servers/{srv}')]
 	public function setServer(string $srv, string $endpoint, string $username, string $password): DataResponse {
 		try {
-			if ($config = $this->serverManager->get($srv)) {
-				$config = $config->updateCredential($endpoint, $username, $password);
-				$config = $this->serverManager->save($config);
-				return new DataResponse($config->jsonSerialize());
+			if ($server = $this->serverManager->get($srv)) {
+				$server = $server->updateCredential($endpoint, $username, $password);
+				$server = $this->serverManager->save($server);
+				return new DataResponse($server->jsonSerialize());
 			} else {
 				throw new OCSNotFoundException();
 			}
@@ -167,9 +144,9 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'DELETE', url: '/servers/{srv}')]
 	public function delServer(string $srv): DataResponse {
 		try {
-			if ($config = $this->serverManager->get($srv)) {
-				$this->serverManager->delete($config);
-				return new DataResponse($config->jsonSerialize());
+			if ($server = $this->serverManager->get($srv)) {
+				$this->serverManager->delete($server);
+				return new DataResponse($server->jsonSerialize());
 			} else {
 				throw new OCSNotFoundException();
 			}
@@ -192,10 +169,8 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/servers/{srv}/users')]
 	public function getServerUsers(string $srv): DataResponse {
 		try {
-			if ($config = $this->serverManager->get($srv)) {
-				return new DataResponse(array_map(fn ($a) => ($e = $this->emailManager->findPrimary($a))
-					? self::getUserData($e)
-					: self::getUserDataWithoutMail($a), $this->accountManager->listUser($config)));
+			if ($server = $this->serverManager->get($srv)) {
+				return new DataResponse(array_map(fn ($u) => $u->jsonSerialize(), $this->userManager->list($server)));
 			} else {
 				throw new OCSNotFoundException();
 			}
@@ -220,10 +195,8 @@ class ApiController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/servers/{srv}/users/{usr}')]
 	public function getServerUser(string $srv, string $usr): DataResponse {
 		try {
-			if (($config = $this->serverManager->get($srv)) && $account = $this->accountManager->findUser($config, $usr)) {
-				return new DataResponse(($userEmail = $this->emailManager->findPrimary($account))
-					? self::getUserData($userEmail)
-					: self::getUserDataWithoutMail($account));
+			if (($server = $this->serverManager->get($srv)) && $user = $this->userManager->get($server, $usr)) {
+				return new DataResponse($user->jsonSerialize());
 			} else {
 				throw new OCSNotFoundException();
 			}
@@ -237,6 +210,8 @@ class ApiController extends OCSController {
 	 * Add a user to the server number `id`
 	 * @param string $srv The server number
 	 * @param string $usr The user ID
+	 * @param bool $admin Whether the user is an admin
+	 * @param int|null $quota The user quota
 	 * @return DataResponse<Http::STATUS_OK, NextmailUser, array{}>
 	 * @throws OCSNotFoundException If the user does not exist
 	 * @throws OCSException if an error occurs
@@ -246,15 +221,38 @@ class ApiController extends OCSController {
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
 	#[ApiRoute(verb: 'POST', url: '/servers/{srv}/users/{usr}')]
-	public function setServerUser(string $srv, string $usr): DataResponse {
+	public function setServerUser(string $srv, string $usr, bool $admin, ?int $quota): DataResponse {
 		try {
-			if (($server = $this->serverManager->get($srv)) && $user = $this->userManager->get($usr)) {
-				$account = $this->accountManager->createUser($server, $user);
-				if (null !== $email = $user->getEMailAddress()) {
-					return new DataResponse(self::getUserData($this->emailManager->setPrimary($account, $email)));
-				} else {
-					return new DataResponse(self::getUserDataWithoutMail($account));
-				}
+			if (($server = $this->serverManager->get($srv)) && $user = $this->ncUserManager->get($usr)) {
+				return new DataResponse($this->userManager->create($server, $user, $admin, $quota)->jsonSerialize());
+			} else {
+				throw new OCSNotFoundException();
+			}
+		} catch (Exception $e) {
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Update the user of the server number `id`
+	 * @param string $srv The server number
+	 * @param string $usr The user ID
+	 * @param bool $admin Whether the user is an admin
+	 * @param int|null $quota The user quota
+	 * @return DataResponse<Http::STATUS_OK, NextmailUser, array{}>
+	 * @throws OCSNotFoundException If the user does not exist
+	 * @throws OCSException if an error occurs
+	 *
+	 * 200: The user has been updated
+	 */
+	#[AuthorizedAdminSetting(Admin::class)]
+	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
+	#[ApiRoute(verb: 'PUT', url: '/servers/{srv}/users/{usr}')]
+	public function updateServerUser(string $srv, string $usr, bool $admin, ?int $quota): DataResponse {
+		try {
+			if (($server = $this->serverManager->get($srv)) && $user = $this->userManager->get($server, $usr)) {
+				return new DataResponse($this->userManager->save($user->updateAdminQuota($admin, $quota))->jsonSerialize());
 			} else {
 				throw new OCSNotFoundException();
 			}
@@ -280,9 +278,9 @@ class ApiController extends OCSController {
 	public function deleteServerUser(string $srv, string $usr): DataResponse {
 		try {
 			$server = $this->serverManager->get($srv);
-			$account = $server ? $this->accountManager->findUser($server, $usr) : null;
+			$account = $server ? $this->userManager->get($server, $usr) : null;
 			if ($account) {
-				$this->accountManager->delete($account);
+				$this->userManager->delete($account);
 				return new DataResponse(null);
 			} else {
 				throw new OCSNotFoundException();

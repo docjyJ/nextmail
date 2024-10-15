@@ -24,6 +24,18 @@ class SelectQuery {
 		return $this;
 	}
 
+	/** @param string[] $values */
+	public function whereSome(string $name, array $values): self {
+		if (count($values) === 0) {
+			return $this;
+		} elseif (count($values) === 1) {
+			$this->cond[] = $this->q->expr()->eq($name, $this->q->createNamedParameter($values[0]));
+		} else {
+			$this->cond[] = $this->q->expr()->orX(...array_map(fn ($value) => $this->q->expr()->eq($name, $this->q->createNamedParameter($value)), $values));
+		}
+		return $this;
+	}
+
 	/** @throws Exception */
 	public function fetchAll(): array {
 		if (count($this->cond) > 0) {

@@ -18,8 +18,10 @@ export default function useServerUserList(srv: string) {
 				usersAll.value = await axios.get<OCSResponse<UserResponse>>('/ocs/v2.php/cloud/users/details')
 					.then(r => Object.values(r.data.ocs.data.users).map(user => ({
 						id: user.id,
-						displayName: user.displayname,
+						name: user.displayname,
 						email: user.email,
+						admin: false,
+						quota: null,
 					})))
 				usersRegistered.value = await axios.get<OCSResponse<MailUser[]>>(usersUrl).then(r => r.data.ocs.data)
 			} catch (error) {
@@ -34,7 +36,7 @@ export default function useServerUserList(srv: string) {
 		if (!loading.value) {
 			loading.value = true
 			try {
-				const user = await axios.post<OCSResponse<MailUser>>(userUrl(id)).then(r => r.data.ocs.data)
+				const user = await axios.post<OCSResponse<MailUser>>(userUrl(id), { admin: false, quota: null }).then(r => r.data.ocs.data)
 				usersRegistered.value.push(user)
 				// showSuccess(t('User added to server'))
 			} catch (error) {
