@@ -10,19 +10,19 @@ use OCA\Nextmail\SchemaV1\SchAccount;
 use OCP\DB\Exception;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
-use OCP\User\Events\PasswordUpdatedEvent;
+use OCP\User\Events\UserChangedEvent;
 
 /**
- * @implements IEventListener<PasswordUpdatedEvent>
+ * @implements IEventListener<UserChangedEvent>
  */
-readonly class PasswordChangedListener implements IEventListener {
+readonly class UserChangedListener implements IEventListener {
 	public function __construct(
 		private Transaction $tr,
 	) {
 	}
 
 	/**
-	 * @param PasswordUpdatedEvent $event
+	 * @param UserChangedEvent $event
 	 * @throws Exception
 	 */
 	public function handle(Event $event): void {

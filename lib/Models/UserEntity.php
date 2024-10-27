@@ -15,7 +15,7 @@ readonly class UserEntity implements JsonSerializable {
 
 	public function __construct(
 		public string       $id,
-		public ServerEntity $server,
+		public string       $server_id,
 		public string       $name,
 		public ?string      $hash,
 		public bool         $admin,
@@ -24,55 +24,58 @@ readonly class UserEntity implements JsonSerializable {
 	) {
 	}
 
-	public static function fromIUser(ServerEntity $server, IUser $user, bool $admin = false, ?int $quota = null): self {
+	public static function fromIUser(string $server_id, IUser $user, bool $admin = false, ?int $quota = null): self {
 		$email = $user->getEMailAddress();
 		return new self(
 			$user->getUID(),
-			$server,
+			$server_id,
 			$user->getDisplayName(),
-			self::getHashFromUser($user),
+			self::parsePasswordHash($user->getPasswordHash()),
 			$admin,
 			$quota,
 			$email !== null ? strtolower($email) : null
 		);
 	}
 
-	public static function parse(ServerEntity $server, array $values): self {
-		if ($values[SchServer::ID] !== $server->id) {
-			throw new ValueError('server mismatch');
+	public static function parse(mixed $value): self {
+		if (!is_array($value)) {
+			throw new ValueError('value must be an array');
 		}
-		if (!is_string($values[SchAccount::ID])) {
+		if (!is_string($value[SchAccount::ID])) {
 			throw new ValueError('id must be a string');
 		}
-		if (!is_string($values[SchAccount::NAME])) {
+		if (!is_string($value[SchServer::ID])) {
+			throw new ValueError('server id must be a string');
+		}
+		if (!is_string($value[SchAccount::NAME])) {
 			throw new ValueError('name must be a string');
 		}
-		if (!is_string($values[SchAccount::ROLE])) {
+		if (!is_string($value[SchAccount::ROLE])) {
 			throw new ValueError('hash must be a string');
 		}
-		$role = AccountRole::from($values[SchAccount::ROLE]);
+		$role = AccountRole::from($value[SchAccount::ROLE]);
 		if (!$role->isUser()) {
 			throw new ValueError('role must be user');
 		}
-		if (is_string($values[SchEmail::TYPE])) {
-			$type = EmailType::from($values[SchEmail::TYPE]);
+		if (is_string($value[SchEmail::TYPE])) {
+			$type = EmailType::from($value[SchEmail::TYPE]);
 			if ($type !== EmailType::Primary) {
 				throw new ValueError('type must be primary');
 			}
-			if (!is_string($values[SchEmail::EMAIL])) {
+			if (!is_string($value[SchEmail::EMAIL])) {
 				throw new ValueError('email must be a string');
 			}
-			$email = strtolower($values[SchEmail::EMAIL]);
+			$email = strtolower($value[SchEmail::EMAIL]);
 		} else {
 			$email = null;
 		}
 		return new self(
-			$values[SchAccount::ID],
-			$server,
-			$values[SchAccount::NAME],
-			is_string($values[SchAccount::HASH]) ? $values[SchAccount::HASH] : null,
+			$value[SchAccount::ID],
+			$value[SchServer::ID],
+			$value[SchAccount::NAME],
+			is_string($value[SchAccount::HASH]) ? $value[SchAccount::HASH] : null,
 			$role == AccountRole::Admin,
-			is_int($values[SchAccount::QUOTA]) ? $values[SchAccount::QUOTA] : null,
+			is_int($value[SchAccount::QUOTA]) ? $value[SchAccount::QUOTA] : null,
 			$email
 		);
 	}
@@ -81,6 +84,7 @@ readonly class UserEntity implements JsonSerializable {
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->id,
+			'server_id' => $this->server_id,
 			'name' => $this->name,
 			'email' => $this->primaryEmail,
 			'admin' => $this->admin,
@@ -95,7 +99,7 @@ readonly class UserEntity implements JsonSerializable {
 	public function updateAdminQuota(bool $admin, ?int $quota): self {
 		return new self(
 			$this->id,
-			$this->server,
+			$this->server_id,
 			$this->name,
 			$this->hash,
 			$admin,
@@ -105,7 +109,7 @@ readonly class UserEntity implements JsonSerializable {
 	}
 
 
-	public static function getHashFromUser(IUser $user): string {
-		return preg_replace('/^[^$]*/', '', $user->getPasswordHash() ?? '') ?? '';
+	public static function parsePasswordHash(?string $passwordHash): string {
+		return preg_replace('/^[^$]*/', '', $passwordHash ?? '') ?? '';
 	}
 }

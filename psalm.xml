@@ -23,7 +23,6 @@
 		<UnusedClass>
 			<errorLevel type="suppress">
 				<referencedClass name="OCA\Nextmail\Cron\CheckTask"/>
-				<referencedClass name="OCA\Nextmail\Controller\ApiController"/>
 			</errorLevel>
 		</UnusedClass>
 	</issueHandlers>

@@ -78,6 +78,7 @@
                 "type": "object",
                 "required": [
                     "id",
+                    "server_id",
                     "name",
                     "email",
                     "admin",
@@ -85,6 +86,9 @@
                 ],
                 "properties": {
                     "id": {
+                        "type": "string"
+                    },
+                    "server_id": {
                         "type": "string"
                     },
                     "name": {
@@ -109,11 +113,11 @@
     "paths": {
         "/ocs/v2.php/apps/nextmail/servers": {
             "get": {
-                "operationId": "api-get-servers",
+                "operationId": "api_servers-list",
                 "summary": "List all available servers",
                 "description": "This endpoint requires admin access",
                 "tags": [
-                    "api"
+                    "api_servers"
                 ],
                 "security": [
                     {
@@ -172,11 +176,11 @@
                 }
             },
             "post": {
-                "operationId": "api-set-servers",
+                "operationId": "api_servers-create",
                 "summary": "Add a new server",
                 "description": "This endpoint requires admin access",
                 "tags": [
-                    "api"
+                    "api_servers"
                 ],
                 "security": [
                     {
@@ -233,109 +237,12 @@
             }
         },
         "/ocs/v2.php/apps/nextmail/servers/{srv}": {
-            "get": {
-                "operationId": "api-get-server",
-                "summary": "Get the configuration of a server number `id`",
-                "description": "This endpoint requires admin access",
-                "tags": [
-                    "api"
-                ],
-                "security": [
-                    {
-                        "bearer_auth": []
-                    },
-                    {
-                        "basic_auth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "srv",
-                        "in": "path",
-                        "description": "The server number",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "OCS-APIRequest",
-                        "in": "header",
-                        "description": "Required to be true for the API request to pass",
-                        "required": true,
-                        "schema": {
-                            "type": "boolean",
-                            "default": true
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Returns the server configuration",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {
-                                                    "$ref": "#/components/schemas/Server"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "If the server number `id` does not exist",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
             "put": {
-                "operationId": "api-set-server",
+                "operationId": "api_servers-set-server",
                 "summary": "Set the configuration of a server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
-                    "api"
+                    "api_servers"
                 ],
                 "security": [
                     {
@@ -457,11 +364,11 @@
                 }
             },
             "delete": {
-                "operationId": "api-del-server",
+                "operationId": "api_servers-del-server",
                 "summary": "Delete the configuration of a server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
-                    "api"
+                    "api_servers"
                 ],
                 "security": [
                     {
@@ -554,13 +461,13 @@
                 }
             }
         },
-        "/ocs/v2.php/apps/nextmail/servers/{srv}/users": {
+        "/ocs/v2.php/apps/nextmail/users": {
             "get": {
-                "operationId": "api-get-server-users",
-                "summary": "Get the users of the server number `id`",
+                "operationId": "api_users-get-users",
+                "summary": "List all available users",
                 "description": "This endpoint requires admin access",
                 "tags": [
-                    "api"
+                    "api_users"
                 ],
                 "security": [
                     {
@@ -571,15 +478,6 @@
                     }
                 ],
                 "parameters": [
-                    {
-                        "name": "srv",
-                        "in": "path",
-                        "description": "The server number",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     {
                         "name": "OCS-APIRequest",
                         "in": "header",
@@ -628,250 +526,13 @@
                 }
             }
         },
-        "/ocs/v2.php/apps/nextmail/servers/{srv}/users/{usr}": {
-            "get": {
-                "operationId": "api-get-server-user",
-                "summary": "Get the user of the server number `id`",
-                "description": "This endpoint requires admin access",
-                "tags": [
-                    "api"
-                ],
-                "security": [
-                    {
-                        "bearer_auth": []
-                    },
-                    {
-                        "basic_auth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "srv",
-                        "in": "path",
-                        "description": "The server number",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "usr",
-                        "in": "path",
-                        "description": "The user ID",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "OCS-APIRequest",
-                        "in": "header",
-                        "description": "Required to be true for the API request to pass",
-                        "required": true,
-                        "schema": {
-                            "type": "boolean",
-                            "default": true
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Returns the user",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {
-                                                    "$ref": "#/components/schemas/User"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "If the user does not exist",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "operationId": "api-set-server-user",
-                "summary": "Add a user to the server number `id`",
-                "description": "This endpoint requires admin access",
-                "tags": [
-                    "api"
-                ],
-                "security": [
-                    {
-                        "bearer_auth": []
-                    },
-                    {
-                        "basic_auth": []
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "required": [
-                                    "admin"
-                                ],
-                                "properties": {
-                                    "admin": {
-                                        "type": "boolean",
-                                        "description": "Whether the user is an admin"
-                                    },
-                                    "quota": {
-                                        "type": "integer",
-                                        "format": "int64",
-                                        "nullable": true,
-                                        "description": "The user quota"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "srv",
-                        "in": "path",
-                        "description": "The server number",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "usr",
-                        "in": "path",
-                        "description": "The user ID",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "OCS-APIRequest",
-                        "in": "header",
-                        "description": "Required to be true for the API request to pass",
-                        "required": true,
-                        "schema": {
-                            "type": "boolean",
-                            "default": true
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "The user has been added to the server",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {
-                                                    "$ref": "#/components/schemas/User"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "If the user does not exist",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
+        "/ocs/v2.php/apps/nextmail/users/{usr}": {
             "put": {
-                "operationId": "api-update-server-user",
+                "operationId": "api_users-update-user",
                 "summary": "Update the user of the server number `id`",
                 "description": "This endpoint requires admin access",
                 "tags": [
-                    "api"
+                    "api_users"
                 ],
                 "security": [
                     {
@@ -888,9 +549,14 @@
                             "schema": {
                                 "type": "object",
                                 "required": [
+                                    "srv",
                                     "admin"
                                 ],
                                 "properties": {
+                                    "srv": {
+                                        "type": "string",
+                                        "description": "The server number"
+                                    },
                                     "admin": {
                                         "type": "boolean",
                                         "description": "Whether the user is an admin"
@@ -907,15 +573,6 @@
                     }
                 },
                 "parameters": [
-                    {
-                        "name": "srv",
-                        "in": "path",
-                        "description": "The server number",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     {
                         "name": "usr",
                         "in": "path",
@@ -959,112 +616,6 @@
                                                 },
                                                 "data": {
                                                     "$ref": "#/components/schemas/User"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "If the user does not exist",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "operationId": "api-delete-server-user",
-                "summary": "Remove a user from the server number `id`",
-                "description": "This endpoint requires admin access",
-                "tags": [
-                    "api"
-                ],
-                "security": [
-                    {
-                        "bearer_auth": []
-                    },
-                    {
-                        "basic_auth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "srv",
-                        "in": "path",
-                        "description": "The server number",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "usr",
-                        "in": "path",
-                        "description": "The user ID",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "OCS-APIRequest",
-                        "in": "header",
-                        "description": "Required to be true for the API request to pass",
-                        "required": true,
-                        "schema": {
-                            "type": "boolean",
-                            "default": true
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "The user has been removed from the server",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {
-                                                    "nullable": true
                                                 }
                                             }
                                         }

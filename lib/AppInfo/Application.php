@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace OCA\Nextmail\AppInfo;
 
-use OCA\Nextmail\Event\EmailChangedListener;
 use OCA\Nextmail\Event\PasswordChangedListener;
+use OCA\Nextmail\Event\UserChangedListener;
+use OCA\Nextmail\Event\UserCreateListener;
 use OCA\Nextmail\Event\UserDeletedListener;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -13,6 +14,7 @@ use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\User\Events\PasswordUpdatedEvent;
 use OCP\User\Events\UserChangedEvent;
+use OCP\User\Events\UserCreatedEvent;
 use OCP\User\Events\UserDeletedEvent;
 
 class Application extends App implements IBootstrap {
@@ -24,7 +26,8 @@ class Application extends App implements IBootstrap {
 
 	public function register(IRegistrationContext $context): void {
 		$context->registerEventListener(UserDeletedEvent::class, UserDeletedListener::class);
-		$context->registerEventListener(UserChangedEvent::class, EmailChangedListener::class);
+		$context->registerEventListener(UserCreatedEvent::class, UserCreateListener::class);
+		$context->registerEventListener(UserChangedEvent::class, UserChangedListener::class);
 		$context->registerEventListener(PasswordUpdatedEvent::class, PasswordChangedListener::class);
 	}
 

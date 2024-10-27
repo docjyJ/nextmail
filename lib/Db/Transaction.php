@@ -13,6 +13,8 @@ use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 readonly class Transaction {
+	private const NOT_PRIMARY = [EmailType::List, EmailType::Alias];
+
 	public function __construct(
 		private IDBConnection $db,
 	) {
@@ -97,12 +99,11 @@ readonly class Transaction {
 	 * @throws Exception
 	 * @param AccountRole[] $role
 	 */
-	public function selectAccount(?string $server_id = null, ?string $id = null, array $role = []): array {
-		$q = new SelectQuery($this->db, SchAccount::TABLE);
-		$q->where(SchServer::ID, $server_id);
-		$q->where(SchAccount::ID, $id);
-		$q->whereSome(SchAccount::ROLE, array_map(fn ($r) => $r->value, $role));
-		return $q->fetchAll();
+	public function selectAccount(?string $id = null, array $role = []): array {
+		return (new SelectQuery($this->db, SchAccount::TABLE))
+			->where(SchAccount::ID, $id)
+			->where(SchAccount::ROLE, array_map(fn ($r) => $r->value, $role))
+			->fetchAll();
 	}
 
 	/** @throws Exception */
@@ -121,21 +122,13 @@ readonly class Transaction {
 	}
 
 	/** @throws Exception */
-	public function updateAccountInfo(string $id, string $name, ?string $hash, ?int $quota): void {
+	public function updateAccount(string $id, string $name, AccountRole $role, ?string $hash, ?int $quota): void {
 		$q = $this->getTransactionBuilder();
 		$q->update(SchAccount::TABLE)
 			->set(SchAccount::NAME, $q->createNamedParameter($name))
+			->set(SchAccount::ROLE, $q->createNamedParameter($role->value))
 			->set(SchAccount::HASH, $hash !== null ? $q->createNamedParameter(self::password($hash)) : $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL))
 			->set(SchAccount::QUOTA, $quota !== null ? $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL) : $q->createNamedParameter($quota, IQueryBuilder::PARAM_INT))
-			->where($q->expr()->eq(SchAccount::ID, $q->createNamedParameter($id)));
-		$this->execute($q);
-	}
-
-	/** @throws Exception */
-	public function updateAccountRole(string $id, AccountRole $role): void {
-		$q = $this->getTransactionBuilder();
-		$q->update(SchAccount::TABLE)
-			->set(SchAccount::ROLE, $q->createNamedParameter($role->value))
 			->where($q->expr()->eq(SchAccount::ID, $q->createNamedParameter($id)));
 		$this->execute($q);
 	}
