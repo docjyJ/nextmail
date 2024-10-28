@@ -100,6 +100,7 @@ const quotaOptions = [
 				v-model="form.quota"
 				:options="quotaOptions"
 				:clearable="true"
+				:taggable="true"
 				:create-option="validateQuota"
 				:reduce="o => o.id"
 				:disable="loading" />

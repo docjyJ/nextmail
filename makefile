@@ -22,6 +22,9 @@ remove-mysql:
 
 fix-mysql:
 	docker compose -f compose.mysql.yml -p mysql exec -u 33 nextcloud php occ config:system:set --type bool --value true allow_local_remote_servers
+	docker compose -f compose.mysql.yml -p mysql exec stalwart cat /opt/stalwart-mail/etc/config.toml
+	docker compose -f compose.mysql.yml -p mysql exec stalwart sed -i -e 's/^\(authentication\.fallback-admin\.user\).*$$/\1="@dmin"/' -e 's/^\(authentication\.fallback-admin\.secret\).*$$/\1="$$6$$utdfyugdsqfyg$$L.KXVq918T7vxnwZYt6u\/zGhGpbHlG7CQgV.PBPQSwm4Q9nrATmpraxgtCFihNQCid5FBh3pDpI8\/MdpH86h\/\/"/' /opt/stalwart-mail/etc/config.toml
+	docker compose -f compose.mysql.yml -p mysql exec stalwart cat /opt/stalwart-mail/etc/config.toml
 
 start-pgsql:
 	docker compose -f compose.pgsql.yml -p pgsql up
@@ -34,7 +37,7 @@ remove-pgsql:
 
 fix-pgsql:
 	docker compose -f compose.pgsql.yml -p pgsql exec -u 33 nextcloud php occ config:system:set --type bool --value true allow_local_remote_servers
-
+	docker compose -f compose.pgsql.yml -p pgsql exec stalwart sed -i -e 's/^\(authentication\.fallback-admin\.user\).*$$/\1="@dmin"/' -e 's/^\(authentication\.fallback-admin\.secret\).*$$/\1="$$2a$$12$$QpSVltmUGyfVoeEIaet4nOWv85NNcUCIPWs\/cT15PtBW7No91aTwC"/' /opt/stalwart-mail/etc/config.toml
 watch:
 	npm run watch
 

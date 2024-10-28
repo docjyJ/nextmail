@@ -58,7 +58,7 @@ class ApiUsersController extends OCSController {
 
 	/**
 	 * Update the user of the server number `id`
-	 * @param ?string $srv The server number
+	 * @param ?string $server_id The server number
 	 * @param string $usr The user ID
 	 * @param bool $admin Whether the user is an admin
 	 * @param int|null $quota The user quota
@@ -71,9 +71,9 @@ class ApiUsersController extends OCSController {
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
 	#[ApiRoute(verb: 'PUT', url: '/users/{usr}')]
-	public function updateUser(string $usr, ?string $srv, bool $admin, ?int $quota): DataResponse {
+	public function updateUser(string $usr, ?string $server_id, bool $admin, ?int $quota): DataResponse {
 		try {
-			$user = $this->um->updateFromStarch($usr, $srv, $admin, $quota);
+			$user = $this->um->updateFromStarch($usr, $server_id, $admin, $quota);
 			$this->um->commit();
 			if ($user !== null) {
 				return new DataResponse($user->jsonSerialize());

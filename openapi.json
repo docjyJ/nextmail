@@ -557,7 +557,7 @@
                                     "admin"
                                 ],
                                 "properties": {
-                                    "srv": {
+                                    "server_id": {
                                         "type": "string",
                                         "nullable": true,
                                         "description": "The server number"
