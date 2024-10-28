@@ -27,10 +27,10 @@ use Psr\Log\LoggerInterface;
  */
 class ApiUsersController extends OCSController {
 	public function __construct(
-		string                           $appName,
-		IRequest                         $request,
-		private readonly Transaction     $tr,
-		private readonly UsersManager    $um,
+		string $appName,
+		IRequest $request,
+		private readonly Transaction $tr,
+		private readonly UsersManager $um,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);

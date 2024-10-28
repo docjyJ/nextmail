@@ -27,9 +27,9 @@ use Psr\Log\LoggerInterface;
  */
 class ApiServersController extends OCSController {
 	public function __construct(
-		string                           $appName,
-		IRequest                         $request,
-		private readonly Transaction        $tr,
+		string $appName,
+		IRequest $request,
+		private readonly Transaction $tr,
 		private readonly StalwartApiService $apiService,
 		private readonly LoggerInterface $logger,
 	) {

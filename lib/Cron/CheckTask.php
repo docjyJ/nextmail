@@ -11,9 +11,9 @@ use OCP\DB\Exception;
 
 class CheckTask extends TimedJob {
 	public function __construct(
-		ITimeFactory                        $time,
+		ITimeFactory $time,
 		private readonly StalwartApiService $apiService,
-		private readonly Transaction        $tr,
+		private readonly Transaction $tr,
 	) {
 		parent::__construct($time);
 		$this->setInterval(3600);

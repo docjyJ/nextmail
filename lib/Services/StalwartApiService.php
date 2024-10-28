@@ -11,8 +11,8 @@ use Throwable;
 
 readonly class StalwartApiService {
 	public function __construct(
-		private IClientService     $clientService,
-		private LoggerInterface    $logger,
+		private IClientService $clientService,
+		private LoggerInterface $logger,
 		private StalwartSqlService $sqlService,
 	) {
 	}

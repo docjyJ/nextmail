@@ -13,10 +13,10 @@ readonly class ServerEntity implements JsonSerializable {
 	private const URL_TO_NAME = '/^[a-z0-9-]+:\/*([a-z0-9-.]+).*$/';
 
 	public function __construct(
-		public string       $id,
-		public string       $endpoint,
-		public string       $username,
-		public string       $password,
+		public string $id,
+		public string $endpoint,
+		public string $username,
+		public string $password,
 		public ServerHealth $health,
 	) {
 	}

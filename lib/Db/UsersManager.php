@@ -13,7 +13,7 @@ use OCP\IUserManager;
 readonly class UsersManager {
 	public function __construct(
 		private IUserManager $userManager,
-		private Transaction  $tr,
+		private Transaction $tr,
 	) {
 	}
 

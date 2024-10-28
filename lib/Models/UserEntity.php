@@ -14,13 +14,13 @@ use ValueError;
 readonly class UserEntity implements JsonSerializable {
 
 	public function __construct(
-		public string       $id,
-		public ?string       $server_id,
-		public string       $name,
-		public ?string      $hash,
-		public bool         $admin,
-		public ?int         $quota,
-		public ?string      $primaryEmail,
+		public string $id,
+		public ?string $server_id,
+		public string $name,
+		public ?string $hash,
+		public bool $admin,
+		public ?int $quota,
+		public ?string $primaryEmail,
 	) {
 	}
 

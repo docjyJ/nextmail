@@ -11,7 +11,7 @@ readonly class Section implements IIconSection {
 	public const SETTING_ID = 'nextmail';
 
 	public function __construct(
-		private IL10N         $l,
+		private IL10N $l,
 		private IURLGenerator $urlGenerator,
 	) {
 	}
