@@ -17,11 +17,11 @@ Users, groups and authentication information will be directly integrated into Ne
 - Manage Admins
   - [x] DB
   - [x] API
-  - [ ] UI
+  - [X] UI
 - Manage Quotas
   - [x] DB
   - [x] API
-  - [ ] UI
+  - [X] UI
 - Manage Groups
   - [x] DB
   - [ ] API
