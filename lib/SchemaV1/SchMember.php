@@ -18,8 +18,8 @@ class SchMember {
 		],
 		'primary' => [self::USER_ID, self::GROUP_ID],
 		'foreign' => [
-			['table' => SchAccount::TABLE, 'columns' => [self::USER_ID]],
-			['table' => SchAccount::TABLE, 'columns' => [self::GROUP_ID]],
+			['table' => SchAccount::TABLE, 'columns' => [self::USER_ID], 'onDelete' => 'CASCADE'],
+			['table' => SchAccount::TABLE, 'columns' => [self::GROUP_ID], 'onDelete' => 'CASCADE'],
 		],
 	];
 }

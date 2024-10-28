@@ -107,28 +107,29 @@ readonly class Transaction {
 	}
 
 	/** @throws Exception */
-	public function insertAccount(string $id, string $server_id, string $name, ?string $hash, AccountRole $role, ?int $quota): void {
+	public function insertAccount(string $id, string $name, AccountRole $role, ?string $server_id, ?string $hash, ?int $quota): void {
 		$q = $this->getTransactionBuilder();
 		$q->insert(SchAccount::TABLE)
 			->values([
 				SchAccount::ID => $q->createNamedParameter($id),
-				SchServer::ID => $q->createNamedParameter($server_id),
 				SchAccount::NAME => $q->createNamedParameter($name),
-				SchAccount::HASH => $hash !== null ? $q->createNamedParameter(self::password($hash)) : $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL),
 				SchAccount::ROLE => $q->createNamedParameter($role->value),
-				SchAccount::QUOTA => $quota !== null ? $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL) : $q->createNamedParameter($quota, IQueryBuilder::PARAM_INT),
+				SchServer::ID => $server_id !== null ? $q->createNamedParameter($server_id) : $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL),
+				SchAccount::HASH => $hash !== null ? $q->createNamedParameter(self::password($hash)) : $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL),
+				SchAccount::QUOTA => $quota !== null ? $q->createNamedParameter($quota, IQueryBuilder::PARAM_INT) : $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL),
 			]);
 		$this->execute($q);
 	}
 
 	/** @throws Exception */
-	public function updateAccount(string $id, string $name, AccountRole $role, ?string $hash, ?int $quota): void {
+	public function updateAccount(string $id, string $name, AccountRole $role, ?string $server_id, ?string $hash, ?int $quota): void {
 		$q = $this->getTransactionBuilder();
 		$q->update(SchAccount::TABLE)
 			->set(SchAccount::NAME, $q->createNamedParameter($name))
 			->set(SchAccount::ROLE, $q->createNamedParameter($role->value))
+			->set(SchServer::ID, $server_id !== null ? $q->createNamedParameter($server_id) : $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL))
 			->set(SchAccount::HASH, $hash !== null ? $q->createNamedParameter(self::password($hash)) : $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL))
-			->set(SchAccount::QUOTA, $quota !== null ? $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL) : $q->createNamedParameter($quota, IQueryBuilder::PARAM_INT))
+			->set(SchAccount::QUOTA, $quota !== null ? $q->createNamedParameter($quota, IQueryBuilder::PARAM_INT) : $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL))
 			->where($q->expr()->eq(SchAccount::ID, $q->createNamedParameter($id)));
 		$this->execute($q);
 	}

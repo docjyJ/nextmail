@@ -1,5 +1,5 @@
 import useNextmailTranslate from '~/composable/useNextmailTranslate'
-import useServerUserList from '~/composable/useServerUserList'
-import useServerList from '~/composable/useServerList'
+import useUsersList from '~/composable/useUsersList'
+import useServersList from '~/composable/useServersList'
 
-export { useNextmailTranslate, useServerList, useServerUserList }
+export { useNextmailTranslate, useUsersList, useServersList }

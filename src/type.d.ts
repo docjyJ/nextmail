@@ -20,23 +20,24 @@ export type MailServerForm = {
 
 export type MailServer = {
 	id: string;
+	name: string;
 	endpoint: string;
 	username: string;
 	health: 'bad_network' | 'bad_server' | 'invalid' | 'success' | 'unauthorized';
 };
 
+export type MailUserForm = {
+	id: string;
+	server_id: string | null,
+	admin: boolean;
+	quota: number | null;
+}
+
 export type MailUser = {
 	id: string;
+	server_id: string | null,
 	name: string;
 	email: string | null;
 	admin: boolean;
 	quota: number | null;
-};
-
-export type UserResponse = {
-	users: {
-		id: string;
-		displayname: string;
-		email: string | null;
-	}[];
 };

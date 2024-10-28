@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace OCA\Nextmail\Controller;
 
 use OCA\Nextmail\Db\Transaction;
-use OCA\Nextmail\Models\AccountRole;
-use OCA\Nextmail\Models\EmailType;
+use OCA\Nextmail\Db\UsersManager;
 use OCA\Nextmail\Models\UserEntity;
 use OCA\Nextmail\ResponseDefinitions;
 use OCA\Nextmail\Settings\Admin;
@@ -20,7 +19,6 @@ use OCP\AppFramework\OCS\OCSNotFoundException;
 use OCP\AppFramework\OCSController;
 use OCP\DB\Exception;
 use OCP\IRequest;
-use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -31,8 +29,8 @@ class ApiUsersController extends OCSController {
 	public function __construct(
 		string                           $appName,
 		IRequest                         $request,
-		private readonly Transaction        $tr,
-		private readonly IUserManager    $ncUserManager,
+		private readonly Transaction     $tr,
+		private readonly UsersManager    $um,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);
@@ -60,7 +58,7 @@ class ApiUsersController extends OCSController {
 
 	/**
 	 * Update the user of the server number `id`
-	 * @param string $srv The server number
+	 * @param ?string $srv The server number
 	 * @param string $usr The user ID
 	 * @param bool $admin Whether the user is an admin
 	 * @param int|null $quota The user quota
@@ -73,35 +71,11 @@ class ApiUsersController extends OCSController {
 	#[AuthorizedAdminSetting(Admin::class)]
 	#[OpenAPI(scope: OpenAPI::SCOPE_ADMINISTRATION)]
 	#[ApiRoute(verb: 'PUT', url: '/users/{usr}')]
-	public function updateUser(string $usr, string $srv, bool $admin, ?int $quota): DataResponse {
+	public function updateUser(string $usr, ?string $srv, bool $admin, ?int $quota): DataResponse {
 		try {
-			$i_user = $this->ncUserManager->get($usr);
-			if ($i_user !== null) {
-				$users = $this->tr->selectAccount($i_user->getUID(), [AccountRole::User, AccountRole::Admin]);
-				$user = UserEntity::fromIUser($srv, $i_user, $admin, $quota);
-				if (count($users) === 0) {
-					$this->tr->insertAccount(
-						$user->id,
-						$user->server_id,
-						$user->name,
-						$user->hash,
-						$user->getRoleEnum(),
-						$user->quota
-					);
-				} else {
-					$this->tr->updateAccount(
-						$user->id,
-						$user->name,
-						$user->getRoleEnum(),
-						$user->hash,
-						$user->quota
-					);
-				}
-				$this->tr->deleteEmail($user->id, EmailType::Primary);
-				if ($user->primaryEmail !== null) {
-					$this->tr->insertEmail($user->id, $user->primaryEmail, EmailType::Primary);
-				}
-				$this->tr->commit();
+			$user = $this->um->updateFromStarch($usr, $srv, $admin, $quota);
+			$this->um->commit();
+			if ($user !== null) {
 				return new DataResponse($user->jsonSerialize());
 			} else {
 				throw new OCSNotFoundException();

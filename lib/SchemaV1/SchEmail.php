@@ -18,7 +18,7 @@ class SchEmail {
 		],
 		'primary' => [SchAccount::ID, self::EMAIL],
 		'foreign' => [
-			['table' => SchAccount::TABLE, 'columns' => [SchAccount::ID]],
+			['table' => SchAccount::TABLE, 'columns' => [SchAccount::ID], 'onDelete' => 'CASCADE'],
 		],
 	];
 }

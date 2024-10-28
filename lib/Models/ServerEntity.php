@@ -10,7 +10,7 @@ use ValueError;
 /** @psalm-import-type NextmailServer from ResponseDefinitions */
 readonly class ServerEntity implements JsonSerializable {
 	private const URL_PATTERN = '/^https?:\\/\\/([a-z0-9-]+\\.)*[a-z0-9-]+(:\\d{1,5})?\\/api$/';
-
+	private const URL_TO_NAME = '/^[a-z0-9-]+:\/*([a-z0-9-.]+).*$/';
 
 	public function __construct(
 		public string       $id,
@@ -57,10 +57,18 @@ readonly class ServerEntity implements JsonSerializable {
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->id,
+			'name' => $this->getName(),
 			'endpoint' => $this->endpoint,
 			'username' => $this->username,
 			'health' => $this->health->value,
 		];
+	}
+
+	public function getName(): string {
+		$name = [];
+		$valid = preg_match(self::URL_TO_NAME, $this->endpoint, $name) === 1;
+		return $valid ? $name[1] : '?????';
+
 	}
 
 	public function getUrl(string $subpart = ''): ?string {

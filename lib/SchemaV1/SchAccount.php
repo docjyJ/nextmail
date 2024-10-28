@@ -16,7 +16,7 @@ class SchAccount {
 		'table' => self::TABLE,
 		'columns' => [
 			['name' => self::ID, 'type' => Types::STRING, 'length' => 64],
-			['name' => SchServer::ID, 'type' => Types::STRING, 'length' => 32],
+			['name' => SchServer::ID, 'type' => Types::STRING, 'length' => 32, 'nullable' => true],
 			['name' => self::NAME, 'type' => Types::STRING, 'length' => 32],
 			['name' => self::ROLE, 'type' => Types::STRING, 'length' => 16],
 			['name' => self::HASH, 'type' => Types::STRING, 'length' => 256, 'nullable' => true],
@@ -24,7 +24,7 @@ class SchAccount {
 		],
 		'primary' => [self::ID],
 		'foreign' => [
-			['table' => SchServer::TABLE, 'columns' => [SchServer::ID]],
+			['table' => SchServer::TABLE, 'columns' => [SchServer::ID], 'onDelete' => 'SET NULL'],
 		],
 	];
 }

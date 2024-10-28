@@ -15,7 +15,7 @@ readonly class UserEntity implements JsonSerializable {
 
 	public function __construct(
 		public string       $id,
-		public string       $server_id,
+		public ?string       $server_id,
 		public string       $name,
 		public ?string      $hash,
 		public bool         $admin,
@@ -24,7 +24,7 @@ readonly class UserEntity implements JsonSerializable {
 	) {
 	}
 
-	public static function fromIUser(string $server_id, IUser $user, bool $admin = false, ?int $quota = null): self {
+	public static function fromIUser(IUser $user, ?string $server_id = null, bool $admin = false, ?int $quota = null): self {
 		$email = $user->getEMailAddress();
 		return new self(
 			$user->getUID(),
@@ -44,19 +44,17 @@ readonly class UserEntity implements JsonSerializable {
 		if (!is_string($value[SchAccount::ID])) {
 			throw new ValueError('id must be a string');
 		}
-		if (!is_string($value[SchServer::ID])) {
-			throw new ValueError('server id must be a string');
-		}
 		if (!is_string($value[SchAccount::NAME])) {
 			throw new ValueError('name must be a string');
 		}
 		if (!is_string($value[SchAccount::ROLE])) {
 			throw new ValueError('hash must be a string');
 		}
-		$role = AccountRole::from($value[SchAccount::ROLE]);
-		if (!$role->isUser()) {
-			throw new ValueError('role must be user');
-		}
+		$admin = match (AccountRole::from($value[SchAccount::ROLE])) {
+			AccountRole::Admin => true,
+			AccountRole::User => false,
+			default => throw throw new ValueError('role must be user'),
+		};
 		if (is_string($value[SchEmail::TYPE])) {
 			$type = EmailType::from($value[SchEmail::TYPE]);
 			if ($type !== EmailType::Primary) {
@@ -71,10 +69,10 @@ readonly class UserEntity implements JsonSerializable {
 		}
 		return new self(
 			$value[SchAccount::ID],
-			$value[SchServer::ID],
+			is_string($value[SchServer::ID]) ? $value[SchServer::ID] : null,
 			$value[SchAccount::NAME],
 			is_string($value[SchAccount::HASH]) ? $value[SchAccount::HASH] : null,
-			$role == AccountRole::Admin,
+			$admin,
 			is_int($value[SchAccount::QUOTA]) ? $value[SchAccount::QUOTA] : null,
 			$email
 		);

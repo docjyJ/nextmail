@@ -48,12 +48,16 @@
                 "type": "object",
                 "required": [
                     "id",
+                    "name",
                     "endpoint",
                     "username",
                     "health"
                 ],
                 "properties": {
                     "id": {
+                        "type": "string"
+                    },
+                    "name": {
                         "type": "string"
                     },
                     "endpoint": {
@@ -89,7 +93,8 @@
                         "type": "string"
                     },
                     "server_id": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     },
                     "name": {
                         "type": "string"
@@ -549,12 +554,12 @@
                             "schema": {
                                 "type": "object",
                                 "required": [
-                                    "srv",
                                     "admin"
                                 ],
                                 "properties": {
                                     "srv": {
                                         "type": "string",
+                                        "nullable": true,
                                         "description": "The server number"
                                     },
                                     "admin": {
