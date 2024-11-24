@@ -83,7 +83,7 @@ readonly class ServerEntity implements JsonSerializable {
 			: null;
 	}
 
-	public function updateCredential(string $endpoint, string $username, string $password): self {
+	public function update(string $endpoint, string $username, string $password): self {
 		return new self(
 			$this->id,
 			$endpoint,

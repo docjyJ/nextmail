@@ -48,12 +48,15 @@ class SelectQuery {
 		return $this;
 	}
 
-	/** @throws Exception */
+	/**
+	 * @throws Exception
+	 * @return list<mixed>
+	 */
 	public function fetchAll(): array {
 		if (count($this->cond) > 0) {
 			$this->q->where(...$this->cond);
 		}
-		return $this->q->executeQuery()->fetchAll();
+		return array_values($this->q->executeQuery()->fetchAll());
 	}
 
 }

@@ -94,10 +94,10 @@ readonly class UserEntity implements JsonSerializable {
 		return $this->admin ? AccountRole::Admin : AccountRole::User;
 	}
 
-	public function updateAdminQuota(bool $admin, ?int $quota): self {
+	public function update(?string $server_id, bool $admin, ?int $quota): self {
 		return new self(
 			$this->id,
-			$this->server_id,
+			$server_id,
 			$this->name,
 			$this->hash,
 			$admin,

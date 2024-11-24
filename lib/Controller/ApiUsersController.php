@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace OCA\Nextmail\Controller;
 
-use OCA\Nextmail\Db\Transaction;
 use OCA\Nextmail\Db\UsersManager;
 use OCA\Nextmail\Models\UserEntity;
 use OCA\Nextmail\ResponseDefinitions;
@@ -29,7 +28,6 @@ class ApiUsersController extends OCSController {
 	public function __construct(
 		string $appName,
 		IRequest $request,
-		private readonly Transaction $tr,
 		private readonly UsersManager $um,
 		private readonly LoggerInterface $logger,
 	) {
@@ -38,7 +36,7 @@ class ApiUsersController extends OCSController {
 
 	/**
 	 * List all available users
-	 * @return DataResponse<Http::STATUS_OK, NextmailUser[], array{}>
+	 * @return DataResponse<Http::STATUS_OK, list<NextmailUser>, array{}>
 	 * @throws OCSException if an error occurs
 	 *
 	 * 200: Returns the list of users
@@ -48,8 +46,7 @@ class ApiUsersController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/users')]
 	public function getUsers(): DataResponse {
 		try {
-			$users = array_map(fn (mixed $row) => UserEntity::parse($row)->jsonSerialize(), $this->tr->selectAccount());
-			return new DataResponse($users);
+			return new DataResponse(array_map(fn (UserEntity $x) => $x->jsonSerialize(), $this->um->listAll()));
 		} catch (Exception $e) {
 			$this->logger->error($e->getMessage(), ['exception' => $e]);
 			throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -73,10 +70,10 @@ class ApiUsersController extends OCSController {
 	#[ApiRoute(verb: 'PUT', url: '/users/{usr}')]
 	public function updateUser(string $usr, ?string $server_id, bool $admin, ?int $quota): DataResponse {
 		try {
-			$user = $this->um->updateFromStarch($usr, $server_id, $admin, $quota);
+			$data = $this->um->update($usr, $server_id, $admin, $quota);
 			$this->um->commit();
-			if ($user !== null) {
-				return new DataResponse($user->jsonSerialize());
+			if ($data !== null) {
+				return new DataResponse($data->jsonSerialize());
 			} else {
 				throw new OCSNotFoundException();
 			}

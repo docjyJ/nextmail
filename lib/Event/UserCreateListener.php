@@ -22,7 +22,7 @@ readonly class UserCreateListener implements IEventListener {
 	 * @throws Exception
 	 */
 	public function handle(Event $event): void {
-		$this->um->updateIUser($event->getUser());
+		$this->um->syncOne($event->getUser());
 		$this->um->commit();
 	}
 }

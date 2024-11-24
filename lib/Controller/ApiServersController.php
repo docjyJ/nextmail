@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace OCA\Nextmail\Controller;
 
-use OCA\Nextmail\Db\Transaction;
+use OCA\Nextmail\Db\ServerManager;
 use OCA\Nextmail\Models\ServerEntity;
 use OCA\Nextmail\ResponseDefinitions;
-use OCA\Nextmail\Services\StalwartApiService;
 use OCA\Nextmail\Settings\Admin;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -29,8 +28,7 @@ class ApiServersController extends OCSController {
 	public function __construct(
 		string $appName,
 		IRequest $request,
-		private readonly Transaction $tr,
-		private readonly StalwartApiService $apiService,
+		private readonly ServerManager $sm,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);
@@ -38,7 +36,7 @@ class ApiServersController extends OCSController {
 
 	/**
 	 * List all available servers
-	 * @return DataResponse<Http::STATUS_OK, NextmailServer[], array{}>
+	 * @return DataResponse<Http::STATUS_OK, list<NextmailServer>, array{}>
 	 * @throws OCSException If an error occurs
 	 *
 	 * 200: Returns the list of available servers
@@ -48,8 +46,7 @@ class ApiServersController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/servers')]
 	public function list(): DataResponse {
 		try {
-			$servers = array_map(fn (mixed $row) => ServerEntity::parse($row)->jsonSerialize(), $this->tr->selectServer());
-			return new DataResponse($servers);
+			return new DataResponse(array_map(fn (ServerEntity $x) => $x->jsonSerialize(), $this->sm->listAll()));
 		} catch (Exception $e) {
 			$this->logger->error($e->getMessage(), ['exception' => $e]);
 			throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -68,16 +65,9 @@ class ApiServersController extends OCSController {
 	#[ApiRoute(verb: 'POST', url: '/servers')]
 	public function create(): DataResponse {
 		try {
-			$server = ServerEntity::newEmpty();
-			$this->tr->insertServer(
-				$server->id,
-				$server->endpoint,
-				$server->username,
-				$server->password,
-				$server->health
-			);
-			$this->tr->commit();
-			return new DataResponse($server->jsonSerialize());
+			$data = $this->sm->create();
+			$this->sm->commit();
+			return new DataResponse($data->jsonSerialize());
 		} catch (Exception $e) {
 			$this->logger->error($e->getMessage(), ['exception' => $e]);
 			throw new OCSException($e->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -101,19 +91,10 @@ class ApiServersController extends OCSController {
 	#[ApiRoute(verb: 'PUT', url: '/servers/{srv}')]
 	public function setServer(string $srv, string $endpoint, string $username, string $password): DataResponse {
 		try {
-			$servers = $this->tr->selectServer($srv);
-			if (count($servers) === 1) {
-				$server = ServerEntity::parse($servers[0]);
-				$server = $this->apiService->challenge($server->updateCredential($endpoint, $username, $password));
-				$this->tr->updateServer(
-					$server->id,
-					$server->endpoint,
-					$server->username,
-					$server->password,
-					$server->health
-				);
-				$this->tr->commit();
-				return new DataResponse($server->jsonSerialize());
+			$data = $this->sm->update($srv, $endpoint, $username, $password);
+			$this->sm->commit();
+			if ($data !== null) {
+				return new DataResponse($data->jsonSerialize());
 			} else {
 				throw new OCSNotFoundException();
 			}
@@ -137,12 +118,10 @@ class ApiServersController extends OCSController {
 	#[ApiRoute(verb: 'DELETE', url: '/servers/{srv}')]
 	public function delServer(string $srv): DataResponse {
 		try {
-			$servers = $this->tr->selectServer($srv);
-			if (count($servers) === 1) {
-				$server = ServerEntity::parse($servers[0]);
-				$this->tr->deleteServer($server->id);
-				$this->tr->commit();
-				return new DataResponse($server->jsonSerialize());
+			$data = $this->sm->delete($srv);
+			$this->sm->commit();
+			if ($data !== null) {
+				return new DataResponse($data->jsonSerialize());
 			} else {
 				throw new OCSNotFoundException();
 			}

@@ -54,7 +54,10 @@ readonly class Transaction {
 		}
 	}
 
-	/** @throws Exception */
+	/**
+	 * @throws Exception
+	 * @return list<mixed>
+	 */
 	public function selectServer(?string $id = null): array {
 		$q = new SelectQuery($this->db, SchServer::TABLE);
 		$q->where(SchServer::ID, $id);
@@ -96,8 +99,10 @@ readonly class Transaction {
 	}
 
 	/**
+	 * @param string|null $id
+	 * @param list<AccountRole> $role
+	 * @return list<mixed>
 	 * @throws Exception
-	 * @param AccountRole[] $role
 	 */
 	public function selectAccount(?string $id = null, array $role = []): array {
 		return (new SelectQuery($this->db, SchAccount::TABLE))
