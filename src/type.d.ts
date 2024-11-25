@@ -31,7 +31,7 @@ export type MailUserForm = {
 	server_id: string | null,
 	admin: boolean;
 	quota: number | null;
-}
+};
 
 export type MailUser = {
 	id: string;
@@ -40,4 +40,17 @@ export type MailUser = {
 	email: string | null;
 	admin: boolean;
 	quota: number | null;
+};
+
+export type MailGroupForm = {
+	id: string;
+	server_id: string | null,
+	email: string;
+};
+
+export type MailGroup = {
+	id: string;
+	server_id: string | null,
+	name: string;
+	email: string | null;
 };

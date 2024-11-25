@@ -6,7 +6,7 @@ services:
     ports:
       - "127.0.0.1:3306:3306"
     volumes:
-      - mysql:/var/lib/mysql:z
+      - mysql:/var/lib/mysql:Z
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=nextcloud
@@ -19,29 +19,13 @@ services:
       timeout: 5s
       retries: 3
 
-  nextcloud_init:
-    image: nextcloud:30
-    command: apache2 -v
-    volumes:
-      - nextcloud:/var/www/html:z
-    environment:
-      - MYSQL_HOST=database
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=root
-      - NEXTCLOUD_ADMIN_USER=admin
-      - NEXTCLOUD_ADMIN_PASSWORD=admin
-    depends_on:
-      mysql:
-        condition: service_healthy
-
   nextcloud:
     image: nextcloud:30
     ports:
       - "127.0.0.1:8080:80"
     volumes:
       - .:/var/www/html/custom_apps/nextmail:z
-      - nextcloud:/var/www/html:z
+      - nextcloud:/var/www/html:Z
     environment:
       - MYSQL_HOST=database
       - MYSQL_DATABASE=nextcloud
@@ -52,8 +36,6 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-      nextcloud_init:
-        condition: service_completed_successfully
 
   stalwart:
     image: stalwartlabs/mail-server:v0.10.3
@@ -61,13 +43,13 @@ services:
     ports:
       - "127.0.0.1:9090:8080"
     volumes:
-      - stalwart:/opt/stalwart:z
+      - stalwart:/opt/stalwart-mail:Z
     depends_on:
       mysql:
         condition: service_healthy
 
 networks:
-    default:
+  default:
 
 volumes:
   nextcloud:

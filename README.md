@@ -3,39 +3,14 @@
 This application allows you to manage your Stalwart backend directly within Nextcloud.
 Users, groups and authentication information will be directly integrated into Nextcloud.
 
-
 ## Features
 
-- Manage Servers
-  - [x] DB
-  - [x] API
-  - [x] UI
-- Manage Users
-  - [x] DB
-  - [x] API
-  - [x] UI
-- Manage Admins
-  - [x] DB
-  - [x] API
-  - [X] UI
-- Manage Quotas
-  - [x] DB
-  - [x] API
-  - [X] UI
-- Manage Groups
-  - [x] DB
-  - [ ] API
-  - [ ] UI
-- Manage Aliases
-  - [x] DB
-  - [ ] API
-  - [ ] UI
-- Manage Lists
-  - [x] DB
-  - [ ] API
-  - [ ] UI
+- Sync Nextcloud users and groups with Stalwart servers
+- Choose the server for each user and group
+- Manage quotas and enable admin rights for each user
+- Use the Nextcloud email of user as the email for the stalwart account.
+- Add email for groups
 
-*Legend:*
-- DB: Working with SQL queries
-- API: Working with the openAPI
-- UI: Working with the UI in Nextcloud
+### Planned Features
+
+- Manage aliases and lists (This should work by editing the email table on the database directly)

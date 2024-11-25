@@ -2,7 +2,7 @@
 
 namespace OCA\Nextmail\Event;
 
-use OCA\Nextmail\Db\Transaction;
+use OCA\Nextmail\Db\UsersManager;
 use OCP\DB\Exception;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -13,7 +13,7 @@ use OCP\User\Events\UserDeletedEvent;
  */
 readonly class UserDeletedListener implements IEventListener {
 	public function __construct(
-		private Transaction $tr,
+		private UsersManager $um,
 	) {
 	}
 
@@ -22,7 +22,7 @@ readonly class UserDeletedListener implements IEventListener {
 	 * @throws Exception
 	 */
 	public function handle(Event $event): void {
-		$this->tr->deleteAccount($event->getUser()->getUID());
-		$this->tr->commit();
+		$this->um->delete($event->getUser());
+		$this->um->commit();
 	}
 }

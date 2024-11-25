@@ -83,11 +83,11 @@ class Version000100Date20240914153000 extends SimpleMigrationStep {
 				}
 			}
 
-			foreach ($this->um->search('') as $i_user) {
-				$uid = $i_user->getUID();
-				$email = $i_user->getEMailAddress();
-				$hash = preg_replace('/^[^$]*/', '', $i_user->getPasswordHash() ?? '') ?? '';
-				$name = $i_user->getDisplayName();
+			foreach ($this->um->search('') as $user) {
+				$uid = $user->getUID();
+				$email = $user->getEMailAddress();
+				$hash = preg_replace('/^[^$]*/', '', $user->getPasswordHash() ?? '') ?? '';
+				$name = $user->getDisplayName();
 
 				$q = $this->db->getQueryBuilder();
 				$hash_param = $hash !== '' ? $q->createNamedParameter($hash) : $q->createNamedParameter(null, IQueryBuilder::PARAM_NULL);

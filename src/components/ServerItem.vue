@@ -61,10 +61,9 @@ const removeServer = () => {
 			<span v-if="form === null">{{ server.endpoint }}</span>
 			<NcTextField v-else
 				v-model="form.endpoint"
-				:trailing-button-label="t('Submit')"
-				:show-trailing-button="false"
 				:disabled="loading"
 				:label="t('Change Stalwart API endpoint')"
+				placeholder="http://example.com:300/api"
 				autocapitalize="off"
 				autocomplete="off"
 				spellcheck="false" />
@@ -73,6 +72,7 @@ const removeServer = () => {
 			<span v-if="form === null">{{ server.username }}</span>
 			<NcTextField v-else
 				v-model="form.username"
+				:disabled="loading"
 				:label="t('Username')"
 				placeholder="admin" />
 		</td>
@@ -80,6 +80,7 @@ const removeServer = () => {
 			<span v-if="form === null">****************</span>
 			<NcPasswordField v-else
 				v-model="form.password"
+				:disabled="loading"
 				:label="t('Password')"
 				placeholder="****************" />
 		</td>

@@ -20,7 +20,7 @@ class SchAccount {
 			['name' => self::NAME, 'type' => Types::STRING, 'length' => 32],
 			['name' => self::ROLE, 'type' => Types::STRING, 'length' => 16],
 			['name' => self::HASH, 'type' => Types::STRING, 'length' => 256, 'nullable' => true],
-			['name' => self::QUOTA, 'type' => Types::INTEGER, 'nullable' => true],
+			['name' => self::QUOTA, 'type' => Types::BIGINT, 'nullable' => true],
 		],
 		'primary' => [self::ID],
 		'foreign' => [

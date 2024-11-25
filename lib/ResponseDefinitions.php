@@ -19,6 +19,12 @@ namespace OCA\Nextmail;
  *     admin: bool,
  *     quota: ?int,
  *   }
+ * @psalm-type NextmailGroup = array{
+ *      id: string,
+ *      server_id: ?string,
+ *      name: string,
+ *      email: ?string,
+ *    }
  */
 class ResponseDefinitions {
 }

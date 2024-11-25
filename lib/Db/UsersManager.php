@@ -6,6 +6,7 @@ use OCA\Nextmail\Models\AccountRole;
 use OCA\Nextmail\Models\EmailType;
 use OCA\Nextmail\Models\UserEntity;
 use OCA\Nextmail\SchemaV1\SchAccount;
+use OCA\Nextmail\SchemaV1\SchServer;
 use OCP\DB\Exception;
 use OCP\IUser;
 use OCP\IUserManager;
@@ -18,13 +19,14 @@ readonly class UsersManager {
 	}
 
 	/** @throws Exception */
-	private function loadEntity(IUser $i_user): ?UserEntity {
-		$data = $this->tr->selectAccount($i_user->getUID(), [AccountRole::User, AccountRole::Admin]);
-		return is_array($data[0]) ? UserEntity::fromIUser(
-			$i_user,
-			is_string($data[0][SchAccount::ID]) ? $data[0][SchAccount::ID] : null,
-			$data[0][SchAccount::ROLE] === AccountRole::Admin,
-			is_int($data[0][SchAccount::QUOTA]) ? $data[0][SchAccount::QUOTA] : null
+	private function loadEntity(IUser $user): ?UserEntity {
+		$data = $this->tr->selectAccount($user->getUID(), [AccountRole::User, AccountRole::Admin]);
+		$i = array_key_first($data);
+		return $i !== null && is_array($data[$i]) ? UserEntity::fromIUser(
+			$user,
+			is_string($data[$i][SchServer::ID]) ? $data[$i][SchServer::ID] : null,
+			$data[$i][SchAccount::ROLE] === AccountRole::Admin->value,
+			is_int($data[$i][SchAccount::QUOTA]) ? $data[$i][SchAccount::QUOTA] : null
 		) : null;
 	}
 
@@ -64,32 +66,29 @@ readonly class UsersManager {
 		return $data;
 	}
 
-
 	/** @throws Exception */
-	public function syncAll(): void {
-		foreach ($this->um->search('') as $i_user) {
-			$this->syncOne($i_user);
+	public function syncOne(IUser $user): void {
+		$data = $this->loadEntity($user);
+		if ($data !== null) {
+			$this->processQuery($data, false);
+		} else {
+			$this->processQuery(UserEntity::fromIUser($user), true);
 		}
 	}
 
 	/** @throws Exception */
-	public function syncOne(IUser $i_user): void {
-		$data = $this->loadEntity($i_user);
-		if ($data !== null) {
-			$this->processQuery($data, false);
-		} else {
-			$this->processQuery(UserEntity::fromIUser($i_user), true);
-		}
+	public function delete(IUser $user): void {
+		$this->tr->deleteAccount($user->getUID());
 	}
 
 
 	/** @throws Exception */
 	public function update(string $uid, ?string $srv, bool $admin, ?int $quota): ?UserEntity {
-		$i_user = $this->um->get($uid);
-		if ($i_user !== null) {
-			$data = $this->loadEntity($i_user);
+		$user = $this->um->get($uid);
+		if ($user !== null) {
+			$data = $this->loadEntity($user);
 			return $data === null
-				? $this->processQuery(UserEntity::fromIUser($i_user, $srv, $admin, $quota), true)
+				? $this->processQuery(UserEntity::fromIUser($user, $srv, $admin, $quota), true)
 				: $this->processQuery($data->update($srv, $admin, $quota), false);
 		} else {
 			return null;

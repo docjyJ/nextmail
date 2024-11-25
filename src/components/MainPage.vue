@@ -4,13 +4,15 @@ import NcCheckboxRadioSwitch from '@nextcloud/vue/dist/Components/NcCheckboxRadi
 import NcIconSvgWrapper from '@nextcloud/vue/dist/Components/NcIconSvgWrapper.js'
 import mdiServer from '@mdi/svg/svg/server.svg?raw'
 import mdiAccount from '@mdi/svg/svg/account.svg?raw'
+import mdiGroup from '@mdi/svg/svg/group.svg?raw'
 import ServerTable from '~/components/ServersTable.vue'
 import { useNextmailTranslate } from '~/composable'
 import UsersTable from '~/components/UsersTable.vue'
+import GroupsTable from '~/components/GroupsTable.vue'
 
 const { t } = useNextmailTranslate()
 
-const tab = ref<string>('user')
+const tab = ref<string>('server')
 
 </script>
 
@@ -41,8 +43,21 @@ const tab = ref<string>('user')
 					<NcIconSvgWrapper :svg="mdiAccount" :size="20" />
 				</template>
 			</NcCheckboxRadioSwitch>
+			<NcCheckboxRadioSwitch
+				v-model="tab"
+				:button-variant="true"
+				value="group"
+				name="tab_radio"
+				type="radio"
+				button-variant-grouped="horizontal">
+				{{ t('Groups') }}
+				<template #icon>
+					<NcIconSvgWrapper :svg="mdiGroup" :size="20" />
+				</template>
+			</NcCheckboxRadioSwitch>
 		</div>
 		<ServerTable v-if="tab === 'server'" />
 		<UsersTable v-else-if="tab === 'user'" />
+		<GroupsTable v-else-if="tab === 'group'" />
 	</div>
 </template>

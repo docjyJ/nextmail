@@ -7,6 +7,7 @@ use OCA\Nextmail\Models\EmailType;
 use OCA\Nextmail\Models\ServerHealth;
 use OCA\Nextmail\SchemaV1\SchAccount;
 use OCA\Nextmail\SchemaV1\SchEmail;
+use OCA\Nextmail\SchemaV1\SchMember;
 use OCA\Nextmail\SchemaV1\SchServer;
 use OCP\DB\Exception;
 use OCP\DB\QueryBuilder\IQueryBuilder;
@@ -174,6 +175,30 @@ readonly class Transaction {
 		$q->delete(SchEmail::TABLE)->where($q->expr()->eq(SchAccount::ID, $q->createNamedParameter($id)));
 		if ($type !== null) {
 			$q->andWhere($q->expr()->eq(SchEmail::TYPE, $q->createNamedParameter($type->value)));
+		}
+		$this->execute($q);
+	}
+
+	/** @throws Exception */
+	public function insertMember(string $gid, string $uid):void {
+		$q = $this->getTransactionBuilder();
+		$q->insert(SchMember::TABLE)
+			->values([
+				SchMember::GROUP_ID => $q->createNamedParameter($gid),
+				SchMember::USER_ID => $q->createNamedParameter($uid),
+			]);
+		$this->execute($q);
+	}
+
+	/** @throws Exception */
+	public function deleteMember(?string $gid, ?string $uid):void {
+		$q = $this->getTransactionBuilder();
+		$q->delete(SchMember::TABLE);
+		if ($gid !== null) {
+			$q->where($q->expr()->eq(SchMember::GROUP_ID, $q->createNamedParameter($gid)));
+		}
+		if ($uid !== null) {
+			$q->where($q->expr()->eq(SchMember::USER_ID, $q->createNamedParameter($uid)));
 		}
 		$this->execute($q);
 	}
