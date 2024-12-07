@@ -37,7 +37,7 @@
 		"@nextcloud/vite-config": "2.2.2",
 		"@types/eslint": "8.56.12",
 		"@vue/tsconfig": "0.6.0",
-		"eslint-import-resolver-typescript": "3.6.3",
+		"eslint-import-resolver-typescript": "3.7.0",
 		"typescript": "5.5.4"
 	}
 }
