@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7fb9400713b0bb823a4b90d60088a698",
+    "content-hash": "df9ce158981aa46c06d3c55552043ba9",
     "packages": [],
     "packages-dev": [
         {
@@ -1216,16 +1216,16 @@
         },
         {
             "name": "nextcloud/ocp",
-            "version": "v30.0.2",
+            "version": "v30.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nextcloud-deps/ocp.git",
-                "reference": "2b439efc6c7b3684c3e2ea64a46122d9e6f8e797"
+                "reference": "6f98dac2ddd6c42e605bc453e5328c0a61f75b8d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nextcloud-deps/ocp/zipball/2b439efc6c7b3684c3e2ea64a46122d9e6f8e797",
-                "reference": "2b439efc6c7b3684c3e2ea64a46122d9e6f8e797",
+                "url": "https://api.github.com/repos/nextcloud-deps/ocp/zipball/6f98dac2ddd6c42e605bc453e5328c0a61f75b8d",
+                "reference": "6f98dac2ddd6c42e605bc453e5328c0a61f75b8d",
                 "shasum": ""
             },
             "require": {
@@ -1254,9 +1254,9 @@
             "description": "Composer package containing Nextcloud's public API (classes, interfaces)",
             "support": {
                 "issues": "https://github.com/nextcloud-deps/ocp/issues",
-                "source": "https://github.com/nextcloud-deps/ocp/tree/v30.0.2"
+                "source": "https://github.com/nextcloud-deps/ocp/tree/v30.0.3"
             },
-            "time": "2024-10-19T00:42:39+00:00"
+            "time": "2024-11-29T00:46:59+00:00"
         },
         {
             "name": "nextcloud/openapi-extractor",
@@ -3827,7 +3827,7 @@
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "platform-overrides": {
         "php": "8.2.4"
     },

@@ -29,7 +29,7 @@
 	"require-dev": {
 		"doctrine/dbal": "4.2.1",
 		"nextcloud/coding-standard": "v1.3.2",
-		"nextcloud/ocp": "v30.0.2",
+		"nextcloud/ocp": "v30.0.3",
 		"nextcloud/openapi-extractor": "v1.2.2",
 		"roave/security-advisories": "dev-master",
 		"vimeo/psalm": "6.x-dev"
